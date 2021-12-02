@@ -51,11 +51,11 @@ To run application with local profile use the following command.
 ./gradlew bootRun --args='--spring.profiles.active=local'
 ```
 
-# GK: probably we need the following parameters when running: 
-# -Djavax.net.ssl.keyStore=<path>/cert.jks
-# -Djavax.net.ssl.keyStorePassword="password"
-# -Djavax.net.ssl.trustStore=<path>/cert.jks
-# -Djavax.net.ssl.trustStorePassword="password"
+GK: probably we need the following parameters when running: 
+-Djavax.net.ssl.keyStore=<path>/cert.jks
+-Djavax.net.ssl.keyStorePassword="password"
+-Djavax.net.ssl.trustStore=<path>/cert.jks
+-Djavax.net.ssl.trustStorePassword="password"
 
 ## Configuration
 
