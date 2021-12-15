@@ -1,10 +1,7 @@
 package ai.lerna.flapi.entity;
 
 
-import ai.lerna.flapi.entity.converter.LernaPrivacyConverter;
-
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,93 +11,84 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "lerna_user")
 public class LernaUser {
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Id
-	private long id;
 
-	@Column(name = "firstname")
-	private String firstName;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id
+    private long id;
 
-	@Column(name = "lastname")
-	private String lastName;
+    @Column(name = "firstname")
+    private String firstName;
 
-	@Column(name = "email")
-	private String email;
+    @Column(name = "lastname")
+    private String lastName;
 
-	@Column(name = "password")
-	private String password;
+    @Column(name = "email")
+    private String email;
 
-	@Column(name = "company")
-	private String company;
+    @Column(name = "password")
+    private String password;
 
-	@Column(name = "position")
-	private String position;
+    @Column(name = "company")
+    private String company;
 
-	@Column(name = "privacy")
-	@Convert(converter = LernaPrivacyConverter.class)
-	private LernaPrivacy privacy = new LernaPrivacy();
+    @Column(name = "position")
+    private String position;
 
-	public long getId() {
-		return id;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public String getFirstName() {
-		return firstName;
-	}
+    public String getFirstName() {
+        return firstName;
+    }
 
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
-	public String getLastName() {
-		return lastName;
-	}
+    public String getLastName() {
+        return lastName;
+    }
 
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	public String getCompany() {
-		return company;
-	}
+    public String getCompany() {
+        return company;
+    }
 
-	public void setCompany(String company) {
-		this.company = company;
-	}
+    public void setCompany(String company) {
+        this.company = company;
+    }
 
-	public String getPosition() {
-		return position;
-	}
+    public String getPosition() {
+        return position;
+    }
 
-	public void setPosition(String position) {
-		this.position = position;
-	}
+    public void setPosition(String position) {
+        this.position = position;
+    }
 
-	public LernaPrivacy getPrivacy() {
-		return privacy;
-	}
-
-	public void setPrivacy(LernaPrivacy privacy) {
-		this.privacy = privacy;
-	}
+    
 }

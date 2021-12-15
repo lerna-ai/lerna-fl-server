@@ -1,11 +1,11 @@
 package ai.lerna.flapi.entity.converter;
 
-import ai.lerna.flapi.entity.LernaPrivacyParameters;
+import ai.lerna.flapi.entity.LernaMLParameters;
 
-public class LernaPrivacyConverter extends BaseAttributeConverter<LernaPrivacyParameters, String> {
+public class LernaMLConverter extends BaseAttributeConverter<LernaMLParameters, String> {
 
 	@Override
-	public String convertToDatabaseColumn(LernaPrivacyParameters attribute) {
+	public String convertToDatabaseColumn(LernaMLParameters attribute) {
 		if (attribute == null) {
 			return null;
 		}
@@ -18,12 +18,12 @@ public class LernaPrivacyConverter extends BaseAttributeConverter<LernaPrivacyPa
 	}
 
 	@Override
-	public LernaPrivacyParameters convertToEntityAttribute(String dbData) {
+	public LernaMLParameters convertToEntityAttribute(String dbData) {
 		if (dbData == null) {
-			return new LernaPrivacyParameters();
+			return new LernaMLParameters();
 		}
 		try {
-			return mapper.readValue(dbData, LernaPrivacyParameters.class);
+			return mapper.readValue(dbData, LernaMLParameters.class);
 		} catch (Throwable e) {
 			logger.error("Failed to convertToEntityAttribute", e);
 			throw new RuntimeException("Failed to convertToEntityAttribute");

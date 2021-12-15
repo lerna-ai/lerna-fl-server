@@ -2,16 +2,17 @@ package ai.lerna.flapi.api.dto;
 
 import ai.lerna.flapi.entity.LernaMLParameters;
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.io.Serializable;
 
-@Schema(description = "New training configuration")
-public class TrainingInitResponse implements Serializable {
+@Schema(description = "Get individual noisy weights")
+public class TrainingWeightsRequest implements Serializable {
 
     
         private long jobId;
         private int deviceId;
-	private LernaMLParameters lerna_ml;
+	private INDArray device_weights;
         
         public long getJobId() {
 		return jobId;
@@ -29,12 +30,12 @@ public class TrainingInitResponse implements Serializable {
 		this.deviceId = deviceId;
 	}
         
-	public LernaMLParameters getLernaMLParameters() {
-		return lerna_ml;
+	public INDArray getDeviceWeights() {
+		return device_weights;
 	}
 
-	public void setLernaMLParameters(LernaMLParameters lerna_ml) {
-		this.lerna_ml = lerna_ml;
+	public void setDeviceWeights(INDArray device_weights) {
+		this.device_weights = device_weights;
 	}
 
 }

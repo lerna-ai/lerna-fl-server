@@ -7,5 +7,4 @@ create table lerna_user
     password varchar(255),
     company varchar(255),
     position varchar(255),
-    privacy jsonb
 );

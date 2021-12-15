@@ -20,14 +20,14 @@ public class MpcRequest {
 
   @JacksonXmlProperty(localName = "DP")
   @JsonSerialize(using = BigDecimalSerialize.class)
-  private BigDecimal differentialPrivacy;
+  private BigDecimal epsilon;
 
   @JacksonXmlProperty(localName = "Wsize")
-  private Integer weightSize;
+  private Integer dimensions;
 
   @JacksonXmlProperty(localName = "a")
   @JsonSerialize(using = BigDecimalSerialize.class)
-  private BigDecimal alpha;
+  private BigDecimal normalization;
 
   @JacksonXmlProperty(localName = "Drop")
   private String drop;
@@ -49,27 +49,27 @@ public class MpcRequest {
   }
 
   public BigDecimal getDifferentialPrivacy() {
-    return differentialPrivacy;
+    return epsilon;
   }
 
-  public void setDifferentialPrivacy(BigDecimal differentialPrivacy) {
-    this.differentialPrivacy = differentialPrivacy;
+  public void setDifferentialPrivacy(BigDecimal epsilon) {
+    this.epsilon = epsilon;
   }
 
-  public Integer getWeightSize() {
-    return weightSize;
+  public Integer getDimensions() {
+    return dimensions;
   }
 
-  public void setWeightSize(Integer weightSize) {
-    this.weightSize = weightSize;
+  public void setDimensions(Integer dimensions) {
+    this.dimensions = dimensions;
   }
 
-  public BigDecimal getAlpha() {
-    return alpha;
+  public BigDecimal getNormalization() {
+    return normalization;
   }
 
-  public void setAlpha(BigDecimal alpha) {
-    this.alpha = alpha;
+  public void setNormalization(BigDecimal normalization) {
+    this.normalization = normalization;
   }
 
   public String getDrop() {

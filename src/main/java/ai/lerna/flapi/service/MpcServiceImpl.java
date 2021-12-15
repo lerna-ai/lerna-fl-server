@@ -31,8 +31,8 @@ public class MpcServiceImpl implements MpcService {
     return makeRequest(host, port, getMpcRequest(jobId, u_ids));
   }
 
-  public MpcResponse getLernaJob(String host, int port, BigDecimal differentialPrivacy, int weightSize, BigDecimal alpha) {
-    return makeRequest(host, port, getInitialMpcRequest(differentialPrivacy, weightSize, alpha));
+  public MpcResponse getLernaJob(String host, int port, BigDecimal epsilon, int dimensions, BigDecimal normalization) {
+    return makeRequest(host, port, getInitialMpcRequest(epsilon, dimensions, normalization));
   }
 
   private MpcResponse makeRequest(String host, int port, MpcRequest mpcRequest) {
@@ -65,13 +65,13 @@ public class MpcServiceImpl implements MpcService {
     return mpcRequest;
   }
 
-  private MpcRequest getInitialMpcRequest(BigDecimal differentialPrivacy, int weightSize, BigDecimal alpha) {
+  private MpcRequest getInitialMpcRequest(BigDecimal epsilon, int dimensions, BigDecimal normalization) {
     MpcRequest mpcRequest = new MpcRequest();
     mpcRequest.setCompId(0);
     mpcRequest.setMpc(true);
-    mpcRequest.setDifferentialPrivacy(differentialPrivacy);
-    mpcRequest.setWeightSize(weightSize);
-    mpcRequest.setAlpha(alpha);
+    mpcRequest.setDifferentialPrivacy(epsilon);
+    mpcRequest.setDimensions(dimensions);
+    mpcRequest.setNormalization(normalization);
     return mpcRequest;
   }
 }
