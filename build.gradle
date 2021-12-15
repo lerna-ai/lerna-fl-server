@@ -1,3 +1,6 @@
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 plugins {
 	id 'org.springframework.boot' version '2.6.1'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
@@ -23,8 +26,11 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.postgresql:postgresql'
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.0'
 	implementation 'org.springdoc:springdoc-openapi-ui:1.6.1'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.flywaydb:flyway-core:5.2.4'
 	testImplementation 'org.codehaus.groovy:groovy-all:3.0.8'
 	testImplementation 'org.spockframework:spock-core:2.0-groovy-3.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -36,4 +42,19 @@ jar {
 
 test {
 	useJUnitPlatform()
+}
+
+tasks.register("generateMigration") {
+	group = "Flyway"
+	description = "Create a new flyway migration script file"
+
+	String scriptName = "${project.findProperty("flywayScriptName") ?: ""}"
+	if (scriptName != "") {
+		LocalDateTime now = LocalDateTime.now()
+		String nowStr = now.format(DateTimeFormatter.ofPattern("YYYYMMddHHmmSSS"))
+		String filename = "V${nowStr}__${scriptName}.sql"
+
+		File file = file("src/main/resources/db/migration/${filename}")
+		file.createNewFile()
+	}
 }
