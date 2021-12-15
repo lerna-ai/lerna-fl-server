@@ -1,7 +1,7 @@
 package ai.lerna.flapi.service;
 
-import ai.lerna.flapi.entity.MpcRequest;
-import ai.lerna.flapi.entity.MpcResponse;
+import ai.lerna.flapi.service.dto.MpcRequest;
+import ai.lerna.flapi.service.dto.MpcResponse;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

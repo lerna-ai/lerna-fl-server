@@ -1,6 +1,6 @@
 package ai.lerna.flapi.service;
 
-import ai.lerna.flapi.entity.MpcResponse;
+import ai.lerna.flapi.service.dto.MpcResponse;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

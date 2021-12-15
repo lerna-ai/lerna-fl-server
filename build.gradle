@@ -6,6 +6,7 @@ plugins {
 	id 'groovy'
 }
 
+description = "Lerna FL API"
 group = 'ai.lerna'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '8'
@@ -23,9 +24,14 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.0'
+	implementation 'org.springdoc:springdoc-openapi-ui:1.6.1'
 	testImplementation 'org.codehaus.groovy:groovy-all:3.0.8'
 	testImplementation 'org.spockframework:spock-core:2.0-groovy-3.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+jar {
+	enabled = false
 }
 
 test {

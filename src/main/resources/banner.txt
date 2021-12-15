@@ -1,0 +1,7 @@
+,--.                                        ,------. ,--.        ,---.   ,------.  ,--.
+|  |     ,---.  ,--.--. ,--,--,   ,--,--.   |  .---' |  |       /  O  \  |  .--. ' |  |
+|  |    | .-. : |  .--' |      \ ' ,-.  |   |  `--,  |  |      |  .-.  | |  '--' | |  |
+|  '--. \   --. |  |    |  ||  | \ '-'  |   |  |`    |  '--.   |  | |  | |  | --'  |  |
+`-----'  `----' `--'    `--''--'  `--`--'   `--'     `-----'   `--' `--' `--'      `--'
+${AnsiColor.GREEN} :: ${application.title} ::${AnsiColor.DEFAULT} ${application.formatted-version}
+Powered by Spring Boot ${spring-boot.formatted-version}
