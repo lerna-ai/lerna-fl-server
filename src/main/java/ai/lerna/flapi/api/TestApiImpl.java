@@ -1,9 +1,9 @@
 package ai.lerna.flapi.api;
 
-import ai.lerna.flapi.entity.MpcResponse;
 import ai.lerna.flapi.service.MpcService;
+import ai.lerna.flapi.service.dto.MpcResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,33 +12,36 @@ import java.util.ArrayList;
 
 @RestController
 public class TestApiImpl implements TestApi {
-  static final BigDecimal eps = BigDecimal.ZERO;
-  static final int d = 5;
-  static final int iter = 30;
-  static final int epoch = 5;
-  static final BigDecimal alpha = BigDecimal.ONE;
-  static int users = 2;
+	static final BigDecimal eps = BigDecimal.ZERO;
+	static final int d = 5;
+	static final int iter = 30;
+	static final int epoch = 5;
+	static final BigDecimal alpha = BigDecimal.ONE;
+	static int users = 2;
 
-  private MpcService mpcService;
+	@Value("${app.config.mpcServer.host:localhost}")
+	private String mpcHost;
 
-  @Autowired
-  public TestApiImpl(MpcService mpcService) {
-    this.mpcService = mpcService;
-  }
+	@Value("${app.config.mpcServer.port:31337}")
+	private int mpcPort;
 
-  @GetMapping("")
-  public String index() {
-    return "FL API";
-  }
+	private MpcService mpcService;
 
-  @GetMapping("/lerna")
-  public MpcResponse lerna() {
-    return mpcService.getLernaJob("localhost", 31337, eps, d, alpha);
-  }
+	@Autowired
+	public TestApiImpl(MpcService mpcService) {
+		this.mpcService = mpcService;
+	}
 
-  @GetMapping("/lerna/{jobId}")
-  public MpcResponse lernaByJob(@PathVariable int jobId) {
-    return mpcService.getLernaNoise("localhost", 31337, jobId, new ArrayList<>());
-  }
+	public String index() {
+		return "FL API";
+	}
+
+	public MpcResponse lerna() {
+		return mpcService.getLernaJob(mpcHost, mpcPort, eps, d, alpha);
+	}
+
+	public MpcResponse lernaByJob(@PathVariable int jobId) {
+		return mpcService.getLernaNoise(mpcHost, mpcPort, jobId, new ArrayList<>());
+	}
 
 }
