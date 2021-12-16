@@ -64,6 +64,40 @@ resides in `resources/application.properties` file.
 
 Using a separate `application-{spring.profiles.active}.properties` can enable a different configuration file per environment.
 
+## Database migration
+
+We use Flyway to perform database migrations.
+
+The database migration scripts reside in the
+`src/main/resources/db/migration/` directory.
+
+The name of these SQL scripts must follow the pattern:
+
+```
+V<TIMESTAMP>__<SQL_SCRIPT_DESCRIPTION>.sql
+```
+
+For example:
+
+```
+V202112161318397__CREATE_NEW_TABLE.sql
+```
+
+To generate a new SQL script, execute core project gradle task flywayMigration:
+
+```
+$ ./gradlew generateMigration -PflywayScriptName=<SQL_SCRIPT_DESCRIPTION>
+```
+
+For example:
+
+```
+$ ./gradlew generateMigration -PflywayScriptName=CREATE_NEW_TABLE
+```
+
+Note: DDL statements are used to build and modify the structure of database entities e.g. CREATE or ALTER TABLE.
+In order to avoid database locks due to long-running scripts, we should create separate scripts for DDL statements.
+
 ## Logging
 
 The logs of the spring boot application can be found under `logs/`.
