@@ -8,6 +8,7 @@
   - [Testing](#Testing)
   - [Running the application](#Run)
 - [Configuration](#Configuration)
+- [Database Migration](#database-migration)
 - [Logging](#logging)
 - [Licenses](#licenses)
 
@@ -51,11 +52,123 @@ To run application with local profile use the following command.
 ./gradlew bootRun --args='--spring.profiles.active=local'
 ```
 
-GK: probably we need the following parameters when running: 
--Djavax.net.ssl.keyStore=<path>/cert.jks
--Djavax.net.ssl.keyStorePassword="password"
--Djavax.net.ssl.trustStore=<path>/cert.jks
--Djavax.net.ssl.trustStorePassword="password"
+> NOTE:
+> 
+> Probably we need the following parameters when running: 
+> 
+> ```bash
+> -Djavax.net.ssl.keyStore=<path>/cert.jks
+> -Djavax.net.ssl.keyStorePassword="password"
+> -Djavax.net.ssl.trustStore=<path>/cert.jks
+> -Djavax.net.ssl.trustStorePassword="password"```
+
+
+### Running in Docker
+
+All Lerna applications are dockerized.
+
+#### Building the Docker images
+
+Every component has its own Docker image, and a Dockerfile exists in each
+directory to build that image.
+
+To build each module image, change to the root directory of each repository and run the
+`docker build` command, optionally specifying a tag. For example, to
+build the fl-api module Docker image and tag it as version 1.0, do:
+
+```
+$ docker build -t lerna/fl-api:1.0
+```
+
+After creating all the Docker images, you can spin up a local Docker
+environment for further development and testing.
+
+#### Running with Docker Compose
+
+Docker Compose is a tool for defining and running multi-container Docker
+applications.
+
+In the root of the repository you can find the `docker-compose.yaml` file
+describing the  PostgreSQL and Redis services as well
+as the Lerna modules that need those services.
+
+To successfully work with Docker Compose, you need to have a `local.env` file
+in the root of the repository that defines the Environment Variables passed
+to the spawned containers:
+
+```
+$ cp local.env.sample local.env
+```
+
+To run Lerna fl-api we need to provide valid java keystore file under the following paths
+
+```bash
+# Certificate file
+./scripts/cert.jks
+```
+
+To start a local environment with all the components, execute the
+following from the root of the repository:
+
+```bash
+$ docker-compose up
+```
+
+> Note: In order to start all modules through `docker-compose` we need to located in the same folder. For example a typical module structure under dev folder should be:
+> ```bash
+> $ ls -la ~/dev/
+> total 0
+> drwxr-xr-x 3 miltos miltos 512 Dec  1 10:35  .
+> drwxr-xr-x 6 miltos miltos 512 Dec  1 10:07  ..
+> drwxr-xr-x 2 miltos miltos 512 Dec 17 13:10  fl-api
+> drwxr-xr-x 2 miltos miltos 512 Dec 14 15:00  mpc
+>```
+
+If you only need specific components, then specify only the one(s) you need.
+For example, to start only mpc, execute:
+
+```bash
+$ docker-compose up mpc
+```
+
+To start mpc and DB
+```bash
+$ docker-compose up db mpc
+# or to force rebuild of images
+$ docker-compose up --build db mpc
+```
+
+You can override the default environment variables shipped in `local.env`
+file by editing the `docker-compose.override.yaml` file in the root of the
+repository. This file is automatically read by `docker-compose` (no need to
+specify it in the CLI using `-f <file>`) and gets higher priority than the
+values of `docker-compose.yaml` file. _Moreover, this override file is
+ignored by Git, so you don't have to worry about untracked changes in your
+working tree_.
+
+It is useful to create Docker images and tag them with a version that matches
+the project version. To do so, first commit your working directory,
+and then run:
+
+```
+$ LERNA_SRC_VERSION=`git rev-parse --short HEAD` docker-compose up
+```
+
+#### Verifying the local environment
+
+Use the Docker CLI to inspect the running containers and get the `fl-api`
+endpoint:
+
+```
+$ docker container ls
+```
+
+Then, verify that you can access the `fl-api`, for example requesting
+a new job ID by test endpoint:
+
+```
+$ curl http://localhost:8080/test/lerna
+```
 
 ## Configuration
 
