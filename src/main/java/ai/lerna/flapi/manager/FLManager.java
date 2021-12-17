@@ -5,5 +5,6 @@ import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 
 public interface FLManager {
 	TrainingInitResponse getNewTraining(String token);
-        TrainingWeightsResponse getAccuracy(String token);
+
+	TrainingWeightsResponse getAccuracy(String token);
 }

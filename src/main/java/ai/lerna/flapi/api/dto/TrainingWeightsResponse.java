@@ -24,7 +24,7 @@ public class TrainingWeightsResponse implements Serializable {
 	}
 
 	public void setDeviceId(INDArray weights) {
-		this.weights = weights.copy();
+		this.weights = weights;
 	}
 
 }

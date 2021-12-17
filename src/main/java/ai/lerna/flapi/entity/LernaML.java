@@ -3,7 +3,6 @@ package ai.lerna.flapi.entity;
 import ai.lerna.flapi.entity.converter.LernaFLConverter;
 import ai.lerna.flapi.entity.converter.LernaMLConverter;
 import ai.lerna.flapi.entity.converter.LernaPrivacyConverter;
-import java.math.BigDecimal;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -12,78 +11,79 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "lerna_ml")
 public class LernaML {
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Id
-    private long id;
-    
-    @Column(name = "appID")
-    private long app_id;
-    
-    @Column(name = "privacy")
-    @Convert(converter = LernaPrivacyConverter.class)
-    private LernaPrivacyParameters privacy = new LernaPrivacyParameters();
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Id
+	private long id;
 
-    @Column(name = "ML")
-    @Convert(converter = LernaMLConverter.class)
-    private LernaMLParameters ml = new LernaMLParameters();
+	@Column(name = "appID")
+	private long app_id;
 
-    @Column(name = "FL")
-    @Convert(converter = LernaFLConverter.class)
-    private LernaFLParameters fl = new LernaFLParameters();
+	@Column(name = "privacy_parameters")
+	@Convert(converter = LernaPrivacyConverter.class)
+	private LernaPrivacyParameters privacy = new LernaPrivacyParameters();
 
-    @Column(name = "accuracy")
-    private BigDecimal accuracy;
+	@Column(name = "ml_parameters")
+	@Convert(converter = LernaMLConverter.class)
+	private LernaMLParameters ml = new LernaMLParameters();
 
-    public long getId() {
-        return id;
-    }
+	@Column(name = "fl_parameters")
+	@Convert(converter = LernaFLConverter.class)
+	private LernaFLParameters fl = new LernaFLParameters();
 
-    public void setId(long id) {
-        this.id = id;
-    }
-    
-    public long getAppId() {
-        return app_id;
-    }
+	@Column(name = "accuracy")
+	private BigDecimal accuracy;
 
-    public void setAppId(long task_id) {
-        this.app_id = task_id;
-    }
+	public long getId() {
+		return id;
+	}
 
-    public LernaPrivacyParameters getPrivacy() {
-        return privacy;
-    }
+	public void setId(long id) {
+		this.id = id;
+	}
 
-    public void setPrivacy(LernaPrivacyParameters privacy) {
-        this.privacy = privacy;
-    }
+	public long getAppId() {
+		return app_id;
+	}
 
-    public LernaMLParameters getML() {
-        return ml;
-    }
+	public void setAppId(long task_id) {
+		this.app_id = task_id;
+	}
 
-    public void setPrivacy(LernaMLParameters ml) {
-        this.ml = ml;
-    }
+	public LernaPrivacyParameters getPrivacy() {
+		return privacy;
+	}
 
-    public LernaFLParameters getFL() {
-        return fl;
-    }
+	public void setPrivacy(LernaPrivacyParameters privacy) {
+		this.privacy = privacy;
+	}
 
-    public void setFL(LernaFLParameters fl) {
-        this.fl = fl;
-    }
+	public LernaMLParameters getML() {
+		return ml;
+	}
 
-    public BigDecimal getAccuracy() {
-        return accuracy;
-    }
+	public void setPrivacy(LernaMLParameters ml) {
+		this.ml = ml;
+	}
 
-    public void setEps(BigDecimal accuracy) {
-        this.accuracy = accuracy;
-    }
+	public LernaFLParameters getFL() {
+		return fl;
+	}
+
+	public void setFL(LernaFLParameters fl) {
+		this.fl = fl;
+	}
+
+	public BigDecimal getAccuracy() {
+		return accuracy;
+	}
+
+	public void setEps(BigDecimal accuracy) {
+		this.accuracy = accuracy;
+	}
 }

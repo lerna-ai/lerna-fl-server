@@ -12,49 +12,48 @@ import javax.persistence.Table;
 @Table(name = "lerna_app")
 public class LernaApp {
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Id
-    private long id;
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Id
+	private long id;
 
-    @Column(name = "userID")
-    private long user_id;
-    
-    @Column(name = "token")
-    private String token;
-    
-    @Column(name = "noMLTasks")
-    private int no_ml_tasks;
-    
-    public long getId() {
-        return id;
-    }
+	@Column(name = "user_id")
+	private long userId;
 
-    public void setId(long id) {
-        this.id = id;
-    }
-    
-    public long getUserId() {
-        return user_id;
-    }
+	@Column(name = "token")
+	private String token;
 
-    public void setUserId(long user_id) {
-        this.user_id = user_id;
-    }
-    
-    public String getToken() {
-        return token;
-    }
+	@Column(name = "no_ml_tasks")
+	private int numberMlTasks;
 
-    public void setToken(String token) {
-        this.token = token;
-    }
-    
-    public int getNoMLTasks() {
-        return no_ml_tasks;
-    }
+	public long getId() {
+		return id;
+	}
 
-    public void setNoMLTasks(int no_ml_tasks) {
-        this.no_ml_tasks = no_ml_tasks;
-    }
-    
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
+	public int getNumberMlTasks() {
+		return numberMlTasks;
+	}
+
+	public void setNumberMlTasks(int numberMlTasks) {
+		this.numberMlTasks = numberMlTasks;
+	}
 }

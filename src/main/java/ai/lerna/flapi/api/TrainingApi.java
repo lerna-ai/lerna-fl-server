@@ -1,6 +1,7 @@
 package ai.lerna.flapi.api;
 
 import ai.lerna.flapi.api.dto.TrainingInitResponse;
+import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,4 +17,8 @@ public interface TrainingApi {
 	@Operation(summary = "Get new training info")
 	@GetMapping("/new")
 	TrainingInitResponse getNewTraining(@RequestParam(value = "token") String token) throws Exception;
+
+	@Operation(summary = "Get accuracy")
+	@GetMapping("/accuracy")
+	TrainingWeightsResponse getAccuracy(@RequestParam(value = "token") String token) throws Exception;
 }

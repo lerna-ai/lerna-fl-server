@@ -1,6 +1,5 @@
 package ai.lerna.flapi.manager;
 
-
 import ai.lerna.flapi.api.dto.TrainingInitResponse;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 import ai.lerna.flapi.service.MpcService;
@@ -30,8 +29,8 @@ public class FLManagerImpl implements FLManager {
 
 		return new TrainingInitResponse();
 	}
-        
-        public TrainingWeightsResponse getAccuracy(String token) {
+
+	public TrainingWeightsResponse getAccuracy(String token) {
 		// ToDo: Add implementation:
 
 		return new TrainingWeightsResponse();
