@@ -1,0 +1,68 @@
+#
+# The Lerna Docker Compose YAML file for local development
+#
+#
+# Legend:
+#
+# * Services and dependencies go first, lerna services go last.
+#
+# * Sort attributes by compile- vs run- time first, then alphabetically.
+#   For example:
+#
+#   - build        ( compile time : Docker image     )
+#   - image        ( compile time : Docker image     )
+#   - depends_on   ( run time     : Docker container )
+#   - env_file     ( run time     : Docker container )
+#   - ports        ( run time     : Docker container )
+#   - volumes      ( run time     : Docker container )
+#
+# * The environment variables that affect how docker-compose behaves
+#   go to the '.env' file in the root of the repository.
+#
+# * The environment variables passed to the Docker containers created
+#   got to the 'local.env' file in the root of the repository.
+#
+# * Set the LERNA_SRC_VERSION environment variable when running
+#   docker-compose to tag all Docker images.
+#
+# * Use the 'docker-compose.override.yaml' file to override these values.
+#   That file, if present, is automatically read by docker-compose and
+#   gets higher priority than this one. Moreover, the override file
+#   is ignored by Git so editing it won't create untracked changes.
+#
+
+version: "3.1"
+services:
+
+  # PostgreSQL database
+  db:
+    image: postgres:9.5-alpine
+    env_file: local.env
+    ports:
+      - 5432:5432
+
+  # Redis key-value store
+  redis:
+    image: redis
+    env_file: local.env
+    ports:
+      - 6379:6379
+
+  # Lerna Privacy Server
+  mpc:
+    build: ../mpc
+    image: lerna/mpc:${LERNA_SRC_VERSION:-latest}
+    ports:
+      - 31337:31337
+
+  # Lerna FL API module
+  fl-api:
+    build: ./
+    image: lerna/fl-api:${LERNA_SRC_VERSION:-latest}
+    depends_on:
+      - db
+      - redis
+      - mpc
+    env_file: local.env
+    ports:
+      - 8080:8080
