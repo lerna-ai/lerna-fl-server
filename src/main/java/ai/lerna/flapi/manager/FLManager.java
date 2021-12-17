@@ -1,10 +1,13 @@
 package ai.lerna.flapi.manager;
 
-import ai.lerna.flapi.api.dto.TrainingInitResponse;
+import ai.lerna.flapi.api.dto.TrainingTaskResponse;
+import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 
 public interface FLManager {
-	TrainingInitResponse getNewTraining(String token);
+	TrainingTaskResponse getNewTraining(String token);
 
-	TrainingWeightsResponse getAccuracy(String token);
+	String saveDeviceWeights(String token, TrainingWeightsRequest trainingWeightsRequest);
+
+	TrainingWeightsResponse getGlobalWights(String token, long jobId);
 }

@@ -1,10 +1,14 @@
 package ai.lerna.flapi.api;
 
-import ai.lerna.flapi.api.dto.TrainingInitResponse;
+import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
+import ai.lerna.flapi.api.dto.TrainingTaskResponse;
+import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -16,9 +20,15 @@ public interface TrainingApi {
 
 	@Operation(summary = "Get new training info")
 	@GetMapping("/new")
-	TrainingInitResponse getNewTraining(@RequestParam(value = "token") String token) throws Exception;
+	TrainingTaskResponse getNewTraining(@RequestParam(value = "token") String token) throws Exception;
 
-	@Operation(summary = "Get accuracy")
-	@GetMapping("/accuracy")
-	TrainingWeightsResponse getAccuracy(@RequestParam(value = "token") String token) throws Exception;
+	@PostMapping("/submitWeights")
+	String postDeviceWeights(@RequestParam(value = "token") String token, @RequestBody TrainingWeightsRequest trainingWeightsRequest) throws Exception;
+
+	@GetMapping("/getNewWeights")
+	TrainingWeightsResponse getGlobalWeights(@RequestParam(value = "token") String token, @RequestParam(value = "jobId") long jobId) throws Exception;
+
+	@Operation(summary = "Post accuracy")
+	@PostMapping("/accuracy")
+	String postAccuracy(@RequestParam(value = "token") String token, @RequestBody TrainingAccuracyRequest request) throws Exception;
 }

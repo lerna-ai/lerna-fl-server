@@ -14,4 +14,6 @@ public interface LernaMLRepository extends JpaRepository<LernaML, Long> {
 
 	@Override
 	List<LernaML> findAll();
+
+	List<LernaML> findByAppId(long id);
 }

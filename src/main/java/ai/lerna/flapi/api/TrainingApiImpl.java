@@ -1,12 +1,11 @@
 package ai.lerna.flapi.api;
 
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
-import ai.lerna.flapi.api.dto.TrainingInitResponse;
+import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 import ai.lerna.flapi.manager.FLManager;
 import ai.lerna.flapi.validation.TrainingApiValidator;
-import java.net.Socket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,29 +22,26 @@ public class TrainingApiImpl implements TrainingApi {
         this.validator = validator;
     }
 
-    public TrainingWeightsRequest getDeviceWeights(Socket socket, int jobId, String token) throws Exception {
-        
-        //TODO: send getNewTraining(token) to device
-        //TODO: retrieve the weights
-        
-        return null;
-    }
-
-    public TrainingAccuracyRequest getAccuracy(Socket socket, int jobId, String token) throws Exception {
-        
-        //TODO: send getAccuracy(token)) to device
-        //TODO: retrieve the accuracy
-        
-        return null;
-    }
-
-    public TrainingInitResponse getNewTraining(@RequestParam(value = "token") String token) throws Exception {
+    public TrainingTaskResponse getNewTraining(@RequestParam(value = "token") String token) throws Exception {
         validator.tokenValidation(token);
         return flManager.getNewTraining(token);
     }
 
-    public TrainingWeightsResponse getAccuracy(@RequestParam(value = "token") String token) throws Exception {
+    @Override
+    public String postDeviceWeights(String token, TrainingWeightsRequest trainingWeightsRequest) throws Exception {
         validator.tokenValidation(token);
-        return flManager.getAccuracy(token);
+        return flManager.saveDeviceWeights(token, trainingWeightsRequest);
+    }
+
+    @Override
+    public TrainingWeightsResponse getGlobalWeights(String token, long jobId) throws Exception {
+        validator.tokenValidation(token);
+        return flManager.getGlobalWights(token, jobId);
+    }
+
+    @Override
+    public String postAccuracy(String token, TrainingAccuracyRequest request) throws Exception {
+        validator.tokenValidation(token);
+        return null;
     }
 }

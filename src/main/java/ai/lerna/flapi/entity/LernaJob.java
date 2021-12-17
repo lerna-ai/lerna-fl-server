@@ -23,8 +23,8 @@ public class LernaJob {
 	@Column(name = "model")
 	private String model;
 
-	@Column(name = "weights")
-	private List<BigDecimal> weights;
+//	@Column(name = "weights")
+//	private List<BigDecimal> weights;
 
 	@Column(name = "total_data_points")
 	private long totalDataPoints;
@@ -56,13 +56,13 @@ public class LernaJob {
 		this.model = model;
 	}
 
-	public List<BigDecimal> getWeights() {
-		return weights;
-	}
-
-	public void setWeights(List<BigDecimal> weights) {
-		this.weights = weights;
-	}
+//	public List<BigDecimal> getWeights() {
+//		return weights;
+//	}
+//
+//	public void setWeights(List<BigDecimal> weights) {
+//		this.weights = weights;
+//	}
 
 	public long getTotalDatapoints() {
 		return totalDataPoints;

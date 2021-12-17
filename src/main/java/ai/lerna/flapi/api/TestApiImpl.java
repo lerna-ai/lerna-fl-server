@@ -1,5 +1,8 @@
 package ai.lerna.flapi.api;
 
+import ai.lerna.flapi.entity.LernaFLParameters;
+import ai.lerna.flapi.entity.LernaML;
+import ai.lerna.flapi.repository.LernaMLRepository;
 import ai.lerna.flapi.service.MpcService;
 import ai.lerna.flapi.service.dto.MpcResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +28,7 @@ public class TestApiImpl implements TestApi {
 	@Value("${app.config.mpcServer.port:31337}")
 	private int mpcPort;
 
-	private MpcService mpcService;
+	private final MpcService mpcService;
 
 	@Autowired
 	public TestApiImpl(MpcService mpcService) {

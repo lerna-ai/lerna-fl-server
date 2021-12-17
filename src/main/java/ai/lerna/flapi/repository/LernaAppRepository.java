@@ -14,4 +14,6 @@ public interface LernaAppRepository extends JpaRepository<LernaApp, Long> {
 
 	@Override
 	List<LernaApp> findAll();
+
+	Optional<LernaApp> findByToken(String token);
 }
