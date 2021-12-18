@@ -6,8 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.math.BigDecimal;
-import java.util.List;
+import org.nd4j.linalg.api.ndarray.INDArray;
 
 @Entity
 @Table(name = "lerna_job")
@@ -23,8 +22,8 @@ public class LernaJob {
 	@Column(name = "model")
 	private String model;
 
-//	@Column(name = "weights")
-//	private List<BigDecimal> weights;
+	@Column(name = "weights")
+	private INDArray weights;
 
 	@Column(name = "total_data_points")
 	private long totalDataPoints;
@@ -56,13 +55,13 @@ public class LernaJob {
 		this.model = model;
 	}
 
-//	public List<BigDecimal> getWeights() {
-//		return weights;
-//	}
-//
-//	public void setWeights(List<BigDecimal> weights) {
-//		this.weights = weights;
-//	}
+	public INDArray getWeights() {
+		return weights;
+	}
+
+	public void setWeights(INDArray weights) {
+		this.weights = weights;
+	}
 
 	public long getTotalDatapoints() {
 		return totalDataPoints;

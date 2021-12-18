@@ -36,12 +36,12 @@ public class TrainingApiImpl implements TrainingApi {
     @Override
     public TrainingWeightsResponse getGlobalWeights(String token, long jobId) throws Exception {
         validator.tokenValidation(token);
-        return flManager.getGlobalWights(token, jobId);
+        return flManager.getGlobalWeights(token, jobId);
     }
 
     @Override
-    public String postAccuracy(String token, TrainingAccuracyRequest request) throws Exception {
+    public String postAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) throws Exception {
         validator.tokenValidation(token);
-        return null;
+        return flManager.saveDeviceAccuracy(token, trainingAccuracyRequest);
     }
 }

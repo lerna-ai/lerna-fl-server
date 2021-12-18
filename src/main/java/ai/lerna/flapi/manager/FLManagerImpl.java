@@ -1,11 +1,14 @@
 package ai.lerna.flapi.manager;
 
+import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
+import ai.lerna.flapi.entity.LernaJob;
 import ai.lerna.flapi.entity.LernaML;
 import ai.lerna.flapi.entity.LernaMLParameters;
 import ai.lerna.flapi.repository.LernaAppRepository;
+import ai.lerna.flapi.repository.LernaJobRepository;
 import ai.lerna.flapi.repository.LernaMLRepository;
 import ai.lerna.flapi.service.StorageService;
 import ai.lerna.flapi.service.MpcService;
@@ -15,12 +18,15 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.nd4j.linalg.api.ndarray.INDArray;
 
 @Component
 public class FLManagerImpl implements FLManager {
+
 	private final MpcService mpcService;
 	private final LernaAppRepository lernaAppRepository;
 	private final LernaMLRepository lernaMLRepository;
+	private final LernaJobRepository lernaJobRepository;
 	private final StorageService storageService;
 
 	// ToDo: Apply per developer/ML configuration and move it to persist layer
@@ -31,10 +37,11 @@ public class FLManagerImpl implements FLManager {
 	static int minNoUsers = 2;
 
 	@Autowired
-	public FLManagerImpl(MpcService mpcService, LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, StorageService storageService) {
+	public FLManagerImpl(MpcService mpcService, LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, StorageService storageService) {
 		this.mpcService = mpcService;
 		this.lernaAppRepository = lernaAppRepository;
 		this.lernaMLRepository = lernaMLRepository;
+		this.lernaJobRepository = lernaJobRepository;
 		this.storageService = storageService;
 	}
 
@@ -47,6 +54,7 @@ public class FLManagerImpl implements FLManager {
 
 		lernaAppRepository.findByToken(token).ifPresent(lernaApp -> {
 			List<LernaMLParameters> lernaMLs = lernaMLRepository.findByAppId(lernaApp.getId()).stream().map(LernaML::getML).collect(Collectors.toList());
+			//build object
 			storageService.putTask(token, trainingTaskResponse);
 		});
 
@@ -59,7 +67,18 @@ public class FLManagerImpl implements FLManager {
 	}
 
 	@Override
-	public TrainingWeightsResponse getGlobalWights(String token, long jobId) {
+	public TrainingWeightsResponse getGlobalWeights(String token, long jobId) {
+		TrainingWeightsResponse trainingWeightsResponse = new TrainingWeightsResponse();
+		lernaAppRepository.findByToken(token).ifPresent(lernaApp -> {
+			INDArray weights = lernaJobRepository.findById(jobId).stream().map(LernaJob::getWeights).findFirst().get(); //no idea how to return tha INDArray object here... the collector was complicated to understand so I put this as placeholder.
+			//build object
+			storageService.putWeights(jobId, trainingWeightsResponse);
+		});
+		return null;
+	}
+
+	@Override
+	public String saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) {
 		return null;
 	}
 }
