@@ -7,7 +7,9 @@ import java.io.Serializable;
 
 @Schema(description = "Aggregated model weights")
 public class TrainingWeightsResponse implements Serializable {
-
+	// ToDo: foreach training task
+	// list of weights
+	// List<Task -> List<Weights>>
 
 	private long jobId;
 	private INDArray weights;

@@ -21,8 +21,8 @@ public class LernaML {
 	@Id
 	private long id;
 
-	@Column(name = "appID")
-	private long app_id;
+	@Column(name = "app_id")
+	private long appId;
 
 	@Column(name = "privacy_parameters")
 	@Convert(converter = LernaPrivacyConverter.class)
@@ -48,11 +48,11 @@ public class LernaML {
 	}
 
 	public long getAppId() {
-		return app_id;
+		return appId;
 	}
 
-	public void setAppId(long task_id) {
-		this.app_id = task_id;
+	public void setAppId(long appId) {
+		this.appId = appId;
 	}
 
 	public LernaPrivacyParameters getPrivacy() {

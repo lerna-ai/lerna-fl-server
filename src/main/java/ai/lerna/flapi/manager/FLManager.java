@@ -7,11 +7,11 @@ import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 
 public interface FLManager {
 
-    TrainingTaskResponse getNewTraining(String token);
+    TrainingTaskResponse getNewTraining(String token, Long deviceId);
 
     String saveDeviceWeights(String token, TrainingWeightsRequest trainingWeightsRequest);
 
-    TrainingWeightsResponse getGlobalWeights(String token, long jobId);
+    TrainingWeightsResponse getGlobalWeights(String token, long version);
 
     String saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest);
 }

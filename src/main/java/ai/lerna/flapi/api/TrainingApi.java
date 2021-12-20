@@ -20,13 +20,13 @@ public interface TrainingApi {
 
 	@Operation(summary = "Get new training info")
 	@GetMapping("/new")
-	TrainingTaskResponse getNewTraining(@RequestParam(value = "token") String token) throws Exception;
+	TrainingTaskResponse getNewTraining(@RequestParam(value = "token") String token, @RequestParam(value = "deviceId") Long deviceId) throws Exception;
 
 	@PostMapping("/submitWeights")
 	String postDeviceWeights(@RequestParam(value = "token") String token, @RequestBody TrainingWeightsRequest trainingWeightsRequest) throws Exception;
 
 	@GetMapping("/getNewWeights")
-	TrainingWeightsResponse getGlobalWeights(@RequestParam(value = "token") String token, @RequestParam(value = "jobId") long jobId) throws Exception;
+	TrainingWeightsResponse getGlobalWeights(@RequestParam(value = "token") String token, @RequestParam(value = "version") long version) throws Exception;
 
 	@Operation(summary = "Post accuracy")
 	@PostMapping("/accuracy")

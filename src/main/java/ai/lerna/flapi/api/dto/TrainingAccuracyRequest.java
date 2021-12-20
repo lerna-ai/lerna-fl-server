@@ -9,7 +9,8 @@ import java.math.BigDecimal;
 public class TrainingAccuracyRequest implements Serializable {
 
 	private long ml_id;
-	private int deviceId;
+	private long deviceId;
+	private long version;
 	private BigDecimal accuracy;
 
 	public long getMLId() {
@@ -20,7 +21,7 @@ public class TrainingAccuracyRequest implements Serializable {
 		this.ml_id = ml_id;
 	}
 
-	public int getDeviceId() {
+	public long getDeviceId() {
 		return deviceId;
 	}
 

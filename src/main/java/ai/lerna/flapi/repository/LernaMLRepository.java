@@ -1,6 +1,7 @@
 package ai.lerna.flapi.repository;
 
 import ai.lerna.flapi.entity.LernaML;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

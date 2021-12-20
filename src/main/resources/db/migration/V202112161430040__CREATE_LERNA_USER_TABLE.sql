@@ -8,3 +8,6 @@ create table lerna_user
     company   varchar(255),
     position  varchar(255)
 );
+alter table lerna_user
+    add constraint lerna_user_pk
+        primary key (id);

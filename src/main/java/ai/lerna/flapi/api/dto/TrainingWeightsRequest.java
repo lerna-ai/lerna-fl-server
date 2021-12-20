@@ -10,30 +10,60 @@ public class TrainingWeightsRequest implements Serializable {
 
 	private long jobId;
 	private int deviceId;
-	private INDArray device_weights;
+	private long version;
+	private INDArray deviceWeights;
 
-	public long getJobId() {
-		return jobId;
+	public TrainingWeightsRequest() {
+		// for serialisation/deserialization
 	}
 
-	public void setJobId(long jobId) {
-		this.jobId = jobId;
+	public TrainingWeightsRequest(Builder builder) {
+		jobId = builder.jobId;
+		deviceId = builder.deviceId;
+		version = builder.version;
+		deviceWeights = builder.deviceWeights;
 	}
 
-	public int getDeviceId() {
-		return deviceId;
+	public static Builder newBuilder() {
+		return new Builder();
 	}
 
-	public void setDeviceId(int deviceId) {
-		this.deviceId = deviceId;
+	public static Builder newBuilder(TrainingWeightsRequest copy) {
+		return newBuilder()
+			.setJobId(copy.jobId)
+			.setDeviceId(copy.deviceId)
+			.setVersion(copy.version)
+			.setDeviceWeights(copy.deviceWeights);
 	}
 
-	public INDArray getDeviceWeights() {
-		return device_weights;
-	}
+	public static final class Builder {
+		private long jobId;
+		private int deviceId;
+		private long version;
+		private INDArray deviceWeights;
 
-	public void setDeviceWeights(INDArray device_weights) {
-		this.device_weights = device_weights;
-	}
+		public Builder setJobId(long jobId) {
+			this.jobId = jobId;
+			return this;
+		}
 
+		public Builder setDeviceId(int deviceId) {
+			this.deviceId = deviceId;
+			return this;
+		}
+
+		public Builder setVersion(long version) {
+			this.version = version;
+			return this;
+		}
+
+		public Builder setDeviceWeights(INDArray deviceWeights) {
+			this.deviceWeights = deviceWeights;
+			return this;
+		}
+
+		public TrainingWeightsRequest build() {
+			return new TrainingWeightsRequest(this);
+		}
+	}
 }

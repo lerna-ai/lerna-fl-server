@@ -1,6 +1,7 @@
 package ai.lerna.flapi.entity;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @author gkellaris

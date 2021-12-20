@@ -1,9 +1,11 @@
 package ai.lerna.flapi.manager;
 
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
+import ai.lerna.flapi.api.dto.TrainingTask;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
+import ai.lerna.flapi.entity.LernaApp;
 import ai.lerna.flapi.entity.LernaJob;
 import ai.lerna.flapi.entity.LernaML;
 import ai.lerna.flapi.entity.LernaMLParameters;
@@ -16,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -45,40 +49,70 @@ public class FLManagerImpl implements FLManager {
 		this.storageService = storageService;
 	}
 
-	public TrainingTaskResponse getNewTraining(String token) {
+	@Override
+	public TrainingTaskResponse getNewTraining(String token, Long deviceId) {
 		// ToDo: Add implementation:
-		TrainingTaskResponse trainingTaskResponse = new TrainingTaskResponse();
-//		lernaStorageService.getTask(token).ifPresent(task -> {
-//			return task;
-//		});
+		Optional<TrainingTaskResponse> taskResponse = storageService.getTask(token);
+		if (taskResponse.isPresent()) {
+			// add device id to drop table
+			return taskResponse.get();
+		}
 
-		lernaAppRepository.findByToken(token).ifPresent(lernaApp -> {
-			List<LernaMLParameters> lernaMLs = lernaMLRepository.findByAppId(lernaApp.getId()).stream().map(LernaML::getML).collect(Collectors.toList());
-			//build object
-			storageService.putTask(token, trainingTaskResponse);
-		});
+		// Create drop tables per job and add device id
+		TrainingTaskResponse trainingTaskResponse = createTrainingTask(token);
 
-		return new TrainingTaskResponse();
+		storageService.putTask(token, trainingTaskResponse);
+
+		return trainingTaskResponse;
 	}
 
 	@Override
 	public String saveDeviceWeights(String token, TrainingWeightsRequest trainingWeightsRequest) {
+		// ToDo: remove from job's drop table,
+		// ToDo: save on redis and/or aggregate
 		return null;
 	}
 
 	@Override
-	public TrainingWeightsResponse getGlobalWeights(String token, long jobId) {
+	public TrainingWeightsResponse getGlobalWeights(String token, long version) {
+		// if user provide latest version return null
+
 		TrainingWeightsResponse trainingWeightsResponse = new TrainingWeightsResponse();
-		lernaAppRepository.findByToken(token).ifPresent(lernaApp -> {
-			INDArray weights = lernaJobRepository.findById(jobId).stream().map(LernaJob::getWeights).findFirst().get(); //no idea how to return tha INDArray object here... the collector was complicated to understand so I put this as placeholder.
+		Optional<LernaApp> lernaApp = lernaAppRepository.findByToken(token);
+		if (lernaApp.isPresent()) {
+			lernaApp.get();
+		}
+
+		//lernaAppRepository.findByToken(token).ifPresent(lernaApp -> {
+			//INDArray weights = lernaJobRepository.findById(jobId).stream().map(LernaJob::getWeights).findFirst().get(); //no idea how to return tha INDArray object here... the collector was complicated to understand so I put this as placeholder.
 			//build object
-			storageService.putWeights(jobId, trainingWeightsResponse);
-		});
+			//storageService.putWeights(jobId, trainingWeightsResponse);
+		//});
 		return null;
 	}
 
 	@Override
 	public String saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) {
+		// if not exist combination of ml_id, deviceId, version add new record
+		// add to new tables :
+		// ML_History FK(ml_id), version, weights [, sum(accuracy), avg(accuracy)]
+		// ML_History_datapoints FK(ML_History.id, timestamp, deviceId, accuracy)
 		return null;
+	}
+
+
+
+
+
+	private TrainingTaskResponse createTrainingTask(String token) {
+		TrainingTaskResponse.Builder builder = TrainingTaskResponse.newBuilder();
+
+		lernaAppRepository.findByToken(token).ifPresent(lernaApp -> {
+			List<LernaMLParameters> lernaMLs = lernaMLRepository.findByAppId(lernaApp.getId()).stream().map(LernaML::getML).collect(Collectors.toList());
+			builder.setTrainingTasks(Collections.singletonList(TrainingTask.newBuilder().build()));
+			//build object
+
+		});
+		return builder.build();
 	}
 }

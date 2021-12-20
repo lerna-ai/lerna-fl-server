@@ -22,9 +22,10 @@ public class TrainingApiImpl implements TrainingApi {
         this.validator = validator;
     }
 
-    public TrainingTaskResponse getNewTraining(@RequestParam(value = "token") String token) throws Exception {
+    @Override
+    public TrainingTaskResponse getNewTraining(@RequestParam(value = "token") String token, Long deviceId) throws Exception {
         validator.tokenValidation(token);
-        return flManager.getNewTraining(token);
+        return flManager.getNewTraining(token, deviceId);
     }
 
     @Override
@@ -34,9 +35,9 @@ public class TrainingApiImpl implements TrainingApi {
     }
 
     @Override
-    public TrainingWeightsResponse getGlobalWeights(String token, long jobId) throws Exception {
+    public TrainingWeightsResponse getGlobalWeights(String token, long version) throws Exception {
         validator.tokenValidation(token);
-        return flManager.getGlobalWeights(token, jobId);
+        return flManager.getGlobalWeights(token, version);
     }
 
     @Override
