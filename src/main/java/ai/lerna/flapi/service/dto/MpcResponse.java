@@ -13,17 +13,17 @@ import java.util.List;
 public class MpcResponse {
 
   @JacksonXmlProperty(localName = "CompID")
-  private int compId;
+  private long compId;
 
   @JacksonXmlElementWrapper(localName = "Shares")
   @JacksonXmlProperty(localName = "Share")
   private List<BigDecimal> share;
 
-  public int getCompId() {
+  public long getCompId() {
     return compId;
   }
 
-  public void setCompId(int compId) {
+  public void setCompId(long compId) {
     this.compId = compId;
   }
 

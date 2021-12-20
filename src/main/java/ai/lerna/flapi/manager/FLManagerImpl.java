@@ -8,7 +8,6 @@ import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 import ai.lerna.flapi.entity.LernaJob;
 import ai.lerna.flapi.entity.LernaML;
-import ai.lerna.flapi.entity.LernaMLParameters;
 import ai.lerna.flapi.repository.LernaAppRepository;
 import ai.lerna.flapi.repository.LernaJobRepository;
 import ai.lerna.flapi.repository.LernaMLRepository;
@@ -17,8 +16,9 @@ import ai.lerna.flapi.service.MpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+
 import java.math.BigDecimal;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,8 +112,18 @@ public class FLManagerImpl implements FLManager {
 		TrainingTaskResponse.Builder builder = TrainingTaskResponse.newBuilder();
 
 		lernaAppRepository.findByToken(token).ifPresent(lernaApp -> {
-			List<LernaMLParameters> lernaMLs = lernaMLRepository.findByAppId(lernaApp.getId()).stream().map(LernaML::getML).collect(Collectors.toList());
-			builder.setTrainingTasks(Collections.singletonList(TrainingTask.newBuilder().build()));
+			long version = lernaApp.getVersion();
+			List<TrainingTask> trainingTasks = new ArrayList();
+			List<LernaML> lernaMLs = lernaMLRepository.findByAppId(lernaApp.getId()).stream().collect(Collectors.toList());
+			for (LernaML ml : lernaMLs) {
+				List<LernaJob> jobs = lernaJobRepository.findByMLId(ml.getId()).stream().collect(Collectors.toList());
+				Map<String, Long> jobIds = new HashMap();
+				for (LernaJob job : jobs){
+					jobIds.put(job.getPrediction(), mpcService.getLernaJob("localhost", 31337, epsilon, dimensions, normalization).getCompId());
+				}
+				trainingTasks.add(TrainingTask.newBuilder().setJobIds(jobIds).setLernaMLParameters(ml.getML()).setMlId(ml.getId()).setMlModel(ml.getModel()).build());
+			}
+			builder.setTrainingTasks(trainingTasks).setVersion(version+1);
 			//build object
 
 		});
@@ -124,6 +134,8 @@ public class FLManagerImpl implements FLManager {
 		TrainingWeightsResponse.Builder builder = TrainingWeightsResponse.newBuilder();
 
 		lernaAppRepository.findByToken(token).ifPresent(lernaApp -> {
+			long version = lernaApp.getVersion();
+			List<TrainingWeights> trainingWeights = new ArrayList();
 			List<Long> ml_ids = lernaMLRepository.findByAppId(lernaApp.getId()).stream().map(LernaML::getId).collect(Collectors.toList());
 			for (Long mlid : ml_ids) {
 				List<LernaJob> jobs = lernaJobRepository.findByMLId(mlid).stream().collect(Collectors.toList());
@@ -132,10 +144,11 @@ public class FLManagerImpl implements FLManager {
 					weights.put(job.getPrediction(), job.getWeights());
 				}
 				//how the builder builds the object mlid-weights map?
+				trainingWeights.add(TrainingWeights.newBuilder().setMlId(mlid).setWeights(weights).build());
 				
 			}
 			//how do we put the trainingweights and version to build the trainingweightsrepsonse?
-			builder.setTrainingWeights(Collections.singletonList(TrainingWeights.newBuilder().build()));
+			builder.setTrainingWeights(trainingWeights).setVersion(version);
 
 		});
 		return builder.build();

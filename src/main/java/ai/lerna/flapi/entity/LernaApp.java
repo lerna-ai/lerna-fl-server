@@ -22,7 +22,7 @@ public class LernaApp {
 	@Column(name = "token")
 	private String token;
 
-	@Column(name = "no_ml_tasks")
+	@Column(name = "version")
 	private long version;
 
 	public long getId() {

@@ -24,6 +24,9 @@ public class LernaML {
 	@Column(name = "app_id")
 	private long appId;
 
+	@Column(name = "model")
+	private String model;
+	
 	@Column(name = "privacy_parameters")
 	@Convert(converter = LernaPrivacyConverter.class)
 	private LernaPrivacyParameters privacy = new LernaPrivacyParameters();
@@ -53,6 +56,14 @@ public class LernaML {
 
 	public void setAppId(long appId) {
 		this.appId = appId;
+	}
+	
+	public String getModel() {
+		return model;
+	}
+
+	public void setModel(String model) {
+		this.model = model;
 	}
 
 	public LernaPrivacyParameters getPrivacy() {
