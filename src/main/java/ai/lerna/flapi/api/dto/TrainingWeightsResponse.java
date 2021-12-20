@@ -1,9 +1,10 @@
 package ai.lerna.flapi.api.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Schema(description = "Aggregated model weights")
 public class TrainingWeightsResponse implements Serializable {
@@ -11,23 +12,55 @@ public class TrainingWeightsResponse implements Serializable {
 	// list of weights
 	// List<Task -> List<Weights>>
 
-	private long jobId;
-	private INDArray weights;
+	private long version;
+	private List<TrainingWeights> trainingWeights;
 
-	public long getJobId() {
-		return jobId;
+	TrainingWeightsResponse() {
+		// for serialisation/deserialization
 	}
 
-	public void setJobId(long jobId) {
-		this.jobId = jobId;
+	private TrainingWeightsResponse(Builder builder) {
+		trainingWeights = builder.trainingWeights;
 	}
 
-	public INDArray getWeights() {
-		return weights;
+	public static Builder newBuilder() {
+		return new Builder();
 	}
 
-	public void setDeviceId(INDArray weights) {
-		this.weights = weights;
+	public static Builder newBuilder(TrainingWeightsResponse copy) {
+		return newBuilder()
+			.setTrainingWeights(copy.getTrainingWeights());
+	}
+
+	public List<TrainingWeights> getTrainingWeights() {
+		return trainingWeights;
+	}
+
+	public Long getVersion() {
+		return version;
+	}
+
+	public static final class Builder {
+		private List<TrainingWeights> trainingWeights;
+		private Long version; // db lerna_app.version
+
+		private Builder() {
+			trainingWeights = new ArrayList<>();
+		}
+
+		public Builder setTrainingWeights(List<TrainingWeights> trainingWeights) {
+			this.trainingWeights = trainingWeights;
+			return this;
+		}
+
+		public Builder setVersion(Long version) {
+			this.version = version;
+			return this;
+		}
+
+		public TrainingWeightsResponse build() {
+			return new TrainingWeightsResponse(this);
+		}
 	}
 
 }

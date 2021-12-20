@@ -3,9 +3,9 @@ package ai.lerna.flapi.manager;
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
 import ai.lerna.flapi.api.dto.TrainingTask;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
+import ai.lerna.flapi.api.dto.TrainingWeights;
 import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
-import ai.lerna.flapi.entity.LernaApp;
 import ai.lerna.flapi.entity.LernaJob;
 import ai.lerna.flapi.entity.LernaML;
 import ai.lerna.flapi.entity.LernaMLParameters;
@@ -19,7 +19,9 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -77,18 +79,20 @@ public class FLManagerImpl implements FLManager {
 	public TrainingWeightsResponse getGlobalWeights(String token, long version) {
 		// if user provide latest version return null
 
-		TrainingWeightsResponse trainingWeightsResponse = new TrainingWeightsResponse();
-		Optional<LernaApp> lernaApp = lernaAppRepository.findByToken(token);
-		if (lernaApp.isPresent()) {
-			lernaApp.get();
+		Optional<TrainingWeightsResponse> weightResponse = storageService.getWeights(token);
+		if (weightResponse.isPresent()) {
+			long cur_version = weightResponse.get().getVersion();
+			if(cur_version==version)
+				return null;
+			else
+				return weightResponse.get();
 		}
 
-		//lernaAppRepository.findByToken(token).ifPresent(lernaApp -> {
-			//INDArray weights = lernaJobRepository.findById(jobId).stream().map(LernaJob::getWeights).findFirst().get(); //no idea how to return tha INDArray object here... the collector was complicated to understand so I put this as placeholder.
-			//build object
-			//storageService.putWeights(jobId, trainingWeightsResponse);
-		//});
-		return null;
+		TrainingWeightsResponse trainingWeightsResponse = createTrainingWeights(token);
+
+		storageService.putWeights(token, trainingWeightsResponse);
+
+		return trainingWeightsResponse;
 	}
 
 	@Override
@@ -111,6 +115,27 @@ public class FLManagerImpl implements FLManager {
 			List<LernaMLParameters> lernaMLs = lernaMLRepository.findByAppId(lernaApp.getId()).stream().map(LernaML::getML).collect(Collectors.toList());
 			builder.setTrainingTasks(Collections.singletonList(TrainingTask.newBuilder().build()));
 			//build object
+
+		});
+		return builder.build();
+	}
+	
+	private TrainingWeightsResponse createTrainingWeights(String token) {
+		TrainingWeightsResponse.Builder builder = TrainingWeightsResponse.newBuilder();
+
+		lernaAppRepository.findByToken(token).ifPresent(lernaApp -> {
+			List<Long> ml_ids = lernaMLRepository.findByAppId(lernaApp.getId()).stream().map(LernaML::getId).collect(Collectors.toList());
+			for (Long mlid : ml_ids) {
+				List<LernaJob> jobs = lernaJobRepository.findByMLId(mlid).stream().collect(Collectors.toList());
+				Map<String, INDArray> weights = new HashMap();
+				for (LernaJob job : jobs){
+					weights.put(job.getPrediction(), job.getWeights());
+				}
+				//how the builder builds the object mlid-weights map?
+				
+			}
+			//how do we put the trainingweights and version to build the trainingweightsrepsonse?
+			builder.setTrainingWeights(Collections.singletonList(TrainingWeights.newBuilder().build()));
 
 		});
 		return builder.build();

@@ -14,4 +14,7 @@ public interface LernaJobRepository extends JpaRepository<LernaJob, Long> {
 
 	@Override
 	List<LernaJob> findAll();
+	
+	List<LernaJob> findByMLId(long id);
+	
 }

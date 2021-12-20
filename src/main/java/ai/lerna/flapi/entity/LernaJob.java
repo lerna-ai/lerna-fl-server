@@ -19,8 +19,8 @@ public class LernaJob {
 	@Column(name = "ml_id")
 	private long MLId;
 
-	@Column(name = "model")
-	private String model;
+	@Column(name = "prediction")
+	private String prediction;
 
 	@Column(name = "weights")
 	private INDArray weights;
@@ -47,12 +47,12 @@ public class LernaJob {
 		this.MLId = MLId;
 	}
 
-	public String getModel() {
-		return model;
+	public String getPrediction() {
+		return prediction;
 	}
 
-	public void setModel(String model) {
-		this.model = model;
+	public void setPrediction(String prediction) {
+		this.prediction = prediction;
 	}
 
 	public INDArray getWeights() {

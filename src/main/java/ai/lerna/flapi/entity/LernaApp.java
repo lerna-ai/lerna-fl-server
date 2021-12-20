@@ -23,7 +23,7 @@ public class LernaApp {
 	private String token;
 
 	@Column(name = "no_ml_tasks")
-	private int numberMlTasks;
+	private long version;
 
 	public long getId() {
 		return id;
@@ -49,11 +49,11 @@ public class LernaApp {
 		this.token = token;
 	}
 
-	public int getNumberMlTasks() {
-		return numberMlTasks;
+	public long getVersion() {
+		return version;
 	}
 
-	public void setNumberMlTasks(int numberMlTasks) {
-		this.numberMlTasks = numberMlTasks;
+	public void setVersion(long version) {
+		this.version = version;
 	}
 }
