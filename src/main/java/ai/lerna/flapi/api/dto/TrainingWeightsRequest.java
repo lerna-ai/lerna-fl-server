@@ -9,12 +9,28 @@ import java.io.Serializable;
 public class TrainingWeightsRequest implements Serializable {
 
 	private long jobId;
-	private int deviceId;
+	private long deviceId;
 	private long version;
 	private INDArray deviceWeights;
 
 	public TrainingWeightsRequest() {
 		// for serialisation/deserialization
+	}
+	
+	public long getJobId() {
+		return jobId;
+	}
+
+	public long getDeviceId() {
+		return deviceId;
+	}
+
+	public long getVersion() {
+		return version;
+	}
+
+	public INDArray getDeviceWeights() {
+		return deviceWeights;
 	}
 
 	public TrainingWeightsRequest(Builder builder) {
@@ -38,7 +54,7 @@ public class TrainingWeightsRequest implements Serializable {
 
 	public static final class Builder {
 		private long jobId;
-		private int deviceId;
+		private long deviceId;
 		private long version;
 		private INDArray deviceWeights;
 
@@ -47,7 +63,7 @@ public class TrainingWeightsRequest implements Serializable {
 			return this;
 		}
 
-		public Builder setDeviceId(int deviceId) {
+		public Builder setDeviceId(long deviceId) {
 			this.deviceId = deviceId;
 			return this;
 		}

@@ -6,6 +6,7 @@ import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 
 import java.util.List;
 import java.util.Optional;
+import org.nd4j.linalg.api.ndarray.INDArray;
 
 public interface StorageService {
 	Optional<TrainingTaskResponse> getTask(String token);
@@ -14,4 +15,7 @@ public interface StorageService {
 	void putWeights(String token, TrainingWeightsResponse trainingWeights);
 
 	void putDeviceIdToDropTables(List<TrainingTask> trainingTasks, Long deviceId);
+	void removeDeviceIdFromDropTables(Long jobId, Long deviceId);
+	
+	void addDeviceWeights(Long jobId, Long deviceId, INDArray weights);
 }

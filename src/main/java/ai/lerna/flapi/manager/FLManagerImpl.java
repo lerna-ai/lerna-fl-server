@@ -6,8 +6,6 @@ import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeights;
 import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
-import ai.lerna.flapi.entity.LernaJob;
-import ai.lerna.flapi.entity.LernaML;
 import ai.lerna.flapi.repository.LernaAppRepository;
 import ai.lerna.flapi.repository.LernaJobRepository;
 import ai.lerna.flapi.repository.LernaMLRepository;
@@ -18,13 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component
 public class FLManagerImpl implements FLManager {
@@ -36,11 +32,11 @@ public class FLManagerImpl implements FLManager {
 	private final StorageService storageService;
 
 	// ToDo: Apply per developer/ML configuration and move it to persist layer
-	static final BigDecimal epsilon = BigDecimal.ZERO;
-	static final int dimensions = 5;
-	static final int iterations = 30;
-	static final BigDecimal normalization = BigDecimal.ONE;
-	static int minNoUsers = 2;
+//	static final BigDecimal epsilon = BigDecimal.ZERO;
+//	static final int dimensions = 5;
+//	static final int iterations = 30;
+//	static final BigDecimal normalization = BigDecimal.ONE;
+//	static int minNoUsers = 2;
 
 	@Value("${app.config.mpcServer.host:localhost}")
 	private String mpcHost;
@@ -77,27 +73,36 @@ public class FLManagerImpl implements FLManager {
 	@Override
 	public String saveDeviceWeights(String token, TrainingWeightsRequest trainingWeightsRequest) {
 		// ToDo: remove from job's drop table,
+		if(!lernaMLRepository.findAllByAppToken(token).isEmpty()){
+			//!!!This jobId should not be the same as the id of the Jobs table, it is the id from the MPC server
+			storageService.removeDeviceIdFromDropTables(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId());
+			storageService.addDeviceWeights(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId(), trainingWeightsRequest.getDeviceWeights());
 		// ToDo: save on redis and/or aggregate
-		return null;
+			return "OK";
+		// ?ToDo: Check if enough weights have been gathered for aggregating the model/finishing the job
+		}
+		else
+			return null;
 	}
 
 	@Override
 	public TrainingWeightsResponse getGlobalWeights(String token, long version) {
 		// if user provide latest version return null
-
+		TrainingWeightsResponse trainingWeightsResponse;
 		Optional<TrainingWeightsResponse> weightResponse = storageService.getWeights(token);
 		if (weightResponse.isPresent()) {
 			long cur_version = weightResponse.get().getVersion();
-			if (cur_version == version)
-				return null;
-			else
-				return weightResponse.get();
+			if (cur_version == version) {
+				trainingWeightsResponse = null;
+			} else {
+				trainingWeightsResponse = weightResponse.get();
+			}
+		} else {
+
+			trainingWeightsResponse = createTrainingWeights(token);
+
+			storageService.putWeights(token, trainingWeightsResponse);
 		}
-
-		TrainingWeightsResponse trainingWeightsResponse = createTrainingWeights(token);
-
-		storageService.putWeights(token, trainingWeightsResponse);
-
 		return trainingWeightsResponse;
 	}
 
@@ -111,9 +116,9 @@ public class FLManagerImpl implements FLManager {
 	}
 
 	private TrainingTaskResponse createTrainingTask(String token) {
-		List<TrainingTask> trainingTasks = new ArrayList();
+		List<TrainingTask> trainingTasks = new ArrayList<>();
 		lernaMLRepository.findAllByAppToken(token).forEach(lernaML -> {
-			Map<String, Long> jobIds = new HashMap();
+			Map<String, Long> jobIds = new HashMap<>();
 			lernaJobRepository.findByMLId(lernaML.getId()).forEach(lernaJob -> {
 				jobIds.put(lernaJob.getPrediction(), mpcService.getLernaJob(mpcHost, mpcPort, lernaML.getPrivacy().getEpsilon(), lernaML.getML().getDimensions(), lernaML.getML().getNormalization()).getCompId());
 			});
@@ -133,26 +138,20 @@ public class FLManagerImpl implements FLManager {
 	}
 
 	private TrainingWeightsResponse createTrainingWeights(String token) {
-		TrainingWeightsResponse.Builder builder = TrainingWeightsResponse.newBuilder();
-
-		lernaAppRepository.findByToken(token).ifPresent(lernaApp -> {
-			long version = lernaApp.getVersion();
-			List<TrainingWeights> trainingWeights = new ArrayList();
-			List<Long> ml_ids = lernaMLRepository.findByAppId(lernaApp.getId()).stream().map(LernaML::getId).collect(Collectors.toList());
-			for (Long mlid : ml_ids) {
-				List<LernaJob> jobs = lernaJobRepository.findByMLId(mlid);
-				Map<String, INDArray> weights = new HashMap();
-				for (LernaJob job : jobs) {
-					weights.put(job.getPrediction(), job.getWeights());
-				}
-				//how the builder builds the object mlid-weights map?
-				trainingWeights.add(TrainingWeights.newBuilder().setMlId(mlid).setWeights(weights).build());
-
-			}
-			//how do we put the trainingweights and version to build the trainingweightsrepsonse?
-			builder.setTrainingWeights(trainingWeights).setVersion(version);
-
-		});
-		return builder.build();
+		List<TrainingWeights> trainingWeights = new ArrayList<>();
+		lernaMLRepository.findAllByAppToken(token).forEach(lernaML -> {
+				Map<String, INDArray> weights = new HashMap<>();
+				lernaJobRepository.findByMLId(lernaML.getId()).forEach(lernaJob -> {
+					weights.put(lernaJob.getPrediction(), lernaJob.getWeights());
+				});
+				trainingWeights.add(TrainingWeights.newBuilder()
+					.setMlId(lernaML.getId())
+					.setWeights(weights)
+					.build());
+			});
+		return TrainingWeightsResponse.newBuilder()
+			.setTrainingWeights(trainingWeights)
+			.setVersion(lernaAppRepository.getVersionByToken(token).orElse(0L))
+			.build();
 	}
 }
