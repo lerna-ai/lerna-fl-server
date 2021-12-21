@@ -11,11 +11,12 @@ import ai.lerna.flapi.entity.LernaML;
 import ai.lerna.flapi.repository.LernaAppRepository;
 import ai.lerna.flapi.repository.LernaJobRepository;
 import ai.lerna.flapi.repository.LernaMLRepository;
-import ai.lerna.flapi.service.StorageService;
 import ai.lerna.flapi.service.MpcService;
+import ai.lerna.flapi.service.StorageService;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -24,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.nd4j.linalg.api.ndarray.INDArray;
 
 @Component
 public class FLManagerImpl implements FLManager {
@@ -42,6 +42,12 @@ public class FLManagerImpl implements FLManager {
 	static final BigDecimal normalization = BigDecimal.ONE;
 	static int minNoUsers = 2;
 
+	@Value("${app.config.mpcServer.host:localhost}")
+	private String mpcHost;
+
+	@Value("${app.config.mpcServer.port:31337}")
+	private int mpcPort;
+
 	@Autowired
 	public FLManagerImpl(MpcService mpcService, LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, StorageService storageService) {
 		this.mpcService = mpcService;
@@ -53,18 +59,18 @@ public class FLManagerImpl implements FLManager {
 
 	@Override
 	public TrainingTaskResponse getNewTraining(String token, Long deviceId) {
-		// ToDo: Add implementation:
+		TrainingTaskResponse trainingTaskResponse;
 		Optional<TrainingTaskResponse> taskResponse = storageService.getTask(token);
 		if (taskResponse.isPresent()) {
-			// add device id to drop table
-			return taskResponse.get();
+			trainingTaskResponse = taskResponse.get();
+		} else {
+			// ToDo: Add implementation:
+			// Create drop tables per job and add device id
+			trainingTaskResponse = createTrainingTask(token);
+			storageService.putTask(token, trainingTaskResponse);
 		}
 
-		// Create drop tables per job and add device id
-		TrainingTaskResponse trainingTaskResponse = createTrainingTask(token);
-
-		storageService.putTask(token, trainingTaskResponse);
-
+		storageService.putDeviceIdToDropTables(trainingTaskResponse.getTrainingTasks(), deviceId);
 		return trainingTaskResponse;
 	}
 
@@ -82,7 +88,7 @@ public class FLManagerImpl implements FLManager {
 		Optional<TrainingWeightsResponse> weightResponse = storageService.getWeights(token);
 		if (weightResponse.isPresent()) {
 			long cur_version = weightResponse.get().getVersion();
-			if(cur_version==version)
+			if (cur_version == version)
 				return null;
 			else
 				return weightResponse.get();
@@ -104,32 +110,28 @@ public class FLManagerImpl implements FLManager {
 		return null;
 	}
 
-
-
-
-
 	private TrainingTaskResponse createTrainingTask(String token) {
-		TrainingTaskResponse.Builder builder = TrainingTaskResponse.newBuilder();
-
-		lernaAppRepository.findByToken(token).ifPresent(lernaApp -> {
-			long version = lernaApp.getVersion();
-			List<TrainingTask> trainingTasks = new ArrayList();
-			List<LernaML> lernaMLs = lernaMLRepository.findByAppId(lernaApp.getId()).stream().collect(Collectors.toList());
-			for (LernaML ml : lernaMLs) {
-				List<LernaJob> jobs = lernaJobRepository.findByMLId(ml.getId()).stream().collect(Collectors.toList());
-				Map<String, Long> jobIds = new HashMap();
-				for (LernaJob job : jobs){
-					jobIds.put(job.getPrediction(), mpcService.getLernaJob("localhost", 31337, epsilon, dimensions, normalization).getCompId());
-				}
-				trainingTasks.add(TrainingTask.newBuilder().setJobIds(jobIds).setLernaMLParameters(ml.getML()).setMlId(ml.getId()).setMlModel(ml.getModel()).build());
-			}
-			builder.setTrainingTasks(trainingTasks).setVersion(version+1);
-			//build object
-
+		List<TrainingTask> trainingTasks = new ArrayList();
+		lernaMLRepository.findAllByAppToken(token).forEach(lernaML -> {
+			Map<String, Long> jobIds = new HashMap();
+			lernaJobRepository.findByMLId(lernaML.getId()).forEach(lernaJob -> {
+				jobIds.put(lernaJob.getPrediction(), mpcService.getLernaJob(mpcHost, mpcPort, lernaML.getPrivacy().getEpsilon(), lernaML.getML().getDimensions(), lernaML.getML().getNormalization()).getCompId());
+			});
+			trainingTasks.add(TrainingTask.newBuilder()
+				.setJobIds(jobIds)
+				.setMlId(lernaML.getId())
+				.setMlModel(lernaML.getModel())
+				.setLernaMLParameters(lernaML.getML())
+				.build());
 		});
-		return builder.build();
+
+		//lernaAppRepository.incrementVersionByToken(token);
+		return TrainingTaskResponse.newBuilder()
+			.setTrainingTasks(trainingTasks)
+			.setVersion(lernaAppRepository.getVersionByToken(token).orElse(0L))
+			.build();
 	}
-	
+
 	private TrainingWeightsResponse createTrainingWeights(String token) {
 		TrainingWeightsResponse.Builder builder = TrainingWeightsResponse.newBuilder();
 
@@ -138,14 +140,14 @@ public class FLManagerImpl implements FLManager {
 			List<TrainingWeights> trainingWeights = new ArrayList();
 			List<Long> ml_ids = lernaMLRepository.findByAppId(lernaApp.getId()).stream().map(LernaML::getId).collect(Collectors.toList());
 			for (Long mlid : ml_ids) {
-				List<LernaJob> jobs = lernaJobRepository.findByMLId(mlid).stream().collect(Collectors.toList());
+				List<LernaJob> jobs = lernaJobRepository.findByMLId(mlid);
 				Map<String, INDArray> weights = new HashMap();
-				for (LernaJob job : jobs){
+				for (LernaJob job : jobs) {
 					weights.put(job.getPrediction(), job.getWeights());
 				}
 				//how the builder builds the object mlid-weights map?
 				trainingWeights.add(TrainingWeights.newBuilder().setMlId(mlid).setWeights(weights).build());
-				
+
 			}
 			//how do we put the trainingweights and version to build the trainingweightsrepsonse?
 			builder.setTrainingWeights(trainingWeights).setVersion(version);

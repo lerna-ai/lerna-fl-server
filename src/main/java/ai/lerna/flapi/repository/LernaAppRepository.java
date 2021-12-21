@@ -2,6 +2,8 @@ package ai.lerna.flapi.repository;
 
 import ai.lerna.flapi.entity.LernaApp;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,4 +18,11 @@ public interface LernaAppRepository extends JpaRepository<LernaApp, Long> {
 	List<LernaApp> findAll();
 
 	Optional<LernaApp> findByToken(String token);
+
+	@Modifying
+	@Query(value = "UPDATE lerna_app SET current_version = current_version + 1 WHERE token = :token", nativeQuery = true)
+	void incrementVersionByToken(String token);
+
+	@Query(value = "SELECT current_version FROM lerna_app WHERE token = :token LIMIT 1", nativeQuery = true)
+	Optional<Long> getVersionByToken(String token);
 }

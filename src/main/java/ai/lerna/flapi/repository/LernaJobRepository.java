@@ -2,6 +2,7 @@ package ai.lerna.flapi.repository;
 
 import ai.lerna.flapi.entity.LernaJob;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,7 +15,12 @@ public interface LernaJobRepository extends JpaRepository<LernaJob, Long> {
 
 	@Override
 	List<LernaJob> findAll();
-	
-	List<LernaJob> findByMLId(long id);
-	
+
+	List<LernaJob> findByMLId(long mlId);
+
+	@Query(value = "SELECT lj.* FROM lerna_job lj INNER JOIN lerna_ml lm ON lj.ml_id = lm.id WHERE lm.app_id = :appId", nativeQuery = true)
+	List<LernaJob> findAllByAppId(long appId);
+
+	@Query(value = "SELECT lj.* FROM lerna_job lj INNER JOIN lerna_ml lm ON lj.ml_id = lm.id INNER JOIN lerna_app la ON la.id = lm.app_id WHERE la.token = :token", nativeQuery = true)
+	List<LernaJob> findAllByAppToken(String token);
 }
