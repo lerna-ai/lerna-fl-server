@@ -173,7 +173,7 @@ public class FLManagerImpl implements FLManager {
 
 	@Override
 	public String checkNaggregate(Long jobId, int num_of_users) { //this function aggragates per job, which is fine, but how do we follow versioning which is per app?
-		int actual_users=storageService.getDeviceWeights(jobId).size(); //probably for just the size we do not want to return the whole list - maybe create a function just for the list size?
+		int actual_users=storageService.getDeviceWeightsSize(jobId); 
 		if (actual_users >= num_of_users) { 
 			List<INDArray> weights = storageService.getDeviceWeights(jobId);
 			INDArray sum = Nd4j.zeros(weights.get(0).columns(), 1);

@@ -20,6 +20,8 @@ public interface StorageService {
 	void putDeviceIdToDropTable(List<TrainingTask> trainingTasks, Long deviceId);
 	
 	List<Long> getDeviceDropTable(Long jobId);
+	
+	int getDeviceWeightsSize(Long jobId);
 
 	void removeDeviceIdFromDropTable(Long jobId, Long deviceId);
 

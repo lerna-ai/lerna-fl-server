@@ -94,5 +94,11 @@ public class StorageServiceImpl implements StorageService {
 	public List<Long> getDeviceDropTable(Long jobId) {
 		return pendingDevices.get(jobId);
 	}
+	
+	@Override
+	public int getDeviceWeightsSize(Long jobId) {
+		//get the size of the table from redis
+		return 0;
+	}
 
 }
