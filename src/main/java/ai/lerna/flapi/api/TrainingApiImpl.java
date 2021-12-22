@@ -1,6 +1,7 @@
 package ai.lerna.flapi.api;
 
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
+import ai.lerna.flapi.api.dto.TrainingInferenceRequest;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
@@ -45,5 +46,10 @@ public class TrainingApiImpl implements TrainingApi {
     public String postAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) throws Exception {
         validator.tokenValidation(token);
         return flManager.saveDeviceAccuracy(token, trainingAccuracyRequest);
+    }
+
+    @Override
+    public String postInference(String token, TrainingInferenceRequest trainingInferenceRequest) throws Exception {
+        return null;
     }
 }

@@ -1,6 +1,7 @@
 package ai.lerna.flapi.api;
 
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
+import ai.lerna.flapi.api.dto.TrainingInferenceRequest;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
@@ -31,4 +32,8 @@ public interface TrainingApi {
 	@Operation(summary = "Post accuracy")
 	@PostMapping("/accuracy")
 	String postAccuracy(@RequestParam(value = "token") String token, @RequestBody TrainingAccuracyRequest request) throws Exception;
+
+	@Operation(summary = "Post Inference")
+	@PostMapping("/inference")
+	String postInference(@RequestParam(value = "token") String token, @RequestBody TrainingInferenceRequest request) throws Exception;
 }
