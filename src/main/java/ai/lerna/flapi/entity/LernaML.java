@@ -1,6 +1,5 @@
 package ai.lerna.flapi.entity;
 
-import ai.lerna.flapi.entity.converter.LernaFLConverter;
 import ai.lerna.flapi.entity.converter.LernaMLConverter;
 import ai.lerna.flapi.entity.converter.LernaPrivacyConverter;
 
@@ -34,10 +33,6 @@ public class LernaML {
 	@Column(name = "ml_parameters")
 	@Convert(converter = LernaMLConverter.class)
 	private LernaMLParameters ml = new LernaMLParameters();
-
-	@Column(name = "fl_parameters")
-	@Convert(converter = LernaFLConverter.class)
-	private LernaFLParameters fl = new LernaFLParameters();
 
 	@Column(name = "accuracy")
 	private BigDecimal accuracy;
@@ -80,14 +75,6 @@ public class LernaML {
 
 	public void setPrivacy(LernaMLParameters ml) {
 		this.ml = ml;
-	}
-
-	public LernaFLParameters getFL() {
-		return fl;
-	}
-
-	public void setFL(LernaFLParameters fl) {
-		this.fl = fl;
 	}
 
 	public BigDecimal getAccuracy() {

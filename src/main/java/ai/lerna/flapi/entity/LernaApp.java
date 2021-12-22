@@ -24,6 +24,9 @@ public class LernaApp {
 
 	@Column(name = "current_version")
 	private long version;
+	
+	@Column(name = "no_min_users")
+	private int minNoUsers;
 
 	public long getId() {
 		return id;
@@ -56,4 +59,14 @@ public class LernaApp {
 	public void setVersion(long version) {
 		this.version = version;
 	}
+
+	public int getMinNoUsers() {
+		return minNoUsers;
+	}
+
+	public void setMinNoUsers(int minNoUsers) {
+		this.minNoUsers = minNoUsers;
+	}
+	
+	
 }

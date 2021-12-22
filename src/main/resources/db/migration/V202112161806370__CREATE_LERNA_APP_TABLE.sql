@@ -8,7 +8,8 @@ create table lerna_app
             references lerna_user,
     token           varchar(255),
     current_version bigint,
-    no_ml_tasks     integer
+    no_ml_tasks     integer,
+    no_min_users     integer
 );
 create unique index lerna_app_token_uindex
     on lerna_app (token);

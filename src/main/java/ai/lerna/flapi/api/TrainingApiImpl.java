@@ -50,6 +50,7 @@ public class TrainingApiImpl implements TrainingApi {
 
     @Override
     public String postInference(String token, TrainingInferenceRequest trainingInferenceRequest) throws Exception {
-        return null;
+	validator.tokenValidation(token);
+        return flManager.saveInference(token, trainingInferenceRequest);
     }
 }

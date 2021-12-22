@@ -27,7 +27,7 @@ public class MpcServiceImpl implements MpcService {
     this.mapper = new XmlMapper();
   }
 
-  public MpcResponse getLernaNoise(String host, int port, int jobId, ArrayList<Integer> u_ids) {
+  public MpcResponse getLernaNoise(String host, int port, long jobId, ArrayList<Long> u_ids) {
     return makeRequest(host, port, getMpcRequest(jobId, u_ids));
   }
 
@@ -58,7 +58,7 @@ public class MpcServiceImpl implements MpcService {
     }
   }
 
-  private MpcRequest getMpcRequest(int jobId, ArrayList<Integer> u_ids) {
+  private MpcRequest getMpcRequest(long jobId, ArrayList<Long> u_ids) {
     MpcRequest mpcRequest = new MpcRequest();
     mpcRequest.setCompId(jobId);
     mpcRequest.setDrop(u_ids.stream().map(String::valueOf).collect(Collectors.joining(";")));

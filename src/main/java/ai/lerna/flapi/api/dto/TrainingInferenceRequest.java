@@ -1,21 +1,15 @@
 package ai.lerna.flapi.api.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class TrainingInferenceRequest implements Serializable {
 
-	private long ml_id;
+	
 	private long deviceId;
 	private long version;
-	private String prediction;
+	private List<TrainingInference> trainingInference;
 
-	public long getMl_id() {
-		return ml_id;
-	}
-
-	public void setMl_id(long ml_id) {
-		this.ml_id = ml_id;
-	}
 
 	public long getDeviceId() {
 		return deviceId;
@@ -33,11 +27,11 @@ public class TrainingInferenceRequest implements Serializable {
 		this.version = version;
 	}
 
-	public String getPrediction() {
-		return prediction;
+	public List<TrainingInference> getPrediction() {
+		return trainingInference;
 	}
 
-	public void setPrediction(String prediction) {
-		this.prediction = prediction;
+	public void setPrediction(List<TrainingInference> trainingInference) {
+		this.trainingInference = trainingInference;
 	}
 }

@@ -17,11 +17,17 @@ public interface StorageService {
 
 	void putWeights(String token, TrainingWeightsResponse trainingWeights);
 
-	void putDeviceIdToDropTables(List<TrainingTask> trainingTasks, Long deviceId);
+	void putDeviceIdToDropTable(List<TrainingTask> trainingTasks, Long deviceId);
+	
+	List<Long> getDeviceDropTable(Long jobId);
 
-	void removeDeviceIdFromDropTables(Long jobId, Long deviceId);
+	void removeDeviceIdFromDropTable(Long jobId, Long deviceId);
 
 	boolean existsDeviceIdOnDropTable(long jobId, long deviceId);
 
 	void addDeviceWeights(Long jobId, Long deviceId, INDArray weights);
+	
+	void addDeviceInference(Long ml_id, Long deviceId, Long version, String model, String prediction);
+	
+	List<INDArray> getDeviceWeights(Long jobId);
 }

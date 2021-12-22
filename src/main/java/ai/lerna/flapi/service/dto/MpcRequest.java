@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 public class MpcRequest {
 
   @JacksonXmlProperty(localName = "CompID")
-  private int compId;
+  private long compId;
 
   @JacksonXmlProperty(localName = "MPC")
   private Boolean mpc;
@@ -32,11 +32,11 @@ public class MpcRequest {
   @JacksonXmlProperty(localName = "Drop")
   private String drop;
 
-  public int getCompId() {
+  public long getCompId() {
     return compId;
   }
 
-  public void setCompId(int compId) {
+  public void setCompId(long compId) {
     this.compId = compId;
   }
 

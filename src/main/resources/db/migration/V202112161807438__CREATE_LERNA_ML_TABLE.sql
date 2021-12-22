@@ -9,6 +9,5 @@ create table lerna_ml
     model              varchar(255),
     privacy_parameters jsonb,
     ml_parameters      jsonb,
-    fl_parameters      jsonb,
     accuracy           numeric
 );

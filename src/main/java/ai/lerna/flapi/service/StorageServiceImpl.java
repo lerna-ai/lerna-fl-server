@@ -20,7 +20,7 @@ public class StorageServiceImpl implements StorageService {
 	/**
 	 * Pending devices as Map of Job ID and list of device IDs
 	 */
-	Map<Long, List<Long>> pendingDevices = new HashMap<>();
+	Map<Long, List<Long>> pendingDevices = new HashMap<>();  //Maybe avoid any shared memory locally and put that on Redis...
 
 	@Override
 	public Optional<TrainingTaskResponse> getTask(String token) {
@@ -43,7 +43,7 @@ public class StorageServiceImpl implements StorageService {
 	}
 
 	@Override
-	public void putDeviceIdToDropTables(List<TrainingTask> trainingTasks, Long deviceId) {
+	public void putDeviceIdToDropTable(List<TrainingTask> trainingTasks, Long deviceId) {
 		trainingTasks.stream()
 			.flatMap(trainingTask -> trainingTask.getJobIds().values().stream())
 			.forEach(jobId -> {
@@ -58,7 +58,7 @@ public class StorageServiceImpl implements StorageService {
 	}
 
 	@Override
-	public void removeDeviceIdFromDropTables(Long jobId, Long deviceId) {
+	public void removeDeviceIdFromDropTable(Long jobId, Long deviceId) {
 		if (pendingDevices.containsKey(jobId)) {
 			pendingDevices.get(jobId).remove(deviceId);
 		}
@@ -72,8 +72,27 @@ public class StorageServiceImpl implements StorageService {
 
 	@Override
 	public void addDeviceWeights(Long jobId, Long deviceId, INDArray weights) {
-		//connect to redis and/or memory to store the weights
-		//keep counter per jobId in order to determine how many devices were gathered
+		//connect to redis to store the weights
+		
+	}
+	
+	@Override
+	public List<INDArray> getDeviceWeights(Long jobId) {
+		//connect to redis to retrieve the weights
+		return null;
+		
+	}
+
+	@Override
+	public void addDeviceInference(Long ml_id, Long deviceId, Long version, String model, String prediction) {
+		//connect to postgress to store the predictions
+		//add to new table:
+		//Inference_history(ml_id, model, deviceId, prediction, version)
+	}
+
+	@Override
+	public List<Long> getDeviceDropTable(Long jobId) {
+		return pendingDevices.get(jobId);
 	}
 
 }
