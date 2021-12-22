@@ -10,9 +10,16 @@ import java.util.Map;
 @Schema(description = "New training configuration")
 public class TrainingTask implements Serializable {
 
+	@Schema(description = "Map of prediction and Job ID")
 	private Map<String, Long> jobIds; // (prediction(lenra_job), jobId(c server))
+
+	@Schema(description = "ML Model ID")
 	private Long mlId; // database lerna_ml.id
+
+	@Schema(description = "ML Model Name")
 	private String mlModel;// database lerna_ml.model
+
+	@Schema(description = "ML Model Parameters")
 	private LernaMLParameters lernaMLParameters; // database lerna_ml.ml_params
 
 	public TrainingTask() {

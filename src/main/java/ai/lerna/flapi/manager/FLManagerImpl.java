@@ -31,13 +31,6 @@ public class FLManagerImpl implements FLManager {
 	private final LernaJobRepository lernaJobRepository;
 	private final StorageService storageService;
 
-	// ToDo: Apply per developer/ML configuration and move it to persist layer
-//	static final BigDecimal epsilon = BigDecimal.ZERO;
-//	static final int dimensions = 5;
-//	static final int iterations = 30;
-//	static final BigDecimal normalization = BigDecimal.ONE;
-//	static int minNoUsers = 2;
-
 	@Value("${app.config.mpcServer.host:localhost}")
 	private String mpcHost;
 
@@ -60,8 +53,6 @@ public class FLManagerImpl implements FLManager {
 		if (taskResponse.isPresent()) {
 			trainingTaskResponse = taskResponse.get();
 		} else {
-			// ToDo: Add implementation:
-			// Create drop tables per job and add device id
 			trainingTaskResponse = createTrainingTask(token);
 			storageService.putTask(token, trainingTaskResponse);
 		}
@@ -130,7 +121,6 @@ public class FLManagerImpl implements FLManager {
 				.build());
 		});
 
-		//lernaAppRepository.incrementVersionByToken(token);
 		return TrainingTaskResponse.newBuilder()
 			.setTrainingTasks(trainingTasks)
 			.setVersion(lernaAppRepository.getVersionByToken(token).orElse(0L))

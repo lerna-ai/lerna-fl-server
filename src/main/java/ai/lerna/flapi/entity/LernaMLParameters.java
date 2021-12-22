@@ -1,40 +1,29 @@
 package ai.lerna.flapi.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * @author gkellaris
  */
 public class LernaMLParameters {
-	/**
-	 * Normalization value alpha or lambda to avoid overfitting (0.05, 0.1, 0.5, 1.0, 5.0 etc.)
-	 */
+	@Schema(description = "Normalization value alpha or lambda to avoid overfitting (0.05, 0.1, 0.5, 1.0, 5.0 etc.)")
 	private BigDecimal normalization;
 
-	/**
-	 * Number of local iterations
-	 */
+	@Schema(description = "Number of local iterations")
 	private int iterations;
 
-//    /**
-//     * Threshold value for the termination/convergence of SGD, usually 0.0001
-//     */
-//    private BigDecimal thres;
+//	@Schema(description = "Threshold value for the termination/convergence of SGD, usually 0.0001")
+//	private BigDecimal thres;
 
-	/**
-	 * The learning rate, usually 0.05
-	 */
+	@Schema(description = "The learning rate, usually 0.05")
 	private BigDecimal learningRate;
 
-	/**
-	 * The number of features/weights
-	 */
+	@Schema(description = "The number of features/weights")
 	private int dimensions;
 
-	/**
-	 * The percentage of test/train data
-	 */
+	@Schema(description = "The percentage of test/train data")
 	private BigDecimal dataSplit;
 
 	public BigDecimal getNormalization() {

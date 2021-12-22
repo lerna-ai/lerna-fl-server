@@ -7,7 +7,6 @@ import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 import ai.lerna.flapi.manager.FLManager;
 import ai.lerna.flapi.validation.TrainingApiValidator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,7 +23,6 @@ public class TrainingApiImpl implements TrainingApi {
     }
 
     @Override
-    @Transactional
     public TrainingTaskResponse getNewTraining(@RequestParam(value = "token") String token, Long deviceId) throws Exception {
         validator.tokenValidation(token);
         validator.deviceIdValidation(deviceId);

@@ -9,8 +9,14 @@ import java.util.List;
 @Schema(description = "New training configuration")
 public class TrainingTaskResponse implements Serializable {
 
+	@Schema(description = "List of training tasks")
 	private List<TrainingTask> trainingTasks;
-	private Long version; // db lerna_app.version
+
+	/**
+	 * Current version ot Training Task. Persists on lerna_app table as current_version
+	 */
+	@Schema(description = "Current version of training tasks")
+	private Long version;
 
 	TrainingTaskResponse() {
 		// for serialisation/deserialization
@@ -18,6 +24,7 @@ public class TrainingTaskResponse implements Serializable {
 
 	private TrainingTaskResponse(Builder builder) {
 		trainingTasks = builder.trainingTasks;
+		version = builder.version;
 	}
 
 	public static Builder newBuilder() {
@@ -26,7 +33,8 @@ public class TrainingTaskResponse implements Serializable {
 
 	public static Builder newBuilder(TrainingTaskResponse copy) {
 		return newBuilder()
-			.setTrainingTasks(copy.getTrainingTasks());
+			.setTrainingTasks(copy.getTrainingTasks())
+			.setVersion(copy.getVersion());
 	}
 
 	public List<TrainingTask> getTrainingTasks() {
@@ -39,7 +47,7 @@ public class TrainingTaskResponse implements Serializable {
 
 	public static final class Builder {
 		private List<TrainingTask> trainingTasks;
-		private Long version; // db lerna_app.version
+		private Long version;
 
 		private Builder() {
 			trainingTasks = new ArrayList<>();
