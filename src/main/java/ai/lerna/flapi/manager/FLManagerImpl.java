@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component
 public class FLManagerImpl implements FLManager {
@@ -52,8 +54,10 @@ public class FLManagerImpl implements FLManager {
 		Optional<TrainingTaskResponse> taskResponse = storageService.getTask(token);
 		if (taskResponse.isPresent()) {
 			trainingTaskResponse = taskResponse.get();
+			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Getting {0} TrainingTasks from cache", trainingTaskResponse.getTrainingTasks().size());
 		} else {
 			trainingTaskResponse = createTrainingTask(token);
+			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Getting {0} TrainingTasks from db", trainingTaskResponse.getTrainingTasks().size());
 			storageService.putTask(token, trainingTaskResponse);
 		}
 
@@ -62,9 +66,12 @@ public class FLManagerImpl implements FLManager {
 	}
 
 	@Override
-	public String saveDeviceWeights(String token, TrainingWeightsRequest trainingWeightsRequest) {
+	public String saveDeviceWeights(String token, TrainingWeightsRequest trainingWeightsRequest) throws Exception {
+		if (!storageService.existsDeviceIdOnDropTable(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId())) {
+			throw new Exception("Device ID not exists on pending devices list");
+		}
 		// ToDo: remove from job's drop table,
-		if(!lernaMLRepository.findAllByAppToken(token).isEmpty()){
+		if(lernaMLRepository.existsByAppToken(token)){
 			//!!!This jobId should not be the same as the id of the Jobs table, it is the id from the MPC server
 			storageService.removeDeviceIdFromDropTables(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId());
 			storageService.addDeviceWeights(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId(), trainingWeightsRequest.getDeviceWeights());

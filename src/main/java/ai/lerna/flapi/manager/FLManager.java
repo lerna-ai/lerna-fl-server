@@ -9,7 +9,7 @@ public interface FLManager {
 
     TrainingTaskResponse getNewTraining(String token, Long deviceId);
 
-    String saveDeviceWeights(String token, TrainingWeightsRequest trainingWeightsRequest);
+    String saveDeviceWeights(String token, TrainingWeightsRequest trainingWeightsRequest) throws Exception;
 
     TrainingWeightsResponse getGlobalWeights(String token, long version);
 
