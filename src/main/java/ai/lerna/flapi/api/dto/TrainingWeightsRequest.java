@@ -11,6 +11,7 @@ public class TrainingWeightsRequest implements Serializable {
 	private long jobId;
 	private long deviceId;
 	private long version;
+	private long datapoints;
 	private INDArray deviceWeights;
 
 	public TrainingWeightsRequest() {
@@ -28,6 +29,10 @@ public class TrainingWeightsRequest implements Serializable {
 	public long getVersion() {
 		return version;
 	}
+	
+	public long getDatapoints() {
+		return datapoints;
+	}
 
 	public INDArray getDeviceWeights() {
 		return deviceWeights;
@@ -37,6 +42,7 @@ public class TrainingWeightsRequest implements Serializable {
 		jobId = builder.jobId;
 		deviceId = builder.deviceId;
 		version = builder.version;
+		datapoints = builder.datapoints;
 		deviceWeights = builder.deviceWeights;
 	}
 
@@ -49,6 +55,7 @@ public class TrainingWeightsRequest implements Serializable {
 			.setJobId(copy.jobId)
 			.setDeviceId(copy.deviceId)
 			.setVersion(copy.version)
+			.setDatapoints(copy.datapoints)
 			.setDeviceWeights(copy.deviceWeights);
 	}
 
@@ -56,6 +63,7 @@ public class TrainingWeightsRequest implements Serializable {
 		private long jobId;
 		private long deviceId;
 		private long version;
+		private long datapoints;
 		private INDArray deviceWeights;
 
 		public Builder setJobId(long jobId) {
@@ -65,6 +73,11 @@ public class TrainingWeightsRequest implements Serializable {
 
 		public Builder setDeviceId(long deviceId) {
 			this.deviceId = deviceId;
+			return this;
+		}
+		
+		public Builder setDatapoints(long datapoints) {
+			this.datapoints = datapoints;
 			return this;
 		}
 

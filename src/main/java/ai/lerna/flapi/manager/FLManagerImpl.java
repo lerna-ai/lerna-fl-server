@@ -13,6 +13,7 @@ import ai.lerna.flapi.repository.LernaJobRepository;
 import ai.lerna.flapi.repository.LernaMLRepository;
 import ai.lerna.flapi.service.MpcService;
 import ai.lerna.flapi.service.StorageService;
+import com.sun.tools.javac.util.Pair;
 import java.math.BigDecimal;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class FLManagerImpl implements FLManager {
 	@Value("${app.config.mpcServer.port:31337}")
 	private int mpcPort;
 	
-	private int scaling_factor = 100000;
+	private int scaling_factor = 100000; //add this to the configuration
 
 	@Autowired
 	public FLManagerImpl(MpcService mpcService, LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, StorageService storageService) {
@@ -80,7 +81,7 @@ public class FLManagerImpl implements FLManager {
 		if (lernaMLRepository.existsByAppToken(token)) {
 			//!!!This jobId should not be the same as the id of the Jobs table, it is the id from the MPC server
 			storageService.removeDeviceIdFromDropTable(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId());
-			storageService.addDeviceWeights(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId(), trainingWeightsRequest.getDeviceWeights());
+			storageService.addDeviceWeights(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId(), trainingWeightsRequest.getDatapoints(), trainingWeightsRequest.getDeviceWeights());
 			checkNaggregate(trainingWeightsRequest.getJobId(), lernaMLRepository.findUsersNumByAppToken(token));
 			return "OK";
 			// ?ToDo: Check if enough weights have been gathered for aggregating the model/finishing the job
@@ -116,7 +117,12 @@ public class FLManagerImpl implements FLManager {
 		// add to new tables :
 		// ML_History FK(ml_id), version, weights [, sum(accuracy), avg(accuracy)]
 		// ML_History_datapoints FK(ML_History.id, timestamp, deviceId, accuracy)
-		return null;
+		if (lernaMLRepository.existsByAppToken(token)){
+			storageService.addDeviceAccuracy(trainingAccuracyRequest.getMLId(), trainingAccuracyRequest.getDeviceId(), trainingAccuracyRequest.getVersion(), trainingAccuracyRequest.getAccuracy());
+			return "OK";
+		} else {
+			return null;
+		}
 	}
 
 	private TrainingTaskResponse createTrainingTask(String token) {
@@ -163,7 +169,7 @@ public class FLManagerImpl implements FLManager {
 
 		if (lernaMLRepository.existsByAppToken(token)) {
 			for (TrainingInference result : trainingInferenceRequest.getPrediction()) {
-				storageService.addDeviceInference(result.getMl_id(), trainingInferenceRequest.getDeviceId(), trainingInferenceRequest.getVersion(), result.getModel(), result.getPrediction());
+				storageService.addDeviceInference(token, result.getMl_id(), trainingInferenceRequest.getDeviceId(), trainingInferenceRequest.getVersion(), result.getModel(), result.getPrediction());
 			}
 			return "OK";
 		} else {
@@ -175,14 +181,16 @@ public class FLManagerImpl implements FLManager {
 	public String checkNaggregate(Long jobId, int num_of_users) { //this function aggragates per job, which is fine, but how do we follow versioning which is per app?
 		int actual_users=storageService.getDeviceWeightsSize(jobId); 
 		if (actual_users >= num_of_users) { 
-			List<INDArray> weights = storageService.getDeviceWeights(jobId);
-			INDArray sum = Nd4j.zeros(weights.get(0).columns(), 1);
-			for (INDArray w : weights) {
-				sum = sum.add(w);
+			List<Pair<Long, INDArray>> weights = storageService.getDeviceWeights(jobId);
+			INDArray sum = Nd4j.zeros(weights.get(0).snd.columns(), 1);
+			long total_points=0;
+			for (Pair<Long, INDArray> w : weights) {
+				total_points+=w.fst;
+				sum = sum.add(w.snd);
 			}
 			List<BigDecimal> shareList = mpcService.getLernaNoise(mpcHost, mpcPort, jobId, new ArrayList<>(storageService.getDeviceDropTable(jobId))).getShare();
-			INDArray shares = Nd4j.zeros(weights.get(0).columns(), 1);
-			for (int k = 0; k < weights.get(0).columns(); k++) {
+			INDArray shares = Nd4j.zeros(weights.get(0).snd.columns(), 1);
+			for (int k = 0; k < weights.get(0).snd.columns(); k++) {
 				shares.putScalar(k, shareList.get(k).doubleValue());
 			}
 			//these are the final weights for this job

@@ -29,6 +29,14 @@ public class TrainingAccuracyRequest implements Serializable {
 		this.deviceId = deviceId;
 	}
 
+	public long getVersion() {
+		return version;
+	}
+
+	public void setVersion(long version) {
+		this.version = version;
+	}
+	
 	public BigDecimal getAccuracy() {
 		return accuracy;
 	}

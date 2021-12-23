@@ -3,6 +3,8 @@ package ai.lerna.flapi.service;
 import ai.lerna.flapi.api.dto.TrainingTask;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
+import com.sun.tools.javac.util.Pair;
+import java.math.BigDecimal;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.util.List;
@@ -27,9 +29,11 @@ public interface StorageService {
 
 	boolean existsDeviceIdOnDropTable(long jobId, long deviceId);
 
-	void addDeviceWeights(Long jobId, Long deviceId, INDArray weights);
+	void addDeviceWeights(Long jobId, Long deviceId, Long datapoints, INDArray weights);
 	
-	void addDeviceInference(Long ml_id, Long deviceId, Long version, String model, String prediction);
+	void addDeviceInference(String token, Long ml_id, Long deviceId, Long version, String model, String prediction);
 	
-	List<INDArray> getDeviceWeights(Long jobId);
+	void addDeviceAccuracy(Long ml_id, Long deviceId, Long version, BigDecimal accuracy);
+	
+	List<Pair<Long, INDArray>> getDeviceWeights(Long jobId);
 }
