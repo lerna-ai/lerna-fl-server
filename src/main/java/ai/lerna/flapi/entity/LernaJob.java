@@ -1,12 +1,15 @@
 package ai.lerna.flapi.entity;
 
+import ai.lerna.flapi.entity.converter.INDArrayConverter;
+import org.nd4j.linalg.api.ndarray.INDArray;
+
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import org.nd4j.linalg.api.ndarray.INDArray;
 
 @Entity
 @Table(name = "lerna_job")
@@ -23,6 +26,7 @@ public class LernaJob {
 	private String prediction;
 
 	@Column(name = "weights")
+	@Convert(converter = INDArrayConverter.class)
 	private INDArray weights;
 
 	@Column(name = "total_data_points")

@@ -32,6 +32,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.flywaydb:flyway-core:5.2.4'
 	implementation 'org.nd4j:nd4j-native-platform:0.9.1'
+	implementation 'org.nd4j:nd4j-jackson:0.9.1'
 	testImplementation 'org.codehaus.groovy:groovy-all:3.0.8'
 	testImplementation 'org.spockframework:spock-core:2.0-groovy-3.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
