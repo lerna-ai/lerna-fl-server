@@ -14,12 +14,13 @@ import ai.lerna.flapi.repository.LernaMLRepository;
 import ai.lerna.flapi.service.MpcService;
 import ai.lerna.flapi.service.StorageService;
 import com.sun.tools.javac.util.Pair;
-import java.math.BigDecimal;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +28,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.nd4j.linalg.factory.Nd4j;
 
 @Component
 public class FLManagerImpl implements FLManager {
@@ -43,8 +43,9 @@ public class FLManagerImpl implements FLManager {
 
 	@Value("${app.config.mpcServer.port:31337}")
 	private int mpcPort;
-	
-	private int scaling_factor = 100000; //add this to the configuration
+
+	@Value("${app.config.fl.scalingFactor:100000}")
+	private int scaling_factor;
 
 	@Autowired
 	public FLManagerImpl(MpcService mpcService, LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, StorageService storageService) {
@@ -97,11 +98,9 @@ public class FLManagerImpl implements FLManager {
 		Optional<TrainingWeightsResponse> weightResponse = storageService.getWeights(token);
 		if (weightResponse.isPresent()) {
 			long cur_version = weightResponse.get().getVersion();
-			if (cur_version == version) {
-				trainingWeightsResponse = null;
-			} else {
-				trainingWeightsResponse = weightResponse.get();
-			}
+			trainingWeightsResponse = (cur_version != version)
+				? weightResponse.get()
+				: null;
 		} else {
 
 			trainingWeightsResponse = createTrainingWeights(token);
@@ -117,7 +116,7 @@ public class FLManagerImpl implements FLManager {
 		// add to new tables :
 		// ML_History FK(ml_id), version, weights [, sum(accuracy), avg(accuracy)]
 		// ML_History_datapoints FK(ML_History.id, timestamp, deviceId, accuracy)
-		if (lernaMLRepository.existsByAppToken(token)){
+		if (lernaMLRepository.existsByAppToken(token)) {
 			storageService.addDeviceAccuracy(trainingAccuracyRequest.getMLId(), trainingAccuracyRequest.getDeviceId(), trainingAccuracyRequest.getVersion(), trainingAccuracyRequest.getAccuracy());
 			return "OK";
 		} else {
@@ -179,13 +178,13 @@ public class FLManagerImpl implements FLManager {
 
 	@Override
 	public String checkNaggregate(Long jobId, int num_of_users) { //this function aggragates per job, which is fine, but how do we follow versioning which is per app?
-		int actual_users=storageService.getDeviceWeightsSize(jobId); 
-		if (actual_users >= num_of_users) { 
+		int actual_users = storageService.getDeviceWeightsSize(jobId);
+		if (actual_users >= num_of_users) {
 			List<Pair<Long, INDArray>> weights = storageService.getDeviceWeights(jobId);
 			INDArray sum = Nd4j.zeros(weights.get(0).snd.columns(), 1);
-			long total_points=0;
+			long total_points = 0;
 			for (Pair<Long, INDArray> w : weights) {
-				total_points+=w.fst;
+				total_points += w.fst;
 				sum = sum.add(w.snd);
 			}
 			List<BigDecimal> shareList = mpcService.getLernaNoise(mpcHost, mpcPort, jobId, new ArrayList<>(storageService.getDeviceDropTable(jobId))).getShare();
@@ -195,10 +194,10 @@ public class FLManagerImpl implements FLManager {
 			}
 			//these are the final weights for this job
 			sum = sum.add(shares).mul(1.0 / (actual_users * scaling_factor));
-			
+
 			//delete drop table, delete individual weights, job done
 			//save new weights, update version?
-			
+
 			return ("Done");
 		} else {
 			return ("Not ready");

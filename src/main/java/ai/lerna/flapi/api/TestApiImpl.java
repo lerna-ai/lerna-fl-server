@@ -2,6 +2,8 @@ package ai.lerna.flapi.api;
 
 import ai.lerna.flapi.service.MpcService;
 import ai.lerna.flapi.service.dto.MpcResponse;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +44,11 @@ public class TestApiImpl implements TestApi {
 
 	public MpcResponse lernaByJob(@PathVariable int jobId) {
 		return mpcService.getLernaNoise(mpcHost, mpcPort, jobId, new ArrayList<>());
+	}
+
+	@Override
+	public INDArray getINDArray(double d) {
+		return Nd4j.zeros(5).add(d);
 	}
 
 }
