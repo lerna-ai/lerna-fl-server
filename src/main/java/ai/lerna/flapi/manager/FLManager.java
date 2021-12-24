@@ -18,5 +18,5 @@ public interface FLManager {
     
     String saveInference(String token, TrainingInferenceRequest trainingInferenceRequest);
     
-    String checkNaggregate(Long jobId, int num_of_users);
+    String checkNaggregate(String token, Long jobId, int num_of_users);
 }

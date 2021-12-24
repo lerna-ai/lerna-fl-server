@@ -83,7 +83,7 @@ public class FLManagerImpl implements FLManager {
 			//!!!This jobId should not be the same as the id of the Jobs table, it is the id from the MPC server
 			storageService.removeDeviceIdFromDropTable(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId());
 			storageService.addDeviceWeights(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId(), trainingWeightsRequest.getDatapoints(), trainingWeightsRequest.getDeviceWeights());
-			checkNaggregate(trainingWeightsRequest.getJobId(), lernaMLRepository.findUsersNumByAppToken(token));
+			checkNaggregate(token, trainingWeightsRequest.getJobId(), lernaMLRepository.findUsersNumByAppToken(token));
 			return "OK";
 			// ?ToDo: Check if enough weights have been gathered for aggregating the model/finishing the job
 		} else {
@@ -177,27 +177,40 @@ public class FLManagerImpl implements FLManager {
 	}
 
 	@Override
-	public String checkNaggregate(Long jobId, int num_of_users) { //this function aggragates per job, which is fine, but how do we follow versioning which is per app?
+	public String checkNaggregate(String token, Long jobId, int num_of_users) { //this function aggragates per job, which is fine, but how do we follow versioning which is per app?
 		int actual_users = storageService.getDeviceWeightsSize(jobId);
 		if (actual_users >= num_of_users) {
-			List<Pair<Long, INDArray>> weights = storageService.getDeviceWeights(jobId);
-			INDArray sum = Nd4j.zeros(weights.get(0).snd.columns(), 1);
-			long total_points = 0;
-			for (Pair<Long, INDArray> w : weights) {
-				total_points += w.fst;
-				sum = sum.add(w.snd);
+			List<TrainingTask> tasks = storageService.getTask(token).get().getTrainingTasks(); 
+			for (TrainingTask task : tasks) {
+				long mlid = task.getMlId();
+				Map<String, Long> jobIds = task.getJobIds();
+				for (Map.Entry<String, Long> job : jobIds.entrySet()) {
+					storageService.deactivateJob(job.getValue());
+					List<Pair<Long, INDArray>> weights = storageService.getDeviceWeights(job.getValue());
+					INDArray sum = Nd4j.zeros(weights.get(0).snd.columns(), 1);
+					long total_points = 0;
+					for (Pair<Long, INDArray> w : weights) {
+						total_points += w.fst;
+						sum = sum.add(w.snd);
+					}
+					List<BigDecimal> shareList = mpcService.getLernaNoise(mpcHost, mpcPort, job.getValue(), new ArrayList<>(storageService.getDeviceDropTable(job.getValue()))).getShare();
+					INDArray shares = Nd4j.zeros(weights.get(0).snd.columns(), 1);
+					for (int k = 0; k < weights.get(0).snd.columns(); k++) {
+						shares.putScalar(k, shareList.get(k).doubleValue());
+					}
+					//these are the final weights for this job
+					sum = sum.add(shares).mul(1.0 / (actual_users * scaling_factor));
+					lernaJobRepository.updateWeights(job.getKey(), mlid, sum, total_points, storageService.getDeviceWeightsSize(job.getValue()));
+					
+					storageService.deleteDropTable(job.getValue());
+					
+				}
+				
 			}
-			List<BigDecimal> shareList = mpcService.getLernaNoise(mpcHost, mpcPort, jobId, new ArrayList<>(storageService.getDeviceDropTable(jobId))).getShare();
-			INDArray shares = Nd4j.zeros(weights.get(0).snd.columns(), 1);
-			for (int k = 0; k < weights.get(0).snd.columns(); k++) {
-				shares.putScalar(k, shareList.get(k).doubleValue());
-			}
-			//these are the final weights for this job
-			sum = sum.add(shares).mul(1.0 / (actual_users * scaling_factor));
-
-			//delete drop table, delete individual weights, job done
-			//save new weights, update version?
-
+			//update version
+			storageService.deleteTaskTable(token);
+			storageService.deleteWeightsTable(token);
+			
 			return ("Done");
 		} else {
 			return ("Not ready");

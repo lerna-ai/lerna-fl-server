@@ -43,4 +43,10 @@ public interface StorageService {
 	void addDeviceAccuracy(Long ml_id, Long deviceId, Long version, BigDecimal accuracy);
 
 	List<Pair<Long, INDArray>> getDeviceWeights(Long jobId);
+	
+	void deleteDropTable(Long jobId);
+	
+	void deleteTaskTable(String token);
+	
+	void deleteWeightsTable(String token);
 }

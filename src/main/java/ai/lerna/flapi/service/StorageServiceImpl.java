@@ -154,7 +154,24 @@ public class StorageServiceImpl implements StorageService {
 
 	@Override
 	public void addDeviceAccuracy(Long ml_id, Long deviceId, Long version, BigDecimal accuracy) {
-
+		//Store the accuracy
 	}
+
+	@Override
+	public void deleteDropTable(Long jobId) {
+		pendingDevices.remove(jobId);
+	}
+
+	@Override
+	public void deleteTaskTable(String token) {
+		tasks.remove(token);
+	}
+
+	@Override
+	public void deleteWeightsTable(String token) {
+		weights.remove(token);
+	}
+	
+	
 
 }
