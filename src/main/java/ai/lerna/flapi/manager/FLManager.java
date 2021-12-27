@@ -17,6 +17,4 @@ public interface FLManager {
     String saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest);
     
     String saveInference(String token, TrainingInferenceRequest trainingInferenceRequest);
-    
-    String checkNaggregate(String token, Long jobId, int num_of_users);
 }

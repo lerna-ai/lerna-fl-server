@@ -21,6 +21,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -79,6 +81,7 @@ public class FLManagerImpl implements FLManager {
 	}
 
 	@Override
+	@Transactional
 	public String saveDeviceWeights(String token, TrainingWeightsRequest trainingWeightsRequest) throws Exception {
 		if (!storageService.existsDeviceIdOnDropTable(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId())) {
 			throw new Exception("Device ID not exists on pending devices list");
@@ -190,8 +193,7 @@ public class FLManagerImpl implements FLManager {
 		}
 	}
 
-	@Override
-	public String checkNaggregate(String token, Long jobId, int num_of_users) { //this function aggragates per job, which is fine, but how do we follow versioning which is per app?
+	private String checkNaggregate(String token, Long jobId, int num_of_users) { //this function aggragates per job, which is fine, but how do we follow versioning which is per app?
 		int actual_users = storageService.getDeviceWeightsSize(jobId);
 		if (actual_users >= num_of_users) {
 			List<TrainingTask> tasks = storageService.getTask(token).get().getTrainingTasks(); 
@@ -201,6 +203,11 @@ public class FLManagerImpl implements FLManager {
 				for (Map.Entry<String, Long> job : jobIds.entrySet()) {
 					storageService.deactivateJob(job.getValue());
 					List<DeviceWeights> weights = storageService.getDeviceWeights(job.getValue());
+					if (Objects.isNull(weights)) {
+						// Kill job from privacy server
+						mpcService.getLernaNoise(mpcHost, mpcPort, job.getValue(), new ArrayList<>(storageService.getDeviceDropTable(job.getValue())));
+						continue;
+					}
 					INDArray sum = Nd4j.zeros(weights.get(0).getWeights().rows(), 1);
 					long total_points = 0;
 					for (DeviceWeights w : weights) {
@@ -231,7 +238,8 @@ public class FLManagerImpl implements FLManager {
 				}
 				
 			}
-			//update version
+			//ToDo: update version
+			lernaAppRepository.incrementVersionByToken(token);
 			storageService.deleteTaskTable(token);
 			storageService.deleteWeightsTable(token);
 			
