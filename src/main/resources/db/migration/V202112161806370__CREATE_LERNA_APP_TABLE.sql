@@ -1,6 +1,6 @@
 create table lerna_app
 (
-    id              bigint
+    id              bigserial
         constraint lerna_app_pk
             primary key,
     user_id         bigint

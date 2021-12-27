@@ -12,7 +12,7 @@ import javax.persistence.Table;
 @Table(name = "lerna_app")
 public class LernaApp {
 
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
 	private long id;
 

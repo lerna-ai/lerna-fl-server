@@ -8,9 +8,11 @@ import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeights;
 import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
+import ai.lerna.flapi.entity.LernaPrediction;
 import ai.lerna.flapi.repository.LernaAppRepository;
 import ai.lerna.flapi.repository.LernaJobRepository;
 import ai.lerna.flapi.repository.LernaMLRepository;
+import ai.lerna.flapi.repository.LernaPredictionRepository;
 import ai.lerna.flapi.service.MpcService;
 import ai.lerna.flapi.service.StorageService;
 import com.sun.tools.javac.util.Pair;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +39,7 @@ public class FLManagerImpl implements FLManager {
 	private final LernaAppRepository lernaAppRepository;
 	private final LernaMLRepository lernaMLRepository;
 	private final LernaJobRepository lernaJobRepository;
+	private final LernaPredictionRepository lernaPredictionRepository;
 	private final StorageService storageService;
 
 	@Value("${app.config.mpcServer.host:localhost}")
@@ -48,11 +52,12 @@ public class FLManagerImpl implements FLManager {
 	private int scaling_factor;
 
 	@Autowired
-	public FLManagerImpl(MpcService mpcService, LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, StorageService storageService) {
+	public FLManagerImpl(MpcService mpcService, LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, LernaPredictionRepository lernaPredictionRepository, StorageService storageService) {
 		this.mpcService = mpcService;
 		this.lernaAppRepository = lernaAppRepository;
 		this.lernaMLRepository = lernaMLRepository;
 		this.lernaJobRepository = lernaJobRepository;
+		this.lernaPredictionRepository = lernaPredictionRepository;
 		this.storageService = storageService;
 	}
 
@@ -167,8 +172,17 @@ public class FLManagerImpl implements FLManager {
 	public String saveInference(String token, TrainingInferenceRequest trainingInferenceRequest) {
 
 		if (lernaMLRepository.existsByAppToken(token)) {
-			for (TrainingInference result : trainingInferenceRequest.getPrediction()) {
-				storageService.addDeviceInference(token, result.getMl_id(), trainingInferenceRequest.getDeviceId(), trainingInferenceRequest.getVersion(), result.getModel(), result.getPrediction());
+			for (TrainingInference result : trainingInferenceRequest.getTrainingInference()) {
+				LernaPrediction lernaPrediction = LernaPrediction.newBuilder()
+					.setDeviceId(trainingInferenceRequest.getDeviceId())
+					.setMLId(result.getMl_id())
+					.setModel(result.getModel())
+					.setVersion(trainingInferenceRequest.getVersion())
+					.setPrediction(result.getPrediction())
+					.setTimestamp(new Date())
+					.build();
+				lernaPredictionRepository.save(lernaPrediction);
+				storageService.addDeviceInference(token, lernaPrediction);
 			}
 			return "OK";
 		} else {
@@ -200,7 +214,8 @@ public class FLManagerImpl implements FLManager {
 					}
 					//these are the final weights for this job
 					sum = sum.add(shares).mul(1.0 / (actual_users * scaling_factor));
-					lernaJobRepository.updateWeights(job.getKey(), mlid, sum, total_points, storageService.getDeviceWeightsSize(job.getValue()));
+					//ToDo: implement update weights functionality
+					//lernaJobRepository.updateWeights(job.getKey(), mlid, sum, total_points, storageService.getDeviceWeightsSize(job.getValue()));
 					
 					storageService.deleteDropTable(job.getValue());
 					

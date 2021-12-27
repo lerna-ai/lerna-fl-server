@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @Table(name = "lerna_ml")
 public class LernaML {
 
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
 	private long id;
 

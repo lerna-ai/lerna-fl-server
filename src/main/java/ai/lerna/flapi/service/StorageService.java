@@ -3,6 +3,7 @@ package ai.lerna.flapi.service;
 import ai.lerna.flapi.api.dto.TrainingTask;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
+import ai.lerna.flapi.entity.LernaPrediction;
 import com.sun.tools.javac.util.Pair;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -38,7 +39,7 @@ public interface StorageService {
 
 	void addDeviceWeights(Long jobId, Long deviceId, Long datapoints, INDArray weights);
 
-	void addDeviceInference(String token, Long ml_id, Long deviceId, Long version, String model, String prediction);
+	void addDeviceInference(String token, LernaPrediction prediction);
 
 	void addDeviceAccuracy(Long ml_id, Long deviceId, Long version, BigDecimal accuracy);
 

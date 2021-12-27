@@ -25,5 +25,5 @@ public interface LernaJobRepository extends JpaRepository<LernaJob, Long> {
 	@Query(value = "SELECT lj.* FROM lerna_job lj INNER JOIN lerna_ml lm ON lj.ml_id = lm.id INNER JOIN lerna_app la ON la.id = lm.app_id WHERE la.token = :token", nativeQuery = true)
 	List<LernaJob> findAllByAppToken(String token);
 	
-	String updateWeights(String prediction, long mlId, INDArray weights, long total_data_points, long total_devices);
+	//String updateWeights(String prediction, long mlId, INDArray weights, long total_data_points, long total_devices);
 }

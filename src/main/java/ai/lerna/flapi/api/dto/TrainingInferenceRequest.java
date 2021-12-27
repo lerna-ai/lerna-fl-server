@@ -1,13 +1,20 @@
 package ai.lerna.flapi.api.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.io.Serializable;
 import java.util.List;
 
+@Schema(description = "Training Inference request object")
 public class TrainingInferenceRequest implements Serializable {
 
-	
+	@Schema(description = "Device ID")
 	private long deviceId;
+
+	@Schema(description = "Version of training task")
 	private long version;
+
+	@Schema(description = "List of training inferences")
 	private List<TrainingInference> trainingInference;
 
 
@@ -27,11 +34,11 @@ public class TrainingInferenceRequest implements Serializable {
 		this.version = version;
 	}
 
-	public List<TrainingInference> getPrediction() {
+	public List<TrainingInference> getTrainingInference() {
 		return trainingInference;
 	}
 
-	public void setPrediction(List<TrainingInference> trainingInference) {
+	public void setTrainingInference(List<TrainingInference> trainingInference) {
 		this.trainingInference = trainingInference;
 	}
 }

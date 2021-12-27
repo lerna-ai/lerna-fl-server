@@ -11,7 +11,7 @@ import javax.persistence.Table;
 @Table(name = "lerna_user")
 public class LernaUser {
 
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id
 	private long id;
 

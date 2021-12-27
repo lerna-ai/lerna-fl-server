@@ -1,6 +1,6 @@
 create table lerna_user
 (
-    id        bigint
+    id        bigserial
         constraint lerna_user_pk
             primary key,
     firstname varchar(255),
