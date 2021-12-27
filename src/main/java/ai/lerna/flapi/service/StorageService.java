@@ -1,10 +1,10 @@
 package ai.lerna.flapi.service;
 
+import ai.lerna.flapi.api.dto.DeviceWeights;
 import ai.lerna.flapi.api.dto.TrainingTask;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 import ai.lerna.flapi.entity.LernaPrediction;
-import com.sun.tools.javac.util.Pair;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.math.BigDecimal;
@@ -43,11 +43,11 @@ public interface StorageService {
 
 	void addDeviceAccuracy(Long ml_id, Long deviceId, Long version, BigDecimal accuracy);
 
-	List<Pair<Long, INDArray>> getDeviceWeights(Long jobId);
-	
+	List<DeviceWeights> getDeviceWeights(Long jobId);
+
 	void deleteDropTable(Long jobId);
-	
+
 	void deleteTaskTable(String token);
-	
+
 	void deleteWeightsTable(String token);
 }

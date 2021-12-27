@@ -1,10 +1,10 @@
 package ai.lerna.flapi.service;
 
+import ai.lerna.flapi.api.dto.DeviceWeights;
 import ai.lerna.flapi.api.dto.TrainingTask;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 import ai.lerna.flapi.entity.LernaPrediction;
-import com.sun.tools.javac.util.Pair;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +24,7 @@ public class StorageServiceImpl implements StorageService {
 	Map<Long, Boolean> activeJob = new HashMap<>();
 	Map<String, TrainingTaskResponse> tasks = new HashMap<>();
 	Map<String, TrainingWeightsResponse> weights = new HashMap<>();
-	Map<Long, Map<Long, Pair<Long, INDArray>>> deviceWeights = new HashMap<>();
+	Map<Long, Map<Long, DeviceWeights>> deviceWeights = new HashMap<>();
 	Map<String, List<LernaPrediction>> predictions = new HashMap<>();
 	/**
 	 * Pending devices as Map of Job ID and list of device IDs
@@ -110,11 +110,11 @@ public class StorageServiceImpl implements StorageService {
 		if (!deviceWeights.containsKey(jobId)) {
 			deviceWeights.put(jobId, new HashMap<>());
 		}
-		deviceWeights.get(jobId).put(deviceId, new Pair<Long, INDArray>(datapoints, weights));
+		deviceWeights.get(jobId).put(deviceId, DeviceWeights.newBuilder().setDataPoints(datapoints).setWeights(weights).build());
 	}
 
 	@Override
-	public List<Pair<Long, INDArray>> getDeviceWeights(Long jobId) {
+	public List<DeviceWeights> getDeviceWeights(Long jobId) {
 		if (!deviceWeights.containsKey(jobId))
 			return null;
 		else

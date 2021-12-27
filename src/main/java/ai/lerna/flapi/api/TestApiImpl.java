@@ -48,7 +48,7 @@ public class TestApiImpl implements TestApi {
 
 	@Override
 	public INDArray getINDArray(double d) {
-		return Nd4j.zeros(5).add(d);
+		return Nd4j.zeros(5, 1).add(d);
 	}
 
 }

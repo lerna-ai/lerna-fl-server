@@ -1,5 +1,6 @@
 package ai.lerna.flapi.manager;
 
+import ai.lerna.flapi.api.dto.DeviceWeights;
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
 import ai.lerna.flapi.api.dto.TrainingInference;
 import ai.lerna.flapi.api.dto.TrainingInferenceRequest;
@@ -15,7 +16,6 @@ import ai.lerna.flapi.repository.LernaMLRepository;
 import ai.lerna.flapi.repository.LernaPredictionRepository;
 import ai.lerna.flapi.service.MpcService;
 import ai.lerna.flapi.service.StorageService;
-import com.sun.tools.javac.util.Pair;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -200,16 +200,16 @@ public class FLManagerImpl implements FLManager {
 				Map<String, Long> jobIds = task.getJobIds();
 				for (Map.Entry<String, Long> job : jobIds.entrySet()) {
 					storageService.deactivateJob(job.getValue());
-					List<Pair<Long, INDArray>> weights = storageService.getDeviceWeights(job.getValue());
-					INDArray sum = Nd4j.zeros(weights.get(0).snd.columns(), 1);
+					List<DeviceWeights> weights = storageService.getDeviceWeights(job.getValue());
+					INDArray sum = Nd4j.zeros(weights.get(0).getWeights().rows(), 1);
 					long total_points = 0;
-					for (Pair<Long, INDArray> w : weights) {
-						total_points += w.fst;
-						sum = sum.add(w.snd);
+					for (DeviceWeights w : weights) {
+						total_points += w.getDataPoints();
+						sum = sum.add(w.getWeights());
 					}
 					List<BigDecimal> shareList = mpcService.getLernaNoise(mpcHost, mpcPort, job.getValue(), new ArrayList<>(storageService.getDeviceDropTable(job.getValue()))).getShare();
-					INDArray shares = Nd4j.zeros(weights.get(0).snd.columns(), 1);
-					for (int k = 0; k < weights.get(0).snd.columns(); k++) {
+					INDArray shares = Nd4j.zeros(weights.get(0).getWeights().rows(), 1);
+					for (int k = 0; k < weights.get(0).getWeights().rows(); k++) {
 						shares.putScalar(k, shareList.get(k).doubleValue());
 					}
 					//these are the final weights for this job
