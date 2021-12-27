@@ -214,9 +214,18 @@ public class FLManagerImpl implements FLManager {
 					}
 					//these are the final weights for this job
 					sum = sum.add(shares).mul(1.0 / (actual_users * scaling_factor));
-					//ToDo: implement update weights functionality
-					//lernaJobRepository.updateWeights(job.getKey(), mlid, sum, total_points, storageService.getDeviceWeightsSize(job.getValue()));
-					
+
+					//update weights functionality
+					INDArray finalSum = sum;
+					long finalTotal_points = total_points;
+					lernaJobRepository.findByMLIdAndPrediction(mlid, job.getKey()).stream()
+						.peek(lernaJob -> {
+							lernaJob.setWeights(finalSum);
+							lernaJob.setTotalDataPoints(finalTotal_points);
+							lernaJob.setTotalDevices(storageService.getDeviceWeightsSize(job.getValue()));
+						})
+						.map(lernaJobRepository::save);
+
 					storageService.deleteDropTable(job.getValue());
 					
 				}

@@ -19,6 +19,8 @@ public interface LernaJobRepository extends JpaRepository<LernaJob, Long> {
 
 	List<LernaJob> findByMLId(long mlId);
 
+	List<LernaJob> findByMLIdAndPrediction(long mlId, String prediction);
+
 	@Query(value = "SELECT lj.* FROM lerna_job lj INNER JOIN lerna_ml lm ON lj.ml_id = lm.id WHERE lm.app_id = :appId", nativeQuery = true)
 	List<LernaJob> findAllByAppId(long appId);
 

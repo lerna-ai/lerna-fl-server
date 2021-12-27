@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -124,9 +123,6 @@ public class StorageServiceImpl implements StorageService {
 
 	@Override
 	public void addDeviceInference(String token, LernaPrediction prediction) {
-		//connect to postgress to store the predictions
-		//add to new table:
-		//Inference_history(ml_id, model, deviceId, prediction, version)
 		if (!predictions.containsKey(token)) {
 			predictions.put(token, new ArrayList<>());
 		}
@@ -165,7 +161,5 @@ public class StorageServiceImpl implements StorageService {
 	public void deleteWeightsTable(String token) {
 		weights.remove(token);
 	}
-	
-	
 
 }
