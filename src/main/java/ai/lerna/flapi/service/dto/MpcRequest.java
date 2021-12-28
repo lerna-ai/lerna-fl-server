@@ -48,11 +48,11 @@ public class MpcRequest {
     this.mpc = mpc;
   }
 
-  public BigDecimal getDifferentialPrivacy() {
+  public BigDecimal getEpsilon() {
     return epsilon;
   }
 
-  public void setDifferentialPrivacy(BigDecimal epsilon) {
+  public void setEpsilon(BigDecimal epsilon) {
     this.epsilon = epsilon;
   }
 

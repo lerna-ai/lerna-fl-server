@@ -25,7 +25,7 @@ class MpcServiceSpec extends Specification {
 
   def "Should map to correct xml"() {
     given:
-      MpcRequest request = mpcService.getMpcRequest(1, [1,2,3])
+      MpcRequest request = mpcService.getMpcRequest(1L, [1L,2L,3L])
     when:
       String result = mapper.writeValueAsString(request)
     then:

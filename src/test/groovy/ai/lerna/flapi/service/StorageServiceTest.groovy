@@ -93,7 +93,7 @@ class StorageServiceTest extends Specification {
       Optional<TrainingTaskResponse> result = storageService.getTask(token)
       int size = storageService.tasks.size()
     then:
-      result.isEmpty()
+      !result.isPresent()
       size == 0
   }
 
@@ -177,7 +177,7 @@ class StorageServiceTest extends Specification {
       boolean result3 = storageService.isJobActive(jobId3)
     then:
       size == 1
-      result.isEmpty()
+      !result.isPresent()
       result1
       !result2
       result3
@@ -197,7 +197,7 @@ class StorageServiceTest extends Specification {
       Optional<TrainingWeightsResponse> result = storageService.getWeights(token)
       int size = storageService.weights.size()
     then:
-      result.isEmpty()
+      !result.isPresent()
       size == 0
   }
 

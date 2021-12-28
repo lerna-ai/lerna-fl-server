@@ -69,7 +69,7 @@ public class MpcServiceImpl implements MpcService {
     MpcRequest mpcRequest = new MpcRequest();
     mpcRequest.setCompId(0);
     mpcRequest.setMpc(true);
-    mpcRequest.setDifferentialPrivacy(epsilon);
+    mpcRequest.setEpsilon(epsilon);
     mpcRequest.setDimensions(dimensions);
     mpcRequest.setNormalization(normalization);
     return mpcRequest;
