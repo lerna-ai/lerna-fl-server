@@ -8,10 +8,10 @@ INSERT INTO lerna_ml (app_id, model, privacy_parameters, ml_parameters, accuracy
 VALUES (currval('lerna_app_id_seq'), 'hair color', '{"mpc": true, "epsilon": 1000}', '{"normalization": 0.1, "iterations": 10,"learningRate": 0.05, "dimensions": 5, "dataSplit": 70}', 0);
 
 INSERT INTO lerna_job (ml_id, prediction, weights, total_data_points, total_devices)
-VALUES (currval('lerna_ml_id_seq'), 'black', '{"array": "AAdKQVZBQ1BQAAAACAADSU5UAAAAAgAAAAUAAAABAAAAAQAAAAEAAAAAAAAAAQAAAGMAB0pBVkFD\r\nUFAAAAAFAAVGTE9BVD+AAAA/gAAAP4AAAD+AAAA/gAAA\r\n"}', 100, 10);
+VALUES (currval('lerna_ml_id_seq'), 'black', '{"array": "AAdKQVZBQ1BQAAAACAADSU5UAAAAAgAAAAUAAAABAAAAAQAAAAEAAAAAAAAAAQAAAGMAB0pBVkFD\r\nUFAAAAAFAAVGTE9BVAAAAAAAAAAAAAAAAAAAAAAAAAAA\r\n"}', 100, 10);
 
 INSERT INTO lerna_job (ml_id, prediction, weights, total_data_points, total_devices)
-VALUES (currval('lerna_ml_id_seq'), 'red', '{"array": "AAdKQVZBQ1BQAAAACAADSU5UAAAAAgAAAAUAAAABAAAAAQAAAAEAAAAAAAAAAQAAAGMAB0pBVkFD\r\nUFAAAAAFAAVGTE9BVD+AAAA/gAAAP4AAAD+AAAA/gAAA\r\n"}', 100, 10);
+VALUES (currval('lerna_ml_id_seq'), 'red', '{"array": "AAdKQVZBQ1BQAAAACAADSU5UAAAAAgAAAAUAAAABAAAAAQAAAAEAAAAAAAAAAQAAAGMAB0pBVkFD\r\nUFAAAAAFAAVGTE9BVAAAAAAAAAAAAAAAAAAAAAAAAAAA\r\n"}', 100, 10);
 
 INSERT INTO lerna_job (ml_id, prediction, weights, total_data_points, total_devices)
-VALUES (currval('lerna_ml_id_seq'), 'blonde', '{"array": "AAdKQVZBQ1BQAAAACAADSU5UAAAAAgAAAAUAAAABAAAAAQAAAAEAAAAAAAAAAQAAAGMAB0pBVkFD\r\nUFAAAAAFAAVGTE9BVD+AAAA/gAAAP4AAAD+AAAA/gAAA\r\n"}', 100, 10);
+VALUES (currval('lerna_ml_id_seq'), 'blonde', '{"array": "AAdKQVZBQ1BQAAAACAADSU5UAAAAAgAAAAUAAAABAAAAAQAAAAEAAAAAAAAAAQAAAGMAB0pBVkFD\r\nUFAAAAAFAAVGTE9BVAAAAAAAAAAAAAAAAAAAAAAAAAAA\r\n"}', 100, 10);
