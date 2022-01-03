@@ -10,10 +10,14 @@ import ai.lerna.flapi.api.dto.TrainingWeights;
 import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 import ai.lerna.flapi.entity.LernaPrediction;
+import ai.lerna.flapi.entity.MLHistory;
+import ai.lerna.flapi.entity.MLHistoryDatapoint;
 import ai.lerna.flapi.repository.LernaAppRepository;
 import ai.lerna.flapi.repository.LernaJobRepository;
 import ai.lerna.flapi.repository.LernaMLRepository;
 import ai.lerna.flapi.repository.LernaPredictionRepository;
+import ai.lerna.flapi.repository.MLHistoryDatapointRepository;
+import ai.lerna.flapi.repository.MLHistoryRepository;
 import ai.lerna.flapi.service.MpcService;
 import ai.lerna.flapi.service.StorageService;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -42,6 +46,8 @@ public class FLManagerImpl implements FLManager {
 	private final LernaMLRepository lernaMLRepository;
 	private final LernaJobRepository lernaJobRepository;
 	private final LernaPredictionRepository lernaPredictionRepository;
+	private final MLHistoryRepository mlHistoryRepository;
+	private final MLHistoryDatapointRepository mlHistoryDatapointRepository;
 	private final StorageService storageService;
 
 	@Value("${app.config.mpcServer.host:localhost}")
@@ -54,12 +60,14 @@ public class FLManagerImpl implements FLManager {
 	private int scaling_factor;
 
 	@Autowired
-	public FLManagerImpl(MpcService mpcService, LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, LernaPredictionRepository lernaPredictionRepository, StorageService storageService) {
+	public FLManagerImpl(MpcService mpcService, LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, LernaPredictionRepository lernaPredictionRepository, MLHistoryRepository mlHistoryRepository, MLHistoryDatapointRepository mlHistoryDatapointRepository, StorageService storageService) {
 		this.mpcService = mpcService;
 		this.lernaAppRepository = lernaAppRepository;
 		this.lernaMLRepository = lernaMLRepository;
 		this.lernaJobRepository = lernaJobRepository;
 		this.lernaPredictionRepository = lernaPredictionRepository;
+		this.mlHistoryRepository = mlHistoryRepository;
+		this.mlHistoryDatapointRepository = mlHistoryDatapointRepository;
 		this.storageService = storageService;
 	}
 
@@ -119,17 +127,34 @@ public class FLManagerImpl implements FLManager {
 	}
 
 	@Override
+	@Transactional
 	public String saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) {
-		// if not exist combination of ml_id, deviceId, version add new record
-		// add to new tables :
-		// ML_History FK(ml_id), version, weights [, sum(accuracy), avg(accuracy)]
-		// ML_History_datapoints FK(ML_History.id, timestamp, deviceId, accuracy)
-		if (lernaMLRepository.existsByAppToken(token)) {
-			storageService.addDeviceAccuracy(trainingAccuracyRequest.getMLId(), trainingAccuracyRequest.getDeviceId(), trainingAccuracyRequest.getVersion(), trainingAccuracyRequest.getAccuracy());
-			return "OK";
-		} else {
+		if (!lernaMLRepository.existsByAppTokenAndMlId(token, trainingAccuracyRequest.getMlId())) {
+			// ToDo: Throw an error
 			return null;
 		}
+		MLHistory mlHistory = mlHistoryRepository.findByMLIdAndVersion(trainingAccuracyRequest.getMlId(), trainingAccuracyRequest.getVersion())
+			.orElseGet(() -> mlHistoryRepository.save(constructMLHistory(trainingAccuracyRequest)));
+		MLHistoryDatapoint mlHistoryDatapoint = constructMLHistoryDatapoint(mlHistory.getId(), trainingAccuracyRequest.getDeviceId(), trainingAccuracyRequest.getAccuracy());
+		mlHistoryDatapointRepository.save(mlHistoryDatapoint);
+		return "OK";
+	}
+
+	private MLHistory constructMLHistory(TrainingAccuracyRequest trainingAccuracyRequest) {
+		MLHistory mlHistory = new MLHistory();
+		mlHistory.setMLId(trainingAccuracyRequest.getMlId());
+		mlHistory.setVersion(trainingAccuracyRequest.getVersion());
+		mlHistory.setWeights(Nd4j.zeros(5, 1));
+		return mlHistory;
+	}
+
+	private MLHistoryDatapoint constructMLHistoryDatapoint(long historyId, long deviceId, BigDecimal accuracy) {
+		MLHistoryDatapoint mlHistoryDatapoint = new MLHistoryDatapoint();
+		mlHistoryDatapoint.setHistoryId(historyId);
+		mlHistoryDatapoint.setTimestamp(new Date());
+		mlHistoryDatapoint.setDeviceId(deviceId);
+		mlHistoryDatapoint.setAccuracy(accuracy);
+		return mlHistoryDatapoint;
 	}
 
 	private TrainingTaskResponse createTrainingTask(String token) {
@@ -196,7 +221,7 @@ public class FLManagerImpl implements FLManager {
 	private String checkNaggregate(String token, Long jobId, int num_of_users) { //this function aggragates per job, which is fine, but how do we follow versioning which is per app?
 		int actual_users = storageService.getDeviceWeightsSize(jobId);
 		if (actual_users >= num_of_users) {
-			List<TrainingTask> tasks = storageService.getTask(token).get().getTrainingTasks(); 
+			List<TrainingTask> tasks = storageService.getTask(token).get().getTrainingTasks();
 			for (TrainingTask task : tasks) {
 				long mlid = task.getMlId();
 				Map<String, Long> jobIds = task.getJobIds();
@@ -234,15 +259,15 @@ public class FLManagerImpl implements FLManager {
 						.map(lernaJobRepository::save);
 
 					storageService.deleteDropTable(job.getValue());
-					
+
 				}
-				
+
 			}
 			//ToDo: update version
 			lernaAppRepository.incrementVersionByToken(token);
 			storageService.deleteTaskTable(token);
 			storageService.deleteWeightsTable(token);
-			
+
 			return ("Done");
 		} else {
 			return ("Not ready");

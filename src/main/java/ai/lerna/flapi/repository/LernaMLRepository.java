@@ -23,6 +23,9 @@ public interface LernaMLRepository extends JpaRepository<LernaML, Long> {
 
 	@Query(value = "SELECT count(lm.id) = 1 FROM lerna_ml lm INNER JOIN lerna_app la ON la.id = lm.app_id WHERE la.token = :token", nativeQuery = true)
 	boolean existsByAppToken(String token);
+
+	@Query(value = "SELECT count(lm.id) = 1 FROM lerna_ml lm INNER JOIN lerna_app la ON la.id = lm.app_id WHERE la.token = :token and lm.id = :mlId", nativeQuery = true)
+	boolean existsByAppTokenAndMlId(String token, long mlId);
 	
 	@Query(value = "SELECT no_min_users FROM lerna_app WHERE token = :token", nativeQuery = true)
 	int findUsersNumByAppToken(String token);

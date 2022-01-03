@@ -8,24 +8,24 @@ import java.math.BigDecimal;
 @Schema(description = "Get individual noisy weights")
 public class TrainingAccuracyRequest implements Serializable {
 
-	private long ml_id;
+	private long mlId;
 	private long deviceId;
 	private long version;
 	private BigDecimal accuracy;
 
-	public long getMLId() {
-		return ml_id;
+	public long getMlId() {
+		return mlId;
 	}
 
-	public void setMLId(long ml_id) {
-		this.ml_id = ml_id;
+	public void setMlId(long mlId) {
+		this.mlId = mlId;
 	}
 
 	public long getDeviceId() {
 		return deviceId;
 	}
 
-	public void setDeviceId(int deviceId) {
+	public void setDeviceId(long deviceId) {
 		this.deviceId = deviceId;
 	}
 
@@ -36,7 +36,7 @@ public class TrainingAccuracyRequest implements Serializable {
 	public void setVersion(long version) {
 		this.version = version;
 	}
-	
+
 	public BigDecimal getAccuracy() {
 		return accuracy;
 	}
@@ -44,5 +44,4 @@ public class TrainingAccuracyRequest implements Serializable {
 	public void setAccuracy(BigDecimal accuracy) {
 		this.accuracy = accuracy;
 	}
-
 }
