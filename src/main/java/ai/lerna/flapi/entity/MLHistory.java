@@ -10,6 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "ml_history")
@@ -28,6 +29,9 @@ public class MLHistory {
 	@Column(name = "weights", columnDefinition = "jsonb")
 	@Convert(converter = INDArrayConverter.class)
 	private INDArray weights;
+
+	@Column(name = "accuracy_avg")
+	private BigDecimal accuracyAvg;
 
 	public long getId() {
 		return id;
@@ -59,5 +63,13 @@ public class MLHistory {
 
 	public void setWeights(INDArray weights) {
 		this.weights = weights;
+	}
+
+	public BigDecimal getAccuracyAvg() {
+		return accuracyAvg;
+	}
+
+	public void setAccuracyAvg(BigDecimal accuracyAvg) {
+		this.accuracyAvg = accuracyAvg;
 	}
 }

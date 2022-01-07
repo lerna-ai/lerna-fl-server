@@ -24,16 +24,16 @@ public interface TrainingApi {
 	TrainingTaskResponse getNewTraining(@RequestParam(value = "token") String token, @RequestParam(value = "deviceId") Long deviceId) throws Exception;
 
 	@PostMapping("/submitWeights")
-	String postDeviceWeights(@RequestParam(value = "token") String token, @RequestBody TrainingWeightsRequest trainingWeightsRequest) throws Exception;
+	void postDeviceWeights(@RequestParam(value = "token") String token, @RequestBody TrainingWeightsRequest trainingWeightsRequest) throws Exception;
 
 	@GetMapping("/getNewWeights")
 	TrainingWeightsResponse getGlobalWeights(@RequestParam(value = "token") String token, @RequestParam(value = "version") long version) throws Exception;
 
 	@Operation(summary = "Post accuracy")
 	@PostMapping("/accuracy")
-	String postAccuracy(@RequestParam(value = "token") String token, @RequestBody TrainingAccuracyRequest request) throws Exception;
+	void postAccuracy(@RequestParam(value = "token") String token, @RequestBody TrainingAccuracyRequest request) throws Exception;
 
 	@Operation(summary = "Post Inference")
 	@PostMapping("/inference")
-	String postInference(@RequestParam(value = "token") String token, @RequestBody TrainingInferenceRequest request) throws Exception;
+	void postInference(@RequestParam(value = "token") String token, @RequestBody TrainingInferenceRequest request) throws Exception;
 }

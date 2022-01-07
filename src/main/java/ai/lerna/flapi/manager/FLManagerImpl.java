@@ -72,7 +72,7 @@ public class FLManagerImpl implements FLManager {
 	}
 
 	@Override
-	public TrainingTaskResponse getNewTraining(String token, Long deviceId) {
+	public TrainingTaskResponse getNewTraining(String token, Long deviceId) throws Exception {
 		TrainingTaskResponse trainingTaskResponse;
 		Optional<TrainingTaskResponse> taskResponse = storageService.getTask(token);
 		if (taskResponse.isPresent()) {
@@ -90,21 +90,18 @@ public class FLManagerImpl implements FLManager {
 
 	@Override
 	@Transactional
-	public String saveDeviceWeights(String token, TrainingWeightsRequest trainingWeightsRequest) throws Exception {
+	public void saveDeviceWeights(String token, TrainingWeightsRequest trainingWeightsRequest) throws Exception {
 		if (!storageService.existsDeviceIdOnDropTable(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId())) {
 			throw new Exception("Device ID not exists on pending devices list");
 		}
-		// ToDo: remove from job's drop table,
-		if (lernaMLRepository.existsByAppToken(token)) {
-			//!!!This jobId should not be the same as the id of the Jobs table, it is the id from the MPC server
-			storageService.removeDeviceIdFromDropTable(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId());
-			storageService.addDeviceWeights(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId(), trainingWeightsRequest.getDatapoints(), trainingWeightsRequest.getDeviceWeights());
-			checkNaggregate(token, trainingWeightsRequest.getJobId(), lernaMLRepository.findUsersNumByAppToken(token));
-			return "OK";
-			// ?ToDo: Check if enough weights have been gathered for aggregating the model/finishing the job
-		} else {
-			return null;
+		if (!lernaMLRepository.existsByAppToken(token)) {
+			throw new Exception("Not exists ML for selected token");
 		}
+		//!!!This jobId should not be the same as the id of the Jobs table, it is the id from the MPC server
+		storageService.removeDeviceIdFromDropTable(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId());
+		storageService.addDeviceWeights(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId(), trainingWeightsRequest.getDatapoints(), trainingWeightsRequest.getDeviceWeights());
+		checkNaggregate(token, trainingWeightsRequest.getJobId(), lernaMLRepository.findUsersNumByAppToken(token));
+		// ?ToDo: Check if enough weights have been gathered for aggregating the model/finishing the job
 	}
 
 	@Override
@@ -115,8 +112,8 @@ public class FLManagerImpl implements FLManager {
 		if (weightResponse.isPresent()) {
 			long cur_version = weightResponse.get().getVersion();
 			trainingWeightsResponse = (cur_version != version)
-				? weightResponse.get()
-				: null;
+					? weightResponse.get()
+					: null;
 		} else {
 
 			trainingWeightsResponse = createTrainingWeights(token);
@@ -128,16 +125,15 @@ public class FLManagerImpl implements FLManager {
 
 	@Override
 	@Transactional
-	public String saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) {
+	public void saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) throws Exception {
 		if (!lernaMLRepository.existsByAppTokenAndMlId(token, trainingAccuracyRequest.getMlId())) {
-			// ToDo: Throw an error
-			return null;
+			throw new Exception("Not valid ML id for selected token");
 		}
 		MLHistory mlHistory = mlHistoryRepository.findByMLIdAndVersion(trainingAccuracyRequest.getMlId(), trainingAccuracyRequest.getVersion())
-			.orElseGet(() -> mlHistoryRepository.save(constructMLHistory(trainingAccuracyRequest)));
+				.orElseGet(() -> mlHistoryRepository.save(constructMLHistory(trainingAccuracyRequest)));
 		MLHistoryDatapoint mlHistoryDatapoint = constructMLHistoryDatapoint(mlHistory.getId(), trainingAccuracyRequest.getDeviceId(), trainingAccuracyRequest.getAccuracy());
 		mlHistoryDatapointRepository.save(mlHistoryDatapoint);
-		return "OK";
+		mlHistoryRepository.updateAccuracyAverage(mlHistory.getId());
 	}
 
 	private MLHistory constructMLHistory(TrainingAccuracyRequest trainingAccuracyRequest) {
@@ -145,6 +141,7 @@ public class FLManagerImpl implements FLManager {
 		mlHistory.setMLId(trainingAccuracyRequest.getMlId());
 		mlHistory.setVersion(trainingAccuracyRequest.getVersion());
 		mlHistory.setWeights(Nd4j.zeros(5, 1));
+		mlHistory.setAccuracyAvg(BigDecimal.ZERO);
 		return mlHistory;
 	}
 
@@ -157,25 +154,28 @@ public class FLManagerImpl implements FLManager {
 		return mlHistoryDatapoint;
 	}
 
-	private TrainingTaskResponse createTrainingTask(String token) {
+	private TrainingTaskResponse createTrainingTask(String token) throws Exception {
 		List<TrainingTask> trainingTasks = new ArrayList<>();
+		if (!lernaMLRepository.existsByAppToken(token)) {
+			throw new Exception("Not exists ML for selected token");
+		}
 		lernaMLRepository.findAllByAppToken(token).forEach(lernaML -> {
 			Map<String, Long> jobIds = new HashMap<>();
 			lernaJobRepository.findByMLId(lernaML.getId()).forEach(lernaJob -> {
 				jobIds.put(lernaJob.getPrediction(), mpcService.getLernaJob(mpcHost, mpcPort, lernaML.getPrivacy().getEpsilon(), lernaML.getML().getDimensions(), lernaML.getML().getNormalization()).getCompId());
 			});
 			trainingTasks.add(TrainingTask.newBuilder()
-				.setJobIds(jobIds)
-				.setMlId(lernaML.getId())
-				.setMlModel(lernaML.getModel())
-				.setLernaMLParameters(lernaML.getML())
-				.build());
+					.setJobIds(jobIds)
+					.setMlId(lernaML.getId())
+					.setMlModel(lernaML.getModel())
+					.setLernaMLParameters(lernaML.getML())
+					.build());
 		});
 
 		return TrainingTaskResponse.newBuilder()
-			.setTrainingTasks(trainingTasks)
-			.setVersion(lernaAppRepository.getVersionByToken(token).orElse(0L))
-			.build();
+				.setTrainingTasks(trainingTasks)
+				.setVersion(lernaAppRepository.getVersionByToken(token).orElse(0L))
+				.build();
 	}
 
 	private TrainingWeightsResponse createTrainingWeights(String token) {
@@ -186,22 +186,23 @@ public class FLManagerImpl implements FLManager {
 				weights.put(lernaJob.getPrediction(), lernaJob.getWeights());
 			});
 			trainingWeights.add(TrainingWeights.newBuilder()
-				.setMlId(lernaML.getId())
-				.setWeights(weights)
-				.build());
+					.setMlId(lernaML.getId())
+					.setWeights(weights)
+					.build());
 		});
 		return TrainingWeightsResponse.newBuilder()
-			.setTrainingWeights(trainingWeights)
-			.setVersion(lernaAppRepository.getVersionByToken(token).orElse(0L))
-			.build();
+				.setTrainingWeights(trainingWeights)
+				.setVersion(lernaAppRepository.getVersionByToken(token).orElse(0L))
+				.build();
 	}
 
 	@Override
-	public String saveInference(String token, TrainingInferenceRequest trainingInferenceRequest) {
-
-		if (lernaMLRepository.existsByAppToken(token)) {
-			for (TrainingInference result : trainingInferenceRequest.getTrainingInference()) {
-				LernaPrediction lernaPrediction = LernaPrediction.newBuilder()
+	public void saveInference(String token, TrainingInferenceRequest trainingInferenceRequest) throws Exception {
+		if (!lernaMLRepository.existsByAppToken(token)) {
+			throw new Exception("Not exists ML for selected token");
+		}
+		for (TrainingInference result : trainingInferenceRequest.getTrainingInference()) {
+			LernaPrediction lernaPrediction = LernaPrediction.newBuilder()
 					.setDeviceId(trainingInferenceRequest.getDeviceId())
 					.setMLId(result.getMl_id())
 					.setModel(result.getModel())
@@ -209,12 +210,8 @@ public class FLManagerImpl implements FLManager {
 					.setPrediction(result.getPrediction())
 					.setTimestamp(new Date())
 					.build();
-				lernaPredictionRepository.save(lernaPrediction);
-				storageService.addDeviceInference(token, lernaPrediction);
-			}
-			return "OK";
-		} else {
-			return null;
+			lernaPredictionRepository.save(lernaPrediction);
+			storageService.addDeviceInference(token, lernaPrediction);
 		}
 	}
 
@@ -251,12 +248,12 @@ public class FLManagerImpl implements FLManager {
 					INDArray finalSum = sum;
 					long finalTotal_points = total_points;
 					lernaJobRepository.findByMLIdAndPrediction(mlid, job.getKey()).stream()
-						.peek(lernaJob -> {
-							lernaJob.setWeights(finalSum);
-							lernaJob.setTotalDataPoints(finalTotal_points);
-							lernaJob.setTotalDevices(storageService.getDeviceWeightsSize(job.getValue()));
-						})
-						.map(lernaJobRepository::save);
+							.peek(lernaJob -> {
+								lernaJob.setWeights(finalSum);
+								lernaJob.setTotalDataPoints(finalTotal_points);
+								lernaJob.setTotalDevices(storageService.getDeviceWeightsSize(job.getValue()));
+							})
+							.map(lernaJobRepository::save);
 
 					storageService.deleteDropTable(job.getValue());
 
