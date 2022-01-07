@@ -14,7 +14,7 @@ public interface FLManager {
 
     TrainingWeightsResponse getGlobalWeights(String token, long version);
 
-    String saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest);
+    void saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) throws Exception;
     
     String saveInference(String token, TrainingInferenceRequest trainingInferenceRequest);
 }

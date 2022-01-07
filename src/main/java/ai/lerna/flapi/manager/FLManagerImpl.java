@@ -128,16 +128,15 @@ public class FLManagerImpl implements FLManager {
 
 	@Override
 	@Transactional
-	public String saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) {
+	public void saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) throws Exception {
 		if (!lernaMLRepository.existsByAppTokenAndMlId(token, trainingAccuracyRequest.getMlId())) {
-			// ToDo: Throw an error
-			return null;
+			throw new Exception("Not valid ML id for selected token");
 		}
 		MLHistory mlHistory = mlHistoryRepository.findByMLIdAndVersion(trainingAccuracyRequest.getMlId(), trainingAccuracyRequest.getVersion())
 			.orElseGet(() -> mlHistoryRepository.save(constructMLHistory(trainingAccuracyRequest)));
 		MLHistoryDatapoint mlHistoryDatapoint = constructMLHistoryDatapoint(mlHistory.getId(), trainingAccuracyRequest.getDeviceId(), trainingAccuracyRequest.getAccuracy());
 		mlHistoryDatapointRepository.save(mlHistoryDatapoint);
-		return "OK";
+		mlHistoryRepository.updateAccuracyAverage(mlHistory.getId());
 	}
 
 	private MLHistory constructMLHistory(TrainingAccuracyRequest trainingAccuracyRequest) {
@@ -145,6 +144,7 @@ public class FLManagerImpl implements FLManager {
 		mlHistory.setMLId(trainingAccuracyRequest.getMlId());
 		mlHistory.setVersion(trainingAccuracyRequest.getVersion());
 		mlHistory.setWeights(Nd4j.zeros(5, 1));
+		mlHistory.setAccuracyAvg(BigDecimal.ZERO);
 		return mlHistory;
 	}
 

@@ -43,9 +43,9 @@ public class TrainingApiImpl implements TrainingApi {
     }
 
     @Override
-    public String postAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) throws Exception {
+    public void postAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) throws Exception {
         validator.tokenValidation(token);
-        return flManager.saveDeviceAccuracy(token, trainingAccuracyRequest);
+        flManager.saveDeviceAccuracy(token, trainingAccuracyRequest);
     }
 
     @Override

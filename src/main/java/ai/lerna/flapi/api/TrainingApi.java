@@ -31,7 +31,7 @@ public interface TrainingApi {
 
 	@Operation(summary = "Post accuracy")
 	@PostMapping("/accuracy")
-	String postAccuracy(@RequestParam(value = "token") String token, @RequestBody TrainingAccuracyRequest request) throws Exception;
+	void postAccuracy(@RequestParam(value = "token") String token, @RequestBody TrainingAccuracyRequest request) throws Exception;
 
 	@Operation(summary = "Post Inference")
 	@PostMapping("/inference")
