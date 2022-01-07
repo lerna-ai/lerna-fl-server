@@ -8,13 +8,13 @@ import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 
 public interface FLManager {
 
-    TrainingTaskResponse getNewTraining(String token, Long deviceId);
+    TrainingTaskResponse getNewTraining(String token, Long deviceId) throws Exception;
 
-    String saveDeviceWeights(String token, TrainingWeightsRequest trainingWeightsRequest) throws Exception;
+    void saveDeviceWeights(String token, TrainingWeightsRequest trainingWeightsRequest) throws Exception;
 
     TrainingWeightsResponse getGlobalWeights(String token, long version);
 
     void saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) throws Exception;
     
-    String saveInference(String token, TrainingInferenceRequest trainingInferenceRequest);
+    void saveInference(String token, TrainingInferenceRequest trainingInferenceRequest) throws Exception;
 }
