@@ -6,7 +6,7 @@ class TestApiSpec extends Specification {
   TestApi testApi
 
   def setup() {
-    testApi = new TestApiImpl()
+    testApi = new TestApiImpl(null, null)
   }
 
   def "Should return correct response"() {

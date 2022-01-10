@@ -162,4 +162,10 @@ public class StorageServiceImpl implements StorageService {
 		weights.remove(token);
 	}
 
+	@Override
+	public boolean isTaskVersionActive(String token, long version) {
+		return tasks.containsKey(token)
+				&& tasks.get(token).getVersion().equals(version);
+	}
+
 }

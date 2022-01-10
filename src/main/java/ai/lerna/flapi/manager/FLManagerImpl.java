@@ -37,6 +37,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Component
 public class FLManagerImpl implements FLManager {
@@ -97,10 +98,13 @@ public class FLManagerImpl implements FLManager {
 		if (!lernaMLRepository.existsByAppToken(token)) {
 			throw new Exception("Not exists ML for selected token");
 		}
+		if (!storageService.isTaskVersionActive(token, trainingWeightsRequest.getVersion())) {
+			throw new Exception("Incorrect ML task version for selected token");
+		}
 		//!!!This jobId should not be the same as the id of the Jobs table, it is the id from the MPC server
 		storageService.removeDeviceIdFromDropTable(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId());
 		storageService.addDeviceWeights(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId(), trainingWeightsRequest.getDatapoints(), trainingWeightsRequest.getDeviceWeights());
-		checkNaggregate(token, trainingWeightsRequest.getJobId(), lernaMLRepository.findUsersNumByAppToken(token));
+		checkAndAggregate(token);
 		// ?ToDo: Check if enough weights have been gathered for aggregating the model/finishing the job
 	}
 
@@ -215,59 +219,60 @@ public class FLManagerImpl implements FLManager {
 		}
 	}
 
-	private String checkNaggregate(String token, Long jobId, int num_of_users) { //this function aggragates per job, which is fine, but how do we follow versioning which is per app?
-		int actual_users = storageService.getDeviceWeightsSize(jobId);
-		if (actual_users >= num_of_users) {
-			List<TrainingTask> tasks = storageService.getTask(token).get().getTrainingTasks();
-			for (TrainingTask task : tasks) {
-				long mlid = task.getMlId();
-				Map<String, Long> jobIds = task.getJobIds();
-				for (Map.Entry<String, Long> job : jobIds.entrySet()) {
-					storageService.deactivateJob(job.getValue());
-					List<DeviceWeights> weights = storageService.getDeviceWeights(job.getValue());
-					if (Objects.isNull(weights)) {
-						// Kill job from privacy server
-						mpcService.getLernaNoise(mpcHost, mpcPort, job.getValue(), new ArrayList<>(storageService.getDeviceDropTable(job.getValue())));
-						continue;
-					}
-					INDArray sum = Nd4j.zeros(weights.get(0).getWeights().rows(), 1);
-					long total_points = 0;
-					for (DeviceWeights w : weights) {
-						total_points += w.getDataPoints();
-						sum = sum.add(w.getWeights());
-					}
-					List<BigDecimal> shareList = mpcService.getLernaNoise(mpcHost, mpcPort, job.getValue(), new ArrayList<>(storageService.getDeviceDropTable(job.getValue()))).getShare();
-					INDArray shares = Nd4j.zeros(weights.get(0).getWeights().rows(), 1);
-					for (int k = 0; k < weights.get(0).getWeights().rows(); k++) {
-						shares.putScalar(k, shareList.get(k).doubleValue());
-					}
-					//these are the final weights for this job
-					sum = sum.add(shares).mul(1.0 / (actual_users * scaling_factor));
+	private void checkAndAggregate(String token) throws Exception {
+		int num_of_users = lernaMLRepository.findUsersNumByAppToken(token);
+		TrainingTaskResponse trainingTaskResponse = storageService.getTask(token)
+				.orElseThrow(() -> new Exception("Not active ML for selected token"));
 
-					//update weights functionality
-					INDArray finalSum = sum;
-					long finalTotal_points = total_points;
-					lernaJobRepository.findByMLIdAndPrediction(mlid, job.getKey()).stream()
-							.peek(lernaJob -> {
-								lernaJob.setWeights(finalSum);
-								lernaJob.setTotalDataPoints(finalTotal_points);
-								lernaJob.setTotalDevices(storageService.getDeviceWeightsSize(job.getValue()));
-							})
-							.map(lernaJobRepository::save);
-
-					storageService.deleteDropTable(job.getValue());
-
+		// ToDo: Check if we need to aggregate per task or per token
+		if (!trainingTaskResponse.getTrainingTasks().stream()
+				.flatMap(trainingTask -> trainingTask.getJobIds().values().stream())
+				.allMatch(job -> storageService.getDeviceWeightsSize(job) >= num_of_users)) {
+			return;
+		}
+		trainingTaskResponse.getTrainingTasks().forEach(task -> {
+			long mlId = task.getMlId();
+			for (Map.Entry<String, Long> job : task.getJobIds().entrySet()) {
+				storageService.deactivateJob(job.getValue());
+				List<DeviceWeights> weights = storageService.getDeviceWeights(job.getValue());
+				if (Objects.isNull(weights)) {
+					// Kill jobs from privacy server
+					mpcService.getLernaNoise(mpcHost, mpcPort, job.getValue(), new ArrayList<>(storageService.getDeviceDropTable(job.getValue())));
+					continue;
 				}
+				INDArray sum = Nd4j.zeros(weights.get(0).getWeights().rows(), 1);
+				long total_points = 0;
+				for (DeviceWeights w : weights) {
+					total_points += w.getDataPoints();
+					sum = sum.add(w.getWeights());
+				}
+				List<BigDecimal> shareList = mpcService.getLernaNoise(mpcHost, mpcPort, job.getValue(), new ArrayList<>(storageService.getDeviceDropTable(job.getValue()))).getShare();
+				INDArray shares = Nd4j.zeros(weights.get(0).getWeights().rows(), 1);
+				for (int k = 0; k < weights.get(0).getWeights().rows(); k++) {
+					shares.putScalar(k, shareList.get(k).doubleValue());
+				}
+				//these are the final weights for this job
+				sum = sum.add(shares).mul(1.0 / (storageService.getDeviceWeightsSize(job.getValue()) * scaling_factor));
+
+				//update weights functionality
+				INDArray finalSum = sum;
+				long finalTotal_points = total_points;
+				lernaJobRepository.findByMLIdAndPrediction(mlId, job.getKey()).stream()
+						.peek(lernaJob -> {
+							lernaJob.setWeights(finalSum);
+							lernaJob.setTotalDataPoints(finalTotal_points);
+							lernaJob.setTotalDevices(storageService.getDeviceWeightsSize(job.getValue()));
+						})
+						.map(lernaJobRepository::save)
+						.collect(Collectors.toList());
+
+				storageService.deleteDropTable(job.getValue());
 
 			}
-			//ToDo: update version
-			lernaAppRepository.incrementVersionByToken(token);
-			storageService.deleteTaskTable(token);
-			storageService.deleteWeightsTable(token);
+		});
 
-			return ("Done");
-		} else {
-			return ("Not ready");
-		}
+		lernaAppRepository.incrementVersionByToken(token);
+		storageService.deleteTaskTable(token);
+		storageService.deleteWeightsTable(token);
 	}
 }

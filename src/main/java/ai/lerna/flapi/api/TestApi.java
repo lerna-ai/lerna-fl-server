@@ -7,6 +7,9 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.Map;
 
 @RequestMapping(TestApi.path)
 @Tag(name = TestApi.tag)
@@ -25,6 +28,10 @@ public interface TestApi {
 	@Operation(summary = "Get Noise Shares for selected Job ID")
 	@GetMapping("/lerna/{jobId}")
 	MpcResponse lernaByJob(@PathVariable int jobId);
+
+	@Operation(summary = "Get Jobs-Weights map for selected token")
+	@GetMapping("/jobs")
+	Map<String, String> jobsById(@RequestParam(value = "token") String token);
 
 	@GetMapping("/array/{d}")
 	INDArray getINDArray(@PathVariable double d);

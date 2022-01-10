@@ -50,4 +50,6 @@ public interface StorageService {
 	void deleteTaskTable(String token);
 
 	void deleteWeightsTable(String token);
+
+	boolean isTaskVersionActive(String token, long version);
 }
