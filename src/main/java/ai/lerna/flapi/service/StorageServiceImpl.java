@@ -143,7 +143,7 @@ public class StorageServiceImpl implements StorageService {
 	}
 
 	@Override
-	public void addDeviceAccuracy(Long ml_id, Long deviceId, Long version, BigDecimal accuracy) {
+	public void addDeviceAccuracy(Long mlId, Long deviceId, Long version, BigDecimal accuracy) {
 		//Store the accuracy
 	}
 
