@@ -41,7 +41,7 @@ public interface StorageService {
 
 	void addDeviceInference(String token, LernaPrediction prediction);
 
-	void addDeviceAccuracy(Long ml_id, Long deviceId, Long version, BigDecimal accuracy);
+	void addDeviceAccuracy(Long mlId, Long deviceId, Long version, BigDecimal accuracy);
 
 	List<DeviceWeights> getDeviceWeights(Long jobId);
 
@@ -50,4 +50,6 @@ public interface StorageService {
 	void deleteTaskTable(String token);
 
 	void deleteWeightsTable(String token);
+
+	boolean isTaskVersionActive(String token, long version);
 }

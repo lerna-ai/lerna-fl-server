@@ -27,8 +27,8 @@ public class MpcServiceImpl implements MpcService {
     this.mapper = new XmlMapper();
   }
 
-  public MpcResponse getLernaNoise(String host, int port, long jobId, ArrayList<Long> u_ids) {
-    return makeRequest(host, port, getMpcRequest(jobId, u_ids));
+  public MpcResponse getLernaNoise(String host, int port, long jobId, ArrayList<Long> uIds) {
+    return makeRequest(host, port, getMpcRequest(jobId, uIds));
   }
 
   public MpcResponse getLernaJob(String host, int port, BigDecimal epsilon, int dimensions, BigDecimal normalization) {
@@ -49,7 +49,7 @@ public class MpcServiceImpl implements MpcService {
       out.close();
       connection.close();
 
-      Logger.getLogger(this.getClass().getName()).log(Level.INFO, "MPC Response: " + message);
+      Logger.getLogger(this.getClass().getName()).log(Level.INFO, "MPC Response: {0}", message);
 
       return mapper.readValue(message, MpcResponse.class);
     } catch (IOException ex) {
@@ -58,10 +58,10 @@ public class MpcServiceImpl implements MpcService {
     }
   }
 
-  private MpcRequest getMpcRequest(long jobId, ArrayList<Long> u_ids) {
+  private MpcRequest getMpcRequest(long jobId, ArrayList<Long> uIds) {
     MpcRequest mpcRequest = new MpcRequest();
     mpcRequest.setCompId(jobId);
-    mpcRequest.setDrop(u_ids.stream().map(String::valueOf).collect(Collectors.joining(";")));
+    mpcRequest.setDrop(uIds.stream().map(String::valueOf).collect(Collectors.joining(";")));
     return mpcRequest;
   }
 

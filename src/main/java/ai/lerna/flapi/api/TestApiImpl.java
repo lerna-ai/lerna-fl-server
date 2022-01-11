@@ -1,9 +1,12 @@
 package ai.lerna.flapi.api;
 
+import ai.lerna.flapi.entity.LernaJob;
+import ai.lerna.flapi.repository.LernaJobRepository;
 import ai.lerna.flapi.service.MpcService;
 import ai.lerna.flapi.service.dto.MpcResponse;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.string.NDArrayStrings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 public class TestApiImpl implements TestApi {
@@ -28,10 +33,12 @@ public class TestApiImpl implements TestApi {
 	private int mpcPort;
 
 	private final MpcService mpcService;
+	private final LernaJobRepository lernaJobRepository;
 
 	@Autowired
-	public TestApiImpl(MpcService mpcService) {
+	public TestApiImpl(MpcService mpcService, LernaJobRepository lernaJobRepository) {
 		this.mpcService = mpcService;
+		this.lernaJobRepository = lernaJobRepository;
 	}
 
 	public String index() {
@@ -44,6 +51,12 @@ public class TestApiImpl implements TestApi {
 
 	public MpcResponse lernaByJob(@PathVariable int jobId) {
 		return mpcService.getLernaNoise(mpcHost, mpcPort, jobId, new ArrayList<>());
+	}
+
+	@Override
+	public Map<String, String> jobsById(String token) {
+		return lernaJobRepository.findAllByAppToken(token).stream()
+				.collect(Collectors.toMap(LernaJob::getPrediction, j -> new NDArrayStrings(10).format(j.getWeights())));
 	}
 
 	@Override
