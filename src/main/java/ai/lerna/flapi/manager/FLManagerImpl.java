@@ -12,6 +12,7 @@ import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 import ai.lerna.flapi.entity.LernaPrediction;
 import ai.lerna.flapi.entity.MLHistory;
 import ai.lerna.flapi.entity.MLHistoryDatapoint;
+import ai.lerna.flapi.entity.MLHistoryWeights;
 import ai.lerna.flapi.repository.LernaAppRepository;
 import ai.lerna.flapi.repository.LernaJobRepository;
 import ai.lerna.flapi.repository.LernaMLRepository;
@@ -27,14 +28,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.ValidationException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -132,19 +136,10 @@ public class FLManagerImpl implements FLManager {
 			throw new Exception("Not valid ML id for selected token");
 		}
 		MLHistory mlHistory = mlHistoryRepository.findByMLIdAndVersion(trainingAccuracyRequest.getMlId(), trainingAccuracyRequest.getVersion())
-				.orElseGet(() -> mlHistoryRepository.save(constructMLHistory(trainingAccuracyRequest)));
+				.orElseThrow(() -> new ValidationException("Not valid version for selected ML id"));
 		MLHistoryDatapoint mlHistoryDatapoint = constructMLHistoryDatapoint(mlHistory.getId(), trainingAccuracyRequest.getDeviceId(), trainingAccuracyRequest.getAccuracy());
 		mlHistoryDatapointRepository.save(mlHistoryDatapoint);
 		mlHistoryRepository.updateAccuracyAverage(mlHistory.getId());
-	}
-
-	private MLHistory constructMLHistory(TrainingAccuracyRequest trainingAccuracyRequest) {
-		MLHistory mlHistory = new MLHistory();
-		mlHistory.setMLId(trainingAccuracyRequest.getMlId());
-		mlHistory.setVersion(trainingAccuracyRequest.getVersion());
-		mlHistory.setWeights(Nd4j.zeros(5, 1));
-		mlHistory.setAccuracyAvg(BigDecimal.ZERO);
-		return mlHistory;
 	}
 
 	private MLHistoryDatapoint constructMLHistoryDatapoint(long historyId, long deviceId, BigDecimal accuracy) {
@@ -225,6 +220,7 @@ public class FLManagerImpl implements FLManager {
 		}
 		trainingTaskResponse.getTrainingTasks().forEach(task -> {
 			long mlId = task.getMlId();
+			Set<MLHistoryWeights> historyWeights = new HashSet<>();
 			for (Map.Entry<String, Long> job : task.getJobIds().entrySet()) {
 				storageService.deactivateJob(job.getValue());
 				List<DeviceWeights> weights = storageService.getDeviceWeights(job.getValue());
@@ -258,9 +254,22 @@ public class FLManagerImpl implements FLManager {
 							lernaJobRepository.save(lernaJob);
 						});
 
+				// Create weights object for ML History table
+				MLHistoryWeights mlHistoryWeights = new MLHistoryWeights();
+				mlHistoryWeights.setPrediction(job.getKey());
+				mlHistoryWeights.setWeights(finalSum);
+				historyWeights.add(mlHistoryWeights);
+
 				storageService.deleteDropTable(job.getValue());
 
 			}
+
+			// Insert/Update ML History record
+			MLHistory mlHistory = mlHistoryRepository.findByMLIdAndVersion(mlId, trainingTaskResponse.getVersion()).orElse(new MLHistory());
+			mlHistory.setMLId(mlId);
+			mlHistory.setVersion(trainingTaskResponse.getVersion());
+			mlHistory.setWeights(historyWeights);
+			mlHistoryRepository.save(mlHistory);
 		});
 
 		lernaAppRepository.incrementVersionByToken(token);

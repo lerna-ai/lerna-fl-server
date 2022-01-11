@@ -1,7 +1,7 @@
 package ai.lerna.flapi.entity;
 
 import ai.lerna.flapi.entity.converter.INDArrayConverter;
-import org.nd4j.linalg.api.ndarray.INDArray;
+import ai.lerna.flapi.entity.converter.MLHistoryWeightsConverter;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -11,6 +11,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "ml_history")
@@ -27,8 +29,8 @@ public class MLHistory {
 	private long version;
 
 	@Column(name = "weights", columnDefinition = "jsonb")
-	@Convert(converter = INDArrayConverter.class)
-	private INDArray weights;
+	@Convert(converter = MLHistoryWeightsConverter.class)
+	private Set<MLHistoryWeights> weights = new HashSet<>();
 
 	@Column(name = "accuracy_avg")
 	private BigDecimal accuracyAvg;
@@ -57,11 +59,11 @@ public class MLHistory {
 		this.version = version;
 	}
 
-	public INDArray getWeights() {
+	public Set<MLHistoryWeights> getWeights() {
 		return weights;
 	}
 
-	public void setWeights(INDArray weights) {
+	public void setWeights(Set<MLHistoryWeights> weights) {
 		this.weights = weights;
 	}
 
