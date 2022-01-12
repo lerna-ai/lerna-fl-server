@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import org.nd4j.linalg.api.ndarray.INDArray;
 
 @Repository
 public interface LernaJobRepository extends JpaRepository<LernaJob, Long> {

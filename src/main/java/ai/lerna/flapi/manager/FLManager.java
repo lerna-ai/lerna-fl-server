@@ -17,4 +17,6 @@ public interface FLManager {
     void saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) throws Exception;
     
     void saveInference(String token, TrainingInferenceRequest trainingInferenceRequest) throws Exception;
+    
+    void startup() throws Exception;
 }
