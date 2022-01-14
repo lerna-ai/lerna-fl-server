@@ -52,6 +52,7 @@ services:
   mpc:
     build: ../mpc
     image: lerna/mpc:${LERNA_SRC_VERSION:-latest}
+    tty: true
     ports:
       - 31337:31337
 
