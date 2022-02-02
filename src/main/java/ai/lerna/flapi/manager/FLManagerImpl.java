@@ -218,6 +218,21 @@ public class FLManagerImpl implements FLManager {
 		}
 	}
 
+
+	@Override
+	public List<LernaPrediction> getInference(String token) throws Exception {
+		if (!lernaMLRepository.existsByAppToken(token)) {
+			throw new Exception("Not exists ML for selected token");
+		}
+//		List<LernaPrediction> result = new ArrayList<>();
+//		lernaMLRepository.findAllByAppToken(token).forEach(lernaML -> {
+//			result.addAll(lernaPredictionRepository.findLatestByMLId(lernaML.getId()));
+//		});
+//		return result;
+
+		return lernaPredictionRepository.findLatestByToken(token);
+	}
+
 	private void checkAndAggregate(String token) throws Exception {
 		int numOfUsers = lernaMLRepository.findUsersNumByAppToken(token);
 		TrainingTaskResponse trainingTaskResponse = storageService.getTask(token)
