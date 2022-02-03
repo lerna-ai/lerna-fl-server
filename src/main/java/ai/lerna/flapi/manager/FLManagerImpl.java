@@ -189,6 +189,7 @@ public class FLManagerImpl implements FLManager {
 			lernaJobRepository.findByMLId(lernaML.getId()).forEach(lernaJob -> weights.put(lernaJob.getPrediction(), lernaJob.getWeights()));
 			trainingWeights.add(TrainingWeights.newBuilder()
 					.setMlId(lernaML.getId())
+					.setMlName(lernaML.getModel())
 					.setWeights(weights)
 					.build());
 		});
