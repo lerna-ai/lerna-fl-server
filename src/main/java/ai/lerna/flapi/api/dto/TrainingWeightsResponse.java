@@ -21,6 +21,7 @@ public class TrainingWeightsResponse implements Serializable {
 
 	private TrainingWeightsResponse(Builder builder) {
 		trainingWeights = builder.trainingWeights;
+		version = builder.version;
 	}
 
 	public static Builder newBuilder() {
@@ -29,6 +30,7 @@ public class TrainingWeightsResponse implements Serializable {
 
 	public static Builder newBuilder(TrainingWeightsResponse copy) {
 		return newBuilder()
+			.setVersion(copy.getVersion())
 			.setTrainingWeights(copy.getTrainingWeights());
 	}
 
@@ -36,13 +38,13 @@ public class TrainingWeightsResponse implements Serializable {
 		return trainingWeights;
 	}
 
-	public Long getVersion() {
+	public long getVersion() {
 		return version;
 	}
 
 	public static final class Builder {
 		private List<TrainingWeights> trainingWeights;
-		private Long version; // db lerna_app.version
+		private long version; // db lerna_app.version
 
 		private Builder() {
 			trainingWeights = new ArrayList<>();
@@ -53,7 +55,7 @@ public class TrainingWeightsResponse implements Serializable {
 			return this;
 		}
 
-		public Builder setVersion(Long version) {
+		public Builder setVersion(long version) {
 			this.version = version;
 			return this;
 		}

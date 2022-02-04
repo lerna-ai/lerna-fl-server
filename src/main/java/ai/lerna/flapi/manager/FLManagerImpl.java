@@ -77,18 +77,20 @@ public class FLManagerImpl implements FLManager {
 
 	@Override
 	public TrainingTaskResponse getNewTraining(String token, Long deviceId) throws Exception {
-		TrainingTaskResponse trainingTaskResponse;
+		TrainingTaskResponse trainingTaskResponse=null;
 		Optional<TrainingTaskResponse> taskResponse = storageService.getTask(token);
 		if (taskResponse.isPresent()) {
 			trainingTaskResponse = taskResponse.get();
 			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Getting {0} TrainingTasks from cache", trainingTaskResponse.getTrainingTasks().size());
+			storageService.putDeviceIdToDropTable(trainingTaskResponse.getTrainingTasks(), deviceId);
+			
 		} else {
-			trainingTaskResponse = createTrainingTask(token);
-			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Getting {0} TrainingTasks from db", trainingTaskResponse.getTrainingTasks().size());
-			storageService.putTask(token, trainingTaskResponse);
+			
+			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "TrainingTasks not found in cache");
+			
 		}
 
-		storageService.putDeviceIdToDropTable(trainingTaskResponse.getTrainingTasks(), deviceId);
+		
 		return trainingTaskResponse;
 	}
 
@@ -117,14 +119,21 @@ public class FLManagerImpl implements FLManager {
 		Optional<TrainingWeightsResponse> weightResponse = storageService.getWeights(token);
 		if (weightResponse.isPresent()) {
 			long currentVersion = weightResponse.get().getVersion();
-			trainingWeightsResponse = (currentVersion != version)
+			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "In cache - Current version: {0} Phone version: {1}", new Object[]{currentVersion, version});
+			
+			trainingWeightsResponse = (currentVersion > version)
 					? weightResponse.get()
 					: null;
 		} else {
 
 			trainingWeightsResponse = createTrainingWeights(token);
-
+			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "In DB - Current version: {0} Phone version: {1}", new Object[]{trainingWeightsResponse.getVersion(), version});
 			storageService.putWeights(token, trainingWeightsResponse);
+			long currentVersion = trainingWeightsResponse.getVersion();
+			trainingWeightsResponse = (currentVersion > version)
+					? trainingWeightsResponse
+					: null;
+			
 		}
 		return trainingWeightsResponse;
 	}
@@ -150,7 +159,7 @@ public class FLManagerImpl implements FLManager {
 		mlHistoryDatapoint.setAccuracy(accuracy);
 		return mlHistoryDatapoint;
 	}
-
+	
 	private TrainingTaskResponse createTrainingTask(String token) throws Exception {
 		List<TrainingTask> trainingTasks = new ArrayList<>();
 		if (!lernaMLRepository.existsByAppToken(token)) {
@@ -169,7 +178,7 @@ public class FLManagerImpl implements FLManager {
 
 		return TrainingTaskResponse.newBuilder()
 				.setTrainingTasks(trainingTasks)
-				.setVersion(lernaAppRepository.getVersionByToken(token).orElse(0L))
+				.setVersion(lernaAppRepository.getVersionByToken(token).orElse(0L)+1L)
 				.build();
 	}
 
@@ -180,9 +189,11 @@ public class FLManagerImpl implements FLManager {
 			lernaJobRepository.findByMLId(lernaML.getId()).forEach(lernaJob -> weights.put(lernaJob.getPrediction(), lernaJob.getWeights()));
 			trainingWeights.add(TrainingWeights.newBuilder()
 					.setMlId(lernaML.getId())
+					.setMlName(lernaML.getModel())
 					.setWeights(weights)
 					.build());
 		});
+		
 		return TrainingWeightsResponse.newBuilder()
 				.setTrainingWeights(trainingWeights)
 				.setVersion(lernaAppRepository.getVersionByToken(token).orElse(0L))
@@ -206,6 +217,21 @@ public class FLManagerImpl implements FLManager {
 			lernaPredictionRepository.save(lernaPrediction);
 			storageService.addDeviceInference(token, lernaPrediction);
 		}
+	}
+
+
+	@Override
+	public List<LernaPrediction> getInference(String token) throws Exception {
+		if (!lernaMLRepository.existsByAppToken(token)) {
+			throw new Exception("Not exists ML for selected token");
+		}
+//		List<LernaPrediction> result = new ArrayList<>();
+//		lernaMLRepository.findAllByAppToken(token).forEach(lernaML -> {
+//			result.addAll(lernaPredictionRepository.findLatestByMLId(lernaML.getId()));
+//		});
+//		return result;
+
+		return lernaPredictionRepository.findLatestByToken(token);
 	}
 
 	private void checkAndAggregate(String token) throws Exception {
@@ -275,5 +301,23 @@ public class FLManagerImpl implements FLManager {
 		lernaAppRepository.incrementVersionByToken(token);
 		storageService.deleteTaskTable(token);
 		storageService.deleteWeightsTable(token);
+		//create next trainingtask
+		TrainingTaskResponse newTrainingTaskResponse = createTrainingTask(token);
+		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Getting {0} TrainingTasks from db", newTrainingTaskResponse.getTrainingTasks().size());
+		storageService.putTask(token, newTrainingTaskResponse);
+	}
+	
+	@Override
+	public void startup() throws Exception {
+		lernaAppRepository.findAll().forEach(lernaApp -> {
+		try {
+			
+			TrainingTaskResponse newTrainingTaskResponse = createTrainingTask(lernaApp.getToken());
+			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Getting {0} TrainingTasks from db for token {1}", new Object[]{newTrainingTaskResponse.getTrainingTasks().size(), lernaApp.getToken()});
+			storageService.putTask(lernaApp.getToken(), newTrainingTaskResponse);
+		} catch (Exception ex) {
+			Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+		}
+	});
 	}
 }

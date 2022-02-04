@@ -5,6 +5,9 @@ import ai.lerna.flapi.api.dto.TrainingInferenceRequest;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
+import ai.lerna.flapi.entity.LernaPrediction;
+
+import java.util.List;
 
 public interface FLManager {
 
@@ -17,4 +20,8 @@ public interface FLManager {
     void saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) throws Exception;
     
     void saveInference(String token, TrainingInferenceRequest trainingInferenceRequest) throws Exception;
+
+    List<LernaPrediction> getInference(String token) throws Exception;
+    
+    void startup() throws Exception;
 }
