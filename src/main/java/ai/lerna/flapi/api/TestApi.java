@@ -35,4 +35,7 @@ public interface TestApi {
 
 	@GetMapping("/array/{d}")
 	INDArray getINDArray(@PathVariable double d);
+
+	@GetMapping("/array/size/{rows}")
+	INDArray getINDArraySized(@PathVariable long rows);
 }

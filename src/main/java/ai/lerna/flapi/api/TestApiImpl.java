@@ -64,4 +64,9 @@ public class TestApiImpl implements TestApi {
 		return Nd4j.zeros(5, 1).add(d);
 	}
 
+	@Override
+	public INDArray getINDArraySized(long rows) {
+		return Nd4j.randn(rows, 1);
+	}
+
 }
