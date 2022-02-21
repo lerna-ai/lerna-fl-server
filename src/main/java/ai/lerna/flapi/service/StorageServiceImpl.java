@@ -88,7 +88,10 @@ public class StorageServiceImpl implements StorageService {
 				// ToDo: Maybe we need to check what happens if device already exists on pending devices
 				if (!pendingDevices.get(jobId).contains(deviceId)) {
 					pendingDevices.get(jobId).add(deviceId);
-				}
+					if (deviceWeights.containsKey(jobId))
+						if(deviceWeights.get(jobId).containsKey(deviceId))
+							deviceWeights.get(jobId).remove(deviceId);
+				} 
 			});
 	}
 
