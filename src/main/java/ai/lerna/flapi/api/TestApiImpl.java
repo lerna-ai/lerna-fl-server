@@ -69,4 +69,9 @@ public class TestApiImpl implements TestApi {
 		return Nd4j.randn(rows, 1);
 	}
 
+	@Override
+	public String inspectArray(INDArray array) throws Exception {
+		 return array.toString();
+	}
+
 }
