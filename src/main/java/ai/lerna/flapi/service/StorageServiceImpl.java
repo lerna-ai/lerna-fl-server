@@ -4,10 +4,16 @@ import ai.lerna.flapi.api.dto.DeviceWeights;
 import ai.lerna.flapi.api.dto.TrainingTask;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
+import ai.lerna.flapi.config.JacksonConfiguration;
 import ai.lerna.flapi.entity.LernaPrediction;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PreDestroy;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,9 +21,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class StorageServiceImpl implements StorageService {
+
+	private static final String KEY_PREFIX = "Lerna:FL:";
+	private static final String KEY_DEBUG_PREFIX = KEY_PREFIX + "Debug:";
+	private static final String KEY_ACTIVE_JOB = "ActiveJob";
+	private static final String KEY_TASKS = "Tasks";
+	private static final String KEY_WIGHTS = "Weights";
+	private static final String KEY_DEVICE_WEIGHTS = "DeviceWeights";
+	private static final String KEY_PREDICTIONS = "Predictions";
+	private static final String KEY_PENDING_DEVICES = "PendingDevices";
+	RedisTemplate<String, Object> redisTemplate;
+	ValueOperations<String, Object> redisOps;
+	protected final static ObjectMapper mapper = JacksonConfiguration.getNewObjectMapper();
+
+	@Autowired
+	public StorageServiceImpl(RedisTemplate<String, Object> redisTemplate) {
+		this.redisTemplate = redisTemplate;
+		this.redisOps = this.redisTemplate.opsForValue();
+	}
 
 	//Maybe avoid any shared memory locally and put that on Redis...
 
@@ -103,6 +129,20 @@ public class StorageServiceImpl implements StorageService {
 	}
 
 	@Override
+	public void removeDropTable(Long jobId) {
+		if (pendingDevices.containsKey(jobId)) {
+			pendingDevices.remove(jobId);
+		}
+	}
+
+	@Override
+	public void removeDeviceWeights(Long jobId) {
+		if (deviceWeights.containsKey(jobId)) {
+			deviceWeights.remove(jobId);
+		}
+	}
+
+	@Override
 	public boolean existsDeviceIdOnDropTable(long jobId, long deviceId) {
 		return pendingDevices.containsKey(jobId)
 			&& pendingDevices.get(jobId).contains(deviceId);
@@ -171,4 +211,51 @@ public class StorageServiceImpl implements StorageService {
 				&& tasks.get(token).getVersion().equals(version);
 	}
 
+	@Override
+	@PreDestroy
+	public void persistOnRedis() {
+		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Persist FL configuration on Redis");
+		redisOps.set(KEY_PREFIX + KEY_ACTIVE_JOB, activeJob);
+		redisOps.set(KEY_PREFIX + KEY_TASKS, tasks);
+		redisOps.set(KEY_PREFIX + KEY_WIGHTS, weights);
+		redisOps.set(KEY_PREFIX + KEY_DEVICE_WEIGHTS, deviceWeights);
+		//redisOps.set(KEY_PREFIX + KEY_PREDICTIONS, predictions);
+		redisOps.set(KEY_PREFIX + KEY_PENDING_DEVICES, pendingDevices);
+		try {
+			redisOps.set(KEY_DEBUG_PREFIX + KEY_ACTIVE_JOB, mapper.writeValueAsString(activeJob));
+			redisOps.set(KEY_DEBUG_PREFIX + KEY_TASKS, mapper.writeValueAsString(tasks));
+			redisOps.set(KEY_DEBUG_PREFIX + KEY_WIGHTS, mapper.writeValueAsString(weights));
+			redisOps.set(KEY_DEBUG_PREFIX + KEY_DEVICE_WEIGHTS, mapper.writeValueAsString(deviceWeights));
+			//redisOps.set(KEY_DEBUG_PREFIX + KEY_PREDICTIONS, mapper.writeValueAsString(predictions));
+			redisOps.set(KEY_DEBUG_PREFIX + KEY_PENDING_DEVICES, mapper.writeValueAsString(pendingDevices));
+		} catch (Exception e) {
+			Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Cannot persist on redis debug storage", e);
+		}
+	}
+
+	@Override
+	public void retrieveFromRedis() {
+		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Retrieve FL configuration from Redis");
+		activeJob = (Map<Long, Boolean>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_ACTIVE_JOB)).orElse(new HashMap<>());
+		tasks = (Map<String, TrainingTaskResponse>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_TASKS)).orElse(new HashMap<>());
+		weights = (Map<String, TrainingWeightsResponse>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_WIGHTS)).orElse(new HashMap<>());
+		deviceWeights = (Map<Long, Map<Long, DeviceWeights>>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_DEVICE_WEIGHTS)).orElse(new HashMap<>());
+		//predictions = (Map<String, List<LernaPrediction>>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_PREDICTIONS)).orElse(new HashMap<>());
+		pendingDevices = (Map<Long, List<Long>>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_PENDING_DEVICES)).orElse(new HashMap<>());
+	}
+
+	public void cleanupRedis() {
+		redisTemplate.delete(KEY_PREFIX + KEY_ACTIVE_JOB);
+		redisTemplate.delete(KEY_PREFIX + KEY_TASKS);
+		redisTemplate.delete(KEY_PREFIX + KEY_WIGHTS);
+		redisTemplate.delete(KEY_PREFIX + KEY_DEVICE_WEIGHTS);
+		redisTemplate.delete(KEY_PREFIX + KEY_PREDICTIONS);
+		redisTemplate.delete(KEY_PREFIX + KEY_PENDING_DEVICES);
+		redisTemplate.delete(KEY_DEBUG_PREFIX + KEY_ACTIVE_JOB);
+		redisTemplate.delete(KEY_DEBUG_PREFIX + KEY_TASKS);
+		redisTemplate.delete(KEY_DEBUG_PREFIX + KEY_WIGHTS);
+		redisTemplate.delete(KEY_DEBUG_PREFIX + KEY_DEVICE_WEIGHTS);
+		redisTemplate.delete(KEY_DEBUG_PREFIX + KEY_PREDICTIONS);
+		redisTemplate.delete(KEY_DEBUG_PREFIX + KEY_PENDING_DEVICES);
+	}
 }

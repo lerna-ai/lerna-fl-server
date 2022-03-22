@@ -215,7 +215,7 @@ public class FLManagerImpl implements FLManager {
 					.setTimestamp(new Date())
 					.build();
 			lernaPredictionRepository.save(lernaPrediction);
-			storageService.addDeviceInference(token, lernaPrediction);
+			//storageService.addDeviceInference(token, lernaPrediction);
 		}
 	}
 
@@ -225,11 +225,6 @@ public class FLManagerImpl implements FLManager {
 		if (!lernaMLRepository.existsByAppToken(token)) {
 			throw new Exception("Not exists ML for selected token");
 		}
-//		List<LernaPrediction> result = new ArrayList<>();
-//		lernaMLRepository.findAllByAppToken(token).forEach(lernaML -> {
-//			result.addAll(lernaPredictionRepository.findLatestByMLId(lernaML.getId()));
-//		});
-//		return result;
 
 		return lernaPredictionRepository.findLatestByToken(token);
 	}
@@ -309,15 +304,51 @@ public class FLManagerImpl implements FLManager {
 	
 	@Override
 	public void startup() throws Exception {
-		lernaAppRepository.findAll().forEach(lernaApp -> {
+		storageService.retrieveFromRedis();
+		prepareTrainingTasks();
+	}
+
+	public void prepareTrainingTasks() throws Exception {
+		lernaAppRepository.findAll().stream()
+				.filter(lernaApp -> !storageService.getTask(lernaApp.getToken()).isPresent())
+				.forEach(lernaApp -> prepareTrainingTask(lernaApp.getToken()));
+	}
+
+	private void prepareTrainingTask(String token) {
 		try {
-			
-			TrainingTaskResponse newTrainingTaskResponse = createTrainingTask(lernaApp.getToken());
-			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Getting {0} TrainingTasks from db for token {1}", new Object[]{newTrainingTaskResponse.getTrainingTasks().size(), lernaApp.getToken()});
-			storageService.putTask(lernaApp.getToken(), newTrainingTaskResponse);
+			TrainingTaskResponse newTrainingTaskResponse = createTrainingTask(token);
+			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Getting {0} TrainingTasks from db for token {1}", new Object[]{newTrainingTaskResponse.getTrainingTasks().size(), token});
+			storageService.putTask(token, newTrainingTaskResponse);
 		} catch (Exception ex) {
 			Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
 		}
-	});
+	}
+
+	public void replaceAllJobs() throws Exception {
+		lernaAppRepository.findAll().stream()
+				.filter(lernaApp -> storageService.getTask(lernaApp.getToken()).isPresent())
+				.forEach(lernaApp ->  replaceJobs(lernaApp.getToken()));
+	}
+
+	public void replaceJobs(String token) {
+		storageService.getTask(token).ifPresent(trainingTaskResponse -> {
+			trainingTaskResponse.getTrainingTasks().forEach(trainingTask -> {
+				trainingTask.getJobIds().forEach((prediction, jobId) -> {
+					// Kill jobs from privacy server
+					try {
+						mpcService.getLernaNoise(mpcHost, mpcPort, jobId, new ArrayList<>(Optional.ofNullable(storageService.getDeviceDropTable(jobId)).orElse(new ArrayList<>())));
+					}
+					catch (Exception e) {
+						Logger.getLogger(this.getClass().getName()).log(Level.WARNING, String.format("Cannot kill job on privacy server %s", e.getMessage()));
+					}
+					// Remove jobs related data from storage service
+					storageService.deactivateJob(jobId);
+					storageService.removeDropTable(jobId);
+					storageService.removeDeviceWeights(jobId);
+				});
+				storageService.deleteTaskTable(token);
+				prepareTrainingTask(token);
+			});
+		});
 	}
 }

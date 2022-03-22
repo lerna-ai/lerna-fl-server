@@ -24,4 +24,10 @@ public interface FLManager {
     List<LernaPrediction> getInference(String token) throws Exception;
     
     void startup() throws Exception;
+
+    void prepareTrainingTasks() throws Exception;
+
+    void replaceAllJobs() throws Exception;
+
+    void replaceJobs(String token);
 }

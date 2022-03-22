@@ -2,7 +2,9 @@ package ai.lerna.flapi.api.dto;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 
-public class DeviceWeights {
+import java.io.Serializable;
+
+public class DeviceWeights implements Serializable {
 	private Long dataPoints;
 	private INDArray weights;
 

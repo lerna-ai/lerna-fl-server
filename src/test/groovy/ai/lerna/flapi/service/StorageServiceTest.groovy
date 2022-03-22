@@ -7,13 +7,16 @@ import ai.lerna.flapi.api.dto.TrainingWeightsResponse
 import ai.lerna.flapi.entity.LernaPrediction
 import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.factory.Nd4j
+import org.springframework.data.redis.core.RedisTemplate
 import spock.lang.Specification
 
 class StorageServiceTest extends Specification {
 	StorageServiceImpl storageService;
+	RedisTemplate<String, Object> redisTemplate
 
 	def setup() {
-		storageService = new StorageServiceImpl()
+		redisTemplate = Mock(RedisTemplate<String, Object>)
+		storageService = new StorageServiceImpl(redisTemplate)
 	}
 
 	def "Should active jobs is empty"() {

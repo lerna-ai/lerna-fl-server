@@ -2,12 +2,13 @@ package ai.lerna.flapi.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
  * @author gkellaris
  */
-public class LernaMLParameters {
+public class LernaMLParameters implements Serializable {
 	@Schema(description = "Normalization value alpha or lambda to avoid overfitting (0.05, 0.1, 0.5, 1.0, 5.0 etc.)")
 	private BigDecimal normalization;
 

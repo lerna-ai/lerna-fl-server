@@ -7,11 +7,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity
 @Table(name = "lerna_predictions")
-public class LernaPrediction {
+public class LernaPrediction implements Serializable {
 
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id

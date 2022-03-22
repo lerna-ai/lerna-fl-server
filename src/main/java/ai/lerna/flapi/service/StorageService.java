@@ -35,6 +35,10 @@ public interface StorageService {
 
 	void removeDeviceIdFromDropTable(Long jobId, Long deviceId);
 
+	void removeDropTable(Long jobId);
+
+	void removeDeviceWeights(Long jobId);
+
 	boolean existsDeviceIdOnDropTable(long jobId, long deviceId);
 
 	void addDeviceWeights(Long jobId, Long deviceId, Long datapoints, INDArray weights);
@@ -52,4 +56,10 @@ public interface StorageService {
 	void deleteWeightsTable(String token);
 
 	boolean isTaskVersionActive(String token, long version);
+
+	void persistOnRedis();
+
+	void retrieveFromRedis();
+
+	void cleanupRedis();
 }
