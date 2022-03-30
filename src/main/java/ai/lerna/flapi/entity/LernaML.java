@@ -81,7 +81,7 @@ public class LernaML {
 		return accuracy;
 	}
 
-	public void setEps(BigDecimal accuracy) {
+	public void setAccuracy(BigDecimal accuracy) {
 		this.accuracy = accuracy;
 	}
 }

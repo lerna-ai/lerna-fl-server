@@ -190,10 +190,11 @@ public class FLManagerImpl implements FLManager {
 			trainingWeights.add(TrainingWeights.newBuilder()
 					.setMlId(lernaML.getId())
 					.setMlName(lernaML.getModel())
+					.setAccuracy(lernaML.getAccuracy())
 					.setWeights(weights)
 					.build());
 		});
-		
+
 		return TrainingWeightsResponse.newBuilder()
 				.setTrainingWeights(trainingWeights)
 				.setVersion(lernaAppRepository.getVersionByToken(token).orElse(0L))
@@ -291,6 +292,7 @@ public class FLManagerImpl implements FLManager {
 			mlHistory.setVersion(trainingTaskResponse.getVersion());
 			mlHistory.setWeights(historyWeights);
 			mlHistoryRepository.save(mlHistory);
+			lernaMLRepository.updateAccuracy(mlId);
 		});
 
 		lernaAppRepository.incrementVersionByToken(token);
