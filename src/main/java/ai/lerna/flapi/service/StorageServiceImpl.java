@@ -6,6 +6,8 @@ import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 import ai.lerna.flapi.config.JacksonConfiguration;
 import ai.lerna.flapi.entity.LernaPrediction;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +33,7 @@ public class StorageServiceImpl implements StorageService {
 	private static final String KEY_DEBUG_PREFIX = KEY_PREFIX + "Debug:";
 	private static final String KEY_ACTIVE_JOB = "ActiveJob";
 	private static final String KEY_TASKS = "Tasks";
-	private static final String KEY_WIGHTS = "Weights";
+	private static final String KEY_WEIGHTS = "Weights";
 	private static final String KEY_DEVICE_WEIGHTS = "DeviceWeights";
 	private static final String KEY_PREDICTIONS = "Predictions";
 	private static final String KEY_PENDING_DEVICES = "PendingDevices";
@@ -217,14 +219,14 @@ public class StorageServiceImpl implements StorageService {
 		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Persist FL configuration on Redis");
 		redisOps.set(KEY_PREFIX + KEY_ACTIVE_JOB, activeJob);
 		redisOps.set(KEY_PREFIX + KEY_TASKS, tasks);
-		redisOps.set(KEY_PREFIX + KEY_WIGHTS, weights);
+		redisOps.set(KEY_PREFIX + KEY_WEIGHTS, weights);
 		redisOps.set(KEY_PREFIX + KEY_DEVICE_WEIGHTS, deviceWeights);
 		//redisOps.set(KEY_PREFIX + KEY_PREDICTIONS, predictions);
 		redisOps.set(KEY_PREFIX + KEY_PENDING_DEVICES, pendingDevices);
 		try {
 			redisOps.set(KEY_DEBUG_PREFIX + KEY_ACTIVE_JOB, mapper.writeValueAsString(activeJob));
 			redisOps.set(KEY_DEBUG_PREFIX + KEY_TASKS, mapper.writeValueAsString(tasks));
-			redisOps.set(KEY_DEBUG_PREFIX + KEY_WIGHTS, mapper.writeValueAsString(weights));
+			redisOps.set(KEY_DEBUG_PREFIX + KEY_WEIGHTS, mapper.writeValueAsString(weights));
 			redisOps.set(KEY_DEBUG_PREFIX + KEY_DEVICE_WEIGHTS, mapper.writeValueAsString(deviceWeights));
 			//redisOps.set(KEY_DEBUG_PREFIX + KEY_PREDICTIONS, mapper.writeValueAsString(predictions));
 			redisOps.set(KEY_DEBUG_PREFIX + KEY_PENDING_DEVICES, mapper.writeValueAsString(pendingDevices));
@@ -236,24 +238,79 @@ public class StorageServiceImpl implements StorageService {
 	@Override
 	public void retrieveFromRedis() {
 		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Retrieve FL configuration from Redis");
-		activeJob = (Map<Long, Boolean>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_ACTIVE_JOB)).orElse(new HashMap<>());
-		tasks = (Map<String, TrainingTaskResponse>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_TASKS)).orElse(new HashMap<>());
-		weights = (Map<String, TrainingWeightsResponse>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_WIGHTS)).orElse(new HashMap<>());
-		deviceWeights = (Map<Long, Map<Long, DeviceWeights>>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_DEVICE_WEIGHTS)).orElse(new HashMap<>());
+		try {
+			activeJob = (Map<Long, Boolean>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_ACTIVE_JOB)).orElse(new HashMap<>());
+		} catch (Exception e) {
+			try {
+				Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Can't retrieve active jobs from Redis, try to retrieve it from json object. " + e.getMessage());
+				activeJob = mapper.readValue((String) redisOps.get(KEY_DEBUG_PREFIX + KEY_ACTIVE_JOB), new TypeReference<Map<Long, Boolean>>() {
+				});
+			} catch (JsonProcessingException ex) {
+				activeJob = new HashMap<>();
+			}
+		}
+
+		try {
+			tasks = (Map<String, TrainingTaskResponse>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_TASKS)).orElse(new HashMap<>());
+		} catch (Exception e) {
+			try {
+				Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Can't retrieve tasks from Redis, try to retrieve it from json object. " + e.getMessage());
+				tasks = mapper.readValue((String) redisOps.get(KEY_DEBUG_PREFIX + KEY_TASKS), new TypeReference<Map<String, TrainingTaskResponse>>() {
+				});
+			} catch (JsonProcessingException ex) {
+				tasks = new HashMap<>();
+			}
+		}
+
+		try {
+			weights = (Map<String, TrainingWeightsResponse>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_WEIGHTS)).orElse(new HashMap<>());
+		} catch (Exception e) {
+			try {
+				Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Can't retrieve weights from Redis, try to retrieve it from json object. " + e.getMessage());
+				weights = mapper.readValue((String) redisOps.get(KEY_DEBUG_PREFIX + KEY_WEIGHTS), new TypeReference<Map<String, TrainingWeightsResponse>>() {
+				});
+			} catch (JsonProcessingException ex) {
+				weights = new HashMap<>();
+			}
+		}
+
+		try {
+			deviceWeights = (Map<Long, Map<Long, DeviceWeights>>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_DEVICE_WEIGHTS)).orElse(new HashMap<>());
+		} catch (Exception e) {
+			try {
+				Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Can't retrieve device weights from Redis, try to retrieve it from json object. " + e.getMessage());
+				deviceWeights = mapper.readValue((String) redisOps.get(KEY_DEBUG_PREFIX + KEY_DEVICE_WEIGHTS), new TypeReference<Map<Long, Map<Long, DeviceWeights>>>() {
+				});
+			} catch (JsonProcessingException ex) {
+				deviceWeights = new HashMap<>();
+			}
+		}
+
 		//predictions = (Map<String, List<LernaPrediction>>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_PREDICTIONS)).orElse(new HashMap<>());
-		pendingDevices = (Map<Long, List<Long>>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_PENDING_DEVICES)).orElse(new HashMap<>());
+
+		try {
+			pendingDevices = (Map<Long, List<Long>>) Optional.ofNullable(redisOps.get(KEY_PREFIX + KEY_PENDING_DEVICES)).orElse(new HashMap<>());
+		} catch (Exception e) {
+			try {
+				Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Can't retrieve pending devices from Redis, try to retrieve it from json object. " + e.getMessage());
+				pendingDevices = mapper.readValue((String) redisOps.get(KEY_DEBUG_PREFIX + KEY_PENDING_DEVICES), new TypeReference<Map<Long, List<Long>>>() {
+				});
+			} catch (JsonProcessingException ex) {
+				pendingDevices = new HashMap<>();
+			}
+		}
 	}
 
 	public void cleanupRedis() {
 		redisTemplate.delete(KEY_PREFIX + KEY_ACTIVE_JOB);
 		redisTemplate.delete(KEY_PREFIX + KEY_TASKS);
-		redisTemplate.delete(KEY_PREFIX + KEY_WIGHTS);
+		redisTemplate.delete(KEY_PREFIX + KEY_WEIGHTS);
 		redisTemplate.delete(KEY_PREFIX + KEY_DEVICE_WEIGHTS);
 		redisTemplate.delete(KEY_PREFIX + KEY_PREDICTIONS);
 		redisTemplate.delete(KEY_PREFIX + KEY_PENDING_DEVICES);
 		redisTemplate.delete(KEY_DEBUG_PREFIX + KEY_ACTIVE_JOB);
 		redisTemplate.delete(KEY_DEBUG_PREFIX + KEY_TASKS);
-		redisTemplate.delete(KEY_DEBUG_PREFIX + KEY_WIGHTS);
+		redisTemplate.delete(KEY_DEBUG_PREFIX + KEY_WEIGHTS);
 		redisTemplate.delete(KEY_DEBUG_PREFIX + KEY_DEVICE_WEIGHTS);
 		redisTemplate.delete(KEY_DEBUG_PREFIX + KEY_PREDICTIONS);
 		redisTemplate.delete(KEY_DEBUG_PREFIX + KEY_PENDING_DEVICES);
