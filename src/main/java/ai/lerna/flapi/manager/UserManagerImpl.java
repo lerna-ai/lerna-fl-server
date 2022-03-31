@@ -1,0 +1,60 @@
+package ai.lerna.flapi.manager;
+
+import ai.lerna.flapi.api.dto.AuthRequest;
+import ai.lerna.flapi.api.dto.AuthResponse;
+import ai.lerna.flapi.config.jwt.JwtTokenUtil;
+import ai.lerna.flapi.entity.LernaUser;
+import ai.lerna.flapi.repository.LernaUserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
+
+@Component
+public class UserManagerImpl implements UserManager {
+
+	private final UserDetailsService userDetailsService;
+
+	private final LernaUserRepository lernaUserRepository;
+
+	private final AuthenticationManager authenticationManager;
+
+	private final JwtTokenUtil jwtTokenUtil;
+
+	@Autowired
+	public UserManagerImpl(UserDetailsService userDetailsService, LernaUserRepository lernaUserRepository, AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil) {
+		this.userDetailsService = userDetailsService;
+		this.lernaUserRepository = lernaUserRepository;
+		this.authenticationManager = authenticationManager;
+		this.jwtTokenUtil = jwtTokenUtil;
+	}
+
+	@Override
+	public AuthResponse createAuthenticationToken(AuthRequest authRequest) throws Exception {
+
+		authenticate(authRequest.getEmail(), authRequest.getPassword());
+
+		final LernaUser lernaUser = lernaUserRepository.findByEmail(authRequest.getEmail())
+				.orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + authRequest.getEmail()));
+
+		final String token = jwtTokenUtil.generateToken(lernaUser);
+
+		return new AuthResponse(token);
+	}
+
+	private void authenticate(String username, String password) throws Exception {
+		try {
+			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+		} catch (DisabledException e) {
+			throw new Exception("USER_DISABLED", e);
+		} catch (BadCredentialsException e) {
+			throw new Exception("INVALID_CREDENTIALS", e);
+		}
+	}
+}

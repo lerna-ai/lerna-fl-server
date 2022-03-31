@@ -12,6 +12,8 @@ public interface LernaUserRepository extends JpaRepository<LernaUser, Long> {
 	@Override
 	Optional<LernaUser> findById(Long userId);
 
+	Optional<LernaUser> findByEmail(String email);
+
 	@Override
 	List<LernaUser> findAll();
 }

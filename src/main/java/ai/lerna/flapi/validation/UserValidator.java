@@ -1,0 +1,25 @@
+package ai.lerna.flapi.validation;
+
+import ai.lerna.flapi.api.dto.AuthRequest;
+import com.google.common.base.Strings;
+import org.springframework.stereotype.Component;
+
+import javax.validation.ValidationException;
+import java.util.Objects;
+
+@Component
+public class UserValidator {
+	public void validate(AuthRequest authRequest) throws ValidationException {
+		if (Objects.isNull(authRequest)) {
+			throw new ValidationException("Not valid Auth Request");
+		}
+
+		if (Strings.isNullOrEmpty(authRequest.getEmail())) {
+			throw new ValidationException("Email must be non empty");
+		}
+
+		if (Strings.isNullOrEmpty(authRequest.getPassword())) {
+			throw new ValidationException("Password must be non empty");
+		}
+	}
+}
