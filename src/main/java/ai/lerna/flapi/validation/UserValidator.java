@@ -22,4 +22,10 @@ public class UserValidator {
 			throw new ValidationException("Password must be non empty");
 		}
 	}
+
+	public void validate(String token) throws ValidationException {
+		if (Strings.isNullOrEmpty(token)) {
+			throw new ValidationException("Token must be non empty");
+		}
+	}
 }

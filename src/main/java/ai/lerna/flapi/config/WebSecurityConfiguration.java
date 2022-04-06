@@ -7,6 +7,7 @@ import ai.lerna.flapi.api.UserApi;
 import ai.lerna.flapi.config.jwt.JwtRequestFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -46,6 +47,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 		httpSecurity.csrf().disable()
 				// dont authenticate this particular request
 				.authorizeRequests()
+				.antMatchers(HttpMethod.OPTIONS).permitAll()
 				.antMatchers(UserApi.path + "/authenticate").permitAll()
 				.antMatchers(AdminApi.path + "/**").permitAll()
 				.antMatchers(TestApi.path + "/**").permitAll()

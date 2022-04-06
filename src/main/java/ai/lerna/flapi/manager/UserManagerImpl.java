@@ -48,6 +48,13 @@ public class UserManagerImpl implements UserManager {
 		return new AuthResponse(token);
 	}
 
+	@Override
+	public LernaUser getProfile(String token) {
+		Long userId = jwtTokenUtil.getUserIdFromToken(jwtTokenUtil.getJwtFromBearerToken(token));
+		return lernaUserRepository.findById(userId)
+				.orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
+	}
+
 	private void authenticate(String username, String password) throws Exception {
 		try {
 			authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
