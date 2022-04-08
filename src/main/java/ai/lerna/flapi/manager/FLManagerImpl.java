@@ -1,6 +1,7 @@
 package ai.lerna.flapi.manager;
 
 import ai.lerna.flapi.api.dto.DeviceWeights;
+import ai.lerna.flapi.api.dto.LernaApplication;
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
 import ai.lerna.flapi.api.dto.TrainingInference;
 import ai.lerna.flapi.api.dto.TrainingInferenceRequest;
@@ -9,6 +10,7 @@ import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeights;
 import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
+import ai.lerna.flapi.entity.LernaApp;
 import ai.lerna.flapi.entity.LernaPrediction;
 import ai.lerna.flapi.entity.MLHistory;
 import ai.lerna.flapi.entity.MLHistoryDatapoint;
@@ -39,15 +41,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Component
 public class FLManagerImpl implements FLManager {
 
 	private final MpcService mpcService;
 	private final LernaAppRepository lernaAppRepository;
-	private final LernaMLRepository lernaMLRepository;
+	private LernaMLRepository lernaMLRepository;
 	private final LernaJobRepository lernaJobRepository;
 	private final LernaPredictionRepository lernaPredictionRepository;
 	private final MLHistoryRepository mlHistoryRepository;
@@ -361,4 +365,24 @@ public class FLManagerImpl implements FLManager {
 			}
 		});
 	}
+
+	@Override
+	public List<LernaApplication> getApplications(long userId, boolean includeML) {
+		List<LernaApplication> lernaApplications = lernaAppRepository.findByUserIdOrderById(userId).stream().map(convert).collect(Collectors.toList());
+		if (includeML) {
+			lernaApplications = lernaApplications.stream().map(addML).collect(Collectors.toList());
+		}
+		return lernaApplications;
+	}
+
+	private final Function<LernaApp, LernaApplication> convert = lernaApp -> LernaApplication.newBuilder()
+			.setId(lernaApp.getId())
+			.setToken(lernaApp.getToken())
+			.setVersion(lernaApp.getVersion())
+			.setMinNoUsers(lernaApp.getMinNoUsers())
+			.build();
+
+	private final Function<LernaApplication, LernaApplication> addML = lernaApplication -> LernaApplication.newBuilder(lernaApplication)
+			.setMls(lernaMLRepository.findByAppIdOrderById(lernaApplication.getId()))
+			.build();
 }

@@ -17,7 +17,7 @@ public interface LernaMLRepository extends JpaRepository<LernaML, Long> {
 	@Override
 	List<LernaML> findAll();
 
-	List<LernaML> findByAppId(long id);
+	List<LernaML> findByAppIdOrderById(long id);
 
 	@Query(value = "SELECT lm.* FROM lerna_ml lm INNER JOIN lerna_app la ON la.id = lm.app_id WHERE la.token = :token", nativeQuery = true)
 	List<LernaML> findAllByAppToken(String token);

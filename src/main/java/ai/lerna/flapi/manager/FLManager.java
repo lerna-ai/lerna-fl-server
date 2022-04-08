@@ -1,5 +1,6 @@
 package ai.lerna.flapi.manager;
 
+import ai.lerna.flapi.api.dto.LernaApplication;
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
 import ai.lerna.flapi.api.dto.TrainingInferenceRequest;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
@@ -32,4 +33,6 @@ public interface FLManager {
     void replaceJobs(String token);
 
     void cleanupDeviceWeights(String token) throws Exception;
+
+    List<LernaApplication> getApplications(long userId, boolean includeML);
 }
