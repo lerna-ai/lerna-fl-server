@@ -18,11 +18,11 @@ public interface FLManager {
     TrainingWeightsResponse getGlobalWeights(String token, long version);
 
     void saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) throws Exception;
-    
+
     void saveInference(String token, TrainingInferenceRequest trainingInferenceRequest) throws Exception;
 
     List<LernaPrediction> getInference(String token) throws Exception;
-    
+
     void startup() throws Exception;
 
     void prepareTrainingTasks() throws Exception;
@@ -30,4 +30,6 @@ public interface FLManager {
     void replaceAllJobs() throws Exception;
 
     void replaceJobs(String token);
+
+    void cleanupDeviceWeights(String token) throws Exception;
 }

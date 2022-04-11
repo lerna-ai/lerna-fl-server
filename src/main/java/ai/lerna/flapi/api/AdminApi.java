@@ -36,4 +36,8 @@ public interface AdminApi {
 	@Operation(summary = "Replace jobIDs of selected app and update redis stored values")
 	@GetMapping("/training/job/replace/{appToken}")
 	String replaceJob(@RequestParam(value = "token") String token, @PathVariable(value = "appToken") String appToken) throws Exception;
+
+	@Operation(summary = "Cleanup non-relative device weights of selected app")
+	@GetMapping("/training/deviceWeights/cleanup/{appToken}")
+	String cleanupDeviceWeights(@RequestParam(value = "token") String token, @PathVariable(value = "appToken") String appToken) throws Exception;
 }

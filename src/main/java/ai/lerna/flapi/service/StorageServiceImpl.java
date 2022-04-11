@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.postgresql.util.LruCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -75,12 +76,22 @@ public class StorageServiceImpl implements StorageService {
 	}
 
 	@Override
-	public Optional<TrainingTaskResponse> getTask(String token) {
+	public Optional<TrainingTaskResponse> getActiveTask(String token) {
 		TrainingTaskResponse response = tasks.get(token);
 		// ToDo: Should be validate this logic: if any of jobs is deactivated then not accept new users
 		if (Objects.isNull(response) || !response.getTrainingTasks().stream()
-			.flatMap(task -> task.getJobIds().values().stream())
-			.allMatch(this::isJobActive)) {
+				.flatMap(task -> task.getJobIds().values().stream())
+				.allMatch(this::isJobActive)) {
+			return Optional.empty();
+		}
+		return Optional.of(response);
+	}
+
+	@Override
+	public Optional<TrainingTaskResponse> getTask(String token) {
+		TrainingTaskResponse response = tasks.get(token);
+		// ToDo: Should be validate this logic: if any of jobs is deactivated then not accept new users
+		if (Objects.isNull(response)) {
 			return Optional.empty();
 		}
 		return Optional.of(response);
@@ -119,7 +130,7 @@ public class StorageServiceImpl implements StorageService {
 					if (deviceWeights.containsKey(jobId))
 						if(deviceWeights.get(jobId).containsKey(deviceId))
 							deviceWeights.get(jobId).remove(deviceId);
-				} 
+				}
 			});
 	}
 
@@ -185,6 +196,23 @@ public class StorageServiceImpl implements StorageService {
 			return 0;
 		}
 		return deviceWeights.get(jobId).size();
+	}
+
+	@Override
+	public void cleanupDeviceWeightsIncorrectDimension(Long jobId, int weightsDimension) {
+		if (!deviceWeights.containsKey(jobId)) {
+			return;
+		}
+		List<Long> deviceIds = new ArrayList<>();
+		deviceWeights.get(jobId).keySet().forEach(deviceId -> {
+			if (deviceWeights.get(jobId).containsKey(deviceId)
+					&& deviceWeights.get(jobId).get(deviceId).getWeights().rows() != weightsDimension) {
+				deviceIds.add(deviceId);
+			}
+		});
+		deviceIds.forEach(deviceId -> {
+			deviceWeights.get(jobId).remove(deviceId);
+		});
 	}
 
 	@Override

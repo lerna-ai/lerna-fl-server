@@ -93,11 +93,11 @@ class StorageServiceTest extends Specification {
 			size == 1
 	}
 
-	def "Should get empty tasks if non task exists"() {
+	def "Should get empty active tasks if non task exists"() {
 		given:
 			String token = "foo-bar-baz"
 		when:
-			Optional<TrainingTaskResponse> result = storageService.getTask(token)
+			Optional<TrainingTaskResponse> result = storageService.getActiveTask(token)
 			int size = storageService.tasks.size()
 		then:
 			!result.isPresent()
@@ -115,6 +115,92 @@ class StorageServiceTest extends Specification {
 			size == 1
 	}
 
+	def "Should can receive an active training task"() {
+		given:
+			String token = "foo-bar-baz"
+			long version = 5
+			TrainingTaskResponse task = TrainingTaskResponse.newBuilder().setVersion(version).build()
+		when:
+			storageService.putTask(token, task)
+			Optional<TrainingTaskResponse> result = storageService.getActiveTask(token)
+			int size = storageService.tasks.size()
+		then:
+			size == 1
+			result.isPresent()
+			result.get().getVersion() == 5
+	}
+
+	def "Should activate job when add a training task and get is as active task"() {
+		given:
+			String token = "foo-bar-baz"
+			long version = 5
+			long jobId1 = 1
+			long jobId2 = 2
+			long jobId3 = 3
+			TrainingTaskResponse task = new TrainingTaskResponse(
+					version: version,
+					trainingTasks: [
+							new TrainingTask(jobIds: ["black": jobId1, "brown": jobId2, "blonde": jobId3], mlModel: "hair color")
+					])
+		when:
+			storageService.putTask(token, task)
+			Optional<TrainingTaskResponse> result = storageService.getActiveTask(token)
+			int size = storageService.tasks.size()
+			boolean result1 = storageService.isJobActive(jobId1)
+			boolean result2 = storageService.isJobActive(jobId2)
+			boolean result3 = storageService.isJobActive(jobId3)
+		then:
+			size == 1
+			result.isPresent()
+			with(result.get()) {
+				version == 5
+				trainingTasks.size() == 1
+				trainingTasks.get(0).getMlModel() == "hair color"
+			}
+			result1
+			result2
+			result3
+	}
+
+	def "Should not return active training task if any of jobs is deactivated"() {
+		given:
+			String token = "foo-bar-baz"
+			long version = 5
+			long jobId1 = 1
+			long jobId2 = 2
+			long jobId3 = 3
+			TrainingTaskResponse task = new TrainingTaskResponse(
+					version: version,
+					trainingTasks: [
+							new TrainingTask(jobIds: ["black": jobId1, "brown": jobId2, "blonde": jobId3], mlModel: "hair color")
+					])
+		when:
+			storageService.putTask(token, task)
+			storageService.deactivateJob(jobId2)
+			Optional<TrainingTaskResponse> result = storageService.getActiveTask(token)
+			int size = storageService.tasks.size()
+			boolean result1 = storageService.isJobActive(jobId1)
+			boolean result2 = storageService.isJobActive(jobId2)
+			boolean result3 = storageService.isJobActive(jobId3)
+		then:
+			size == 1
+			!result.isPresent()
+			result1
+			!result2
+			result3
+	}
+
+	def "Should get empty tasks if non task exists"() {
+		given:
+			String token = "foo-bar-baz"
+		when:
+			Optional<TrainingTaskResponse> result = storageService.getTask(token)
+			int size = storageService.tasks.size()
+		then:
+			!result.isPresent()
+			size == 0
+	}
+
 	def "Should can receive a training task"() {
 		given:
 			String token = "foo-bar-baz"
@@ -130,7 +216,7 @@ class StorageServiceTest extends Specification {
 			result.get().getVersion() == 5
 	}
 
-	def "Should activate job when add a training task"() {
+	def "Should activate job when add a training task and get it"() {
 		given:
 			String token = "foo-bar-baz"
 			long version = 5
@@ -162,7 +248,7 @@ class StorageServiceTest extends Specification {
 			result3
 	}
 
-	def "Should not return training task if any of jobs is deactivated"() {
+	def "Should return training task if any of jobs is deactivated"() {
 		given:
 			String token = "foo-bar-baz"
 			long version = 5
@@ -184,7 +270,7 @@ class StorageServiceTest extends Specification {
 			boolean result3 = storageService.isJobActive(jobId3)
 		then:
 			size == 1
-			!result.isPresent()
+			result.isPresent()
 			result1
 			!result2
 			result3

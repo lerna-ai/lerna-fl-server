@@ -78,19 +78,15 @@ public class FLManagerImpl implements FLManager {
 	@Override
 	public TrainingTaskResponse getNewTraining(String token, Long deviceId) throws Exception {
 		TrainingTaskResponse trainingTaskResponse=null;
-		Optional<TrainingTaskResponse> taskResponse = storageService.getTask(token);
+		Optional<TrainingTaskResponse> taskResponse = storageService.getActiveTask(token);
 		if (taskResponse.isPresent()) {
 			trainingTaskResponse = taskResponse.get();
 			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Getting {0} TrainingTasks from cache", trainingTaskResponse.getTrainingTasks().size());
 			storageService.putDeviceIdToDropTable(trainingTaskResponse.getTrainingTasks(), deviceId);
-			
 		} else {
-			
 			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "TrainingTasks not found in cache");
-			
 		}
 
-		
 		return trainingTaskResponse;
 	}
 
@@ -120,7 +116,6 @@ public class FLManagerImpl implements FLManager {
 		if (weightResponse.isPresent()) {
 			long currentVersion = weightResponse.get().getVersion();
 			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "In cache - Current version: {0} Phone version: {1}", new Object[]{currentVersion, version});
-			
 			trainingWeightsResponse = (currentVersion > version)
 					? weightResponse.get()
 					: null;
@@ -133,7 +128,6 @@ public class FLManagerImpl implements FLManager {
 			trainingWeightsResponse = (currentVersion > version)
 					? trainingWeightsResponse
 					: null;
-			
 		}
 		return trainingWeightsResponse;
 	}
@@ -159,7 +153,7 @@ public class FLManagerImpl implements FLManager {
 		mlHistoryDatapoint.setAccuracy(accuracy);
 		return mlHistoryDatapoint;
 	}
-	
+
 	private TrainingTaskResponse createTrainingTask(String token) throws Exception {
 		List<TrainingTask> trainingTasks = new ArrayList<>();
 		if (!lernaMLRepository.existsByAppToken(token)) {
@@ -303,7 +297,7 @@ public class FLManagerImpl implements FLManager {
 		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Getting {0} TrainingTasks from db", newTrainingTaskResponse.getTrainingTasks().size());
 		storageService.putTask(token, newTrainingTaskResponse);
 	}
-	
+
 	@Override
 	public void startup() throws Exception {
 		storageService.retrieveFromRedis();
@@ -351,6 +345,19 @@ public class FLManagerImpl implements FLManager {
 				storageService.deleteTaskTable(token);
 				prepareTrainingTask(token);
 			});
+		});
+	}
+
+	@Override
+	public void cleanupDeviceWeights(String token) throws Exception {
+		TrainingTaskResponse trainingTaskResponse = storageService.getTask(token)
+				.orElseThrow(() -> new Exception("Not active ML for selected token"));
+
+		trainingTaskResponse.getTrainingTasks().forEach(task -> {
+			int weightsDimension = task.getLernaMLParameters().getDimensions();
+			for (Map.Entry<String, Long> job : task.getJobIds().entrySet()) {
+				storageService.cleanupDeviceWeightsIncorrectDimension(job.getValue(), weightsDimension);
+			}
 		});
 	}
 }

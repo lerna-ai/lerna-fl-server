@@ -19,6 +19,8 @@ public interface StorageService {
 
 	boolean isJobActive(Long jobId);
 
+	Optional<TrainingTaskResponse> getActiveTask(String token);
+
 	Optional<TrainingTaskResponse> getTask(String token);
 
 	void putTask(String token, TrainingTaskResponse trainingTask);
@@ -62,4 +64,6 @@ public interface StorageService {
 	void retrieveFromRedis();
 
 	void cleanupRedis();
+
+	void cleanupDeviceWeightsIncorrectDimension(Long jobId, int weightsDimension);
 }
