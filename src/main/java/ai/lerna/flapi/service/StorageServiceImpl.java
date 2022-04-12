@@ -102,7 +102,7 @@ public class StorageServiceImpl implements StorageService {
 		tasks.put(token, trainingTask);
 		trainingTask.getTrainingTasks().stream()
 			.flatMap(task -> task.getJobIds().values().stream())
-			.forEach(this::activateJob);
+			.forEach(this::initializeJob);
 	}
 
 	@Override
@@ -342,5 +342,10 @@ public class StorageServiceImpl implements StorageService {
 		redisTemplate.delete(KEY_DEBUG_PREFIX + KEY_DEVICE_WEIGHTS);
 		redisTemplate.delete(KEY_DEBUG_PREFIX + KEY_PREDICTIONS);
 		redisTemplate.delete(KEY_DEBUG_PREFIX + KEY_PENDING_DEVICES);
+	}
+
+	private void initializeJob(Long jobId) {
+		activateJob(jobId);
+		removeDeviceWeights(jobId);
 	}
 }

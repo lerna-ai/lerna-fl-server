@@ -276,6 +276,54 @@ class StorageServiceTest extends Specification {
 			result3
 	}
 
+	def "Should initialize jobs after put training task"() {
+		given:
+			String token = "foo-bar-baz"
+			long version = 5
+			long jobId1 = 1
+			long jobId2 = 2
+			long jobIdBoth = 3
+			long jobIdA = 4
+			long jobIdB = 5
+			long deviceId = 1234
+			TrainingTaskResponse task = new TrainingTaskResponse(
+					version: version,
+					trainingTasks: [
+							new TrainingTask(jobIds: ["black": jobIdBoth, "brown": jobId1, "blonde": jobId2], mlModel: "hair color")
+					])
+			TrainingTaskResponse task2 = new TrainingTaskResponse(
+					version: version,
+					trainingTasks: [
+							new TrainingTask(jobIds: ["black": jobIdA, "brown": jobIdB, "blonde": jobIdBoth], mlModel: "hair color")
+					])
+		when:
+			storageService.putTask(token, task)
+			storageService.addDeviceWeights(jobIdBoth, deviceId, 123L, Nd4j.zeros(5))
+			storageService.deactivateJob(jobId2)
+			Optional<TrainingTaskResponse> result = storageService.getTask(token)
+			List<DeviceWeights> deviceWeights = storageService.getDeviceWeights(jobIdBoth)
+			int size = storageService.tasks.size()
+			boolean result1 = storageService.isJobActive(jobId1)
+			boolean result2 = storageService.isJobActive(jobId2)
+			boolean result3 = storageService.isJobActive(jobIdBoth)
+		then:
+			size == 1
+			result.isPresent()
+			deviceWeights.size() == 1
+			with(deviceWeights.get(0)) {
+				dataPoints == 123
+				weights.columns() == 5
+			}
+			result1
+			!result2
+			result3
+		when:
+			storageService.putTask(token, task2)
+			List<DeviceWeights> deviceWeights2 = storageService.getDeviceWeights(jobIdBoth)
+		then:
+			deviceWeights2 == null
+	}
+
 	def "Should weights is empty"() {
 		when:
 			int result = storageService.weights.size()
