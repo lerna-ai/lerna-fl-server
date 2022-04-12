@@ -277,6 +277,7 @@ public class FLManagerImpl implements FLManager {
 				historyWeights.add(mlHistoryWeights);
 
 				storageService.deleteDropTable(job.getValue());
+				storageService.removeDeviceWeights(job.getValue());
 
 			}
 
