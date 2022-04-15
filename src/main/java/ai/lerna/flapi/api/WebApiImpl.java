@@ -1,26 +1,31 @@
 package ai.lerna.flapi.api;
 
 import ai.lerna.flapi.api.dto.LernaApplication;
+import ai.lerna.flapi.api.dto.WebChartData;
+import ai.lerna.flapi.api.dto.WebDashboard;
 import ai.lerna.flapi.entity.LernaPrediction;
 import ai.lerna.flapi.entity.LernaUser;
-import ai.lerna.flapi.manager.FLManager;
 import ai.lerna.flapi.manager.UserManager;
+import ai.lerna.flapi.manager.WebManager;
 import ai.lerna.flapi.validation.TrainingApiValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class WebApiImpl implements WebApi {
 
-	private final FLManager flManager;
+	private final WebManager webManager;
 	private final UserManager userManager;
 	private final TrainingApiValidator validator;
 
 	@Autowired
-	public WebApiImpl(FLManager flManager, UserManager userManager, TrainingApiValidator validator) {
-		this.flManager = flManager;
+	public WebApiImpl(WebManager webManager, UserManager userManager, TrainingApiValidator validator) {
+		this.webManager = webManager;
 		this.userManager = userManager;
 		this.validator = validator;
 	}
@@ -29,12 +34,26 @@ public class WebApiImpl implements WebApi {
 	public List<LernaApplication> getApplications(String bearerToken, boolean includeML) throws Exception {
 		validator.tokenValidation(bearerToken);
 		LernaUser user = userManager.getProfile(bearerToken);
-		return flManager.getApplications(user.getId(), includeML);
+		return webManager.getApplications(user.getId(), includeML);
+	}
+
+	@Override
+	public WebDashboard getDashboardData(String bearerToken) throws Exception {
+		validator.tokenValidation(bearerToken);
+		LernaUser user = userManager.getProfile(bearerToken);
+		return webManager.getDashboardData(user.getId());
+	}
+
+	@Override
+	public List<Map<String, BigInteger>> getActiveDevices(String bearerToken) throws Exception {
+		validator.tokenValidation(bearerToken);
+		LernaUser user = userManager.getProfile(bearerToken);
+		return webManager.getActiveDevices(user.getId());
 	}
 
 	@Override
 	public List<LernaPrediction> getInference(String token) throws Exception {
 		validator.tokenValidation(token);
-		return flManager.getInference(token);
+		return webManager.getInference(token);
 	}
 }

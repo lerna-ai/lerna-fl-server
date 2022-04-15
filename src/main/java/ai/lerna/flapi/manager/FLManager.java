@@ -1,38 +1,30 @@
 package ai.lerna.flapi.manager;
 
-import ai.lerna.flapi.api.dto.LernaApplication;
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
 import ai.lerna.flapi.api.dto.TrainingInferenceRequest;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
-import ai.lerna.flapi.entity.LernaPrediction;
-
-import java.util.List;
 
 public interface FLManager {
 
-    TrainingTaskResponse getNewTraining(String token, Long deviceId) throws Exception;
+	TrainingTaskResponse getNewTraining(String token, Long deviceId) throws Exception;
 
-    void saveDeviceWeights(String token, TrainingWeightsRequest trainingWeightsRequest) throws Exception;
+	void saveDeviceWeights(String token, TrainingWeightsRequest trainingWeightsRequest) throws Exception;
 
-    TrainingWeightsResponse getGlobalWeights(String token, long version);
+	TrainingWeightsResponse getGlobalWeights(String token, long version);
 
-    void saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) throws Exception;
+	void saveDeviceAccuracy(String token, TrainingAccuracyRequest trainingAccuracyRequest) throws Exception;
 
-    void saveInference(String token, TrainingInferenceRequest trainingInferenceRequest) throws Exception;
+	void saveInference(String token, TrainingInferenceRequest trainingInferenceRequest) throws Exception;
 
-    List<LernaPrediction> getInference(String token) throws Exception;
+	void startup() throws Exception;
 
-    void startup() throws Exception;
+	void prepareTrainingTasks() throws Exception;
 
-    void prepareTrainingTasks() throws Exception;
+	void replaceAllJobs() throws Exception;
 
-    void replaceAllJobs() throws Exception;
+	void replaceJobs(String token);
 
-    void replaceJobs(String token);
-
-    void cleanupDeviceWeights(String token) throws Exception;
-
-    List<LernaApplication> getApplications(long userId, boolean includeML);
+	void cleanupDeviceWeights(String token) throws Exception;
 }

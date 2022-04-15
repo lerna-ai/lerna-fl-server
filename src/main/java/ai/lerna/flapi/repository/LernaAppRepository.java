@@ -21,6 +21,8 @@ public interface LernaAppRepository extends JpaRepository<LernaApp, Long> {
 
 	Optional<LernaApp> findByToken(String token);
 
+	Optional<LernaApp> findFirstByUserIdOrderByVersionDesc(long userId);
+
 	@Modifying
 	@Query(value = "UPDATE lerna_app SET current_version = current_version + 1 WHERE token = :token", nativeQuery = true)
 	void incrementVersionByToken(String token);
