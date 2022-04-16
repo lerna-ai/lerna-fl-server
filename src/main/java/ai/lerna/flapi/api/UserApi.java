@@ -2,6 +2,7 @@ package ai.lerna.flapi.api;
 
 import ai.lerna.flapi.api.dto.AuthRequest;
 import ai.lerna.flapi.api.dto.AuthResponse;
+import ai.lerna.flapi.api.dto.UserPasswordChange;
 import ai.lerna.flapi.api.dto.UserProfile;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,4 +28,8 @@ public interface UserApi {
 	@Operation(summary = "Get User Profile")
 	@GetMapping("/profile")
 	ResponseEntity<UserProfile> getMyProfile(@RequestHeader(name = "Authorization") String token) throws Exception;
+
+	@Operation(summary = "Change user password")
+	@PostMapping("/changePassword")
+	ResponseEntity<String> changePassword(@RequestHeader(name = "Authorization") String token, @RequestBody UserPasswordChange userPasswordChange) throws Exception;
 }

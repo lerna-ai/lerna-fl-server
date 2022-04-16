@@ -2,6 +2,7 @@ package ai.lerna.flapi.api;
 
 import ai.lerna.flapi.api.dto.AuthRequest;
 import ai.lerna.flapi.api.dto.AuthResponse;
+import ai.lerna.flapi.api.dto.UserPasswordChange;
 import ai.lerna.flapi.api.dto.UserProfile;
 import ai.lerna.flapi.entity.LernaUser;
 import ai.lerna.flapi.manager.UserManager;
@@ -35,5 +36,14 @@ public class UserApiImpl implements UserApi {
 		LernaUser user = userManager.getProfile(token);
 
 		return ResponseEntity.ok(UserProfile.newBuilder(user).build());
+	}
+
+	@Override
+	public ResponseEntity<String> changePassword(String token, UserPasswordChange userPasswordChange) throws Exception {
+		userValidator.validate(token);
+		userValidator.validate(userPasswordChange);
+		LernaUser user = userManager.getProfile(token);
+
+		return ResponseEntity.ok(userManager.changePassword(user, userPasswordChange));
 	}
 }
