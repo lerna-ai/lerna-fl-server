@@ -46,7 +46,7 @@ public class WebManagerImpl implements WebManager {
 		if (!lernaMLRepository.existsByAppToken(token)) {
 			throw new Exception("Not exists ML for selected token");
 		}
-		return lernaPredictionRepository.findLatestByToken(token);
+		return lernaPredictionRepository.findLatestOneDayByToken(token);
 	}
 
 	@Override

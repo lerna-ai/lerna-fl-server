@@ -21,8 +21,11 @@ public interface LernaPredictionRepository extends JpaRepository<LernaPrediction
 	@Query(value = "SELECT * FROM lerna_predictions pr WHERE timestamp = (select max(timestamp) FROM lerna_predictions WHERE pr.device_id=lerna_predictions.device_id AND pr.ml_id = :mlID)", nativeQuery = true)
 	List<LernaPrediction> findLatestByMLId(Long mlID);
 
-	@Query(value = "SELECT pr.* FROM lerna_predictions pr, lerna_ml ml, lerna_app ap WHERE timestamp = (select max(timestamp) FROM lerna_predictions WHERE pr.device_id=lerna_predictions.device_id AND pr.ml_id = ml.id AND ml.app_id = ap.id AND ap.token = :token)", nativeQuery = true)
+	@Query(value = "SELECT DISTINCT ON (device_id) pr.* FROM lerna_predictions pr, lerna_ml ml, lerna_app ap WHERE pr.ml_id = ml.id AND ml.app_id = ap.id AND ap.token = :token ORDER BY device_id, timestamp DESC", nativeQuery = true)
 	List<LernaPrediction> findLatestByToken(String token);
+
+	@Query(value = "SELECT DISTINCT ON (device_id) pr.* FROM lerna_predictions pr, lerna_ml ml, lerna_app ap WHERE pr.ml_id = ml.id AND ml.app_id = ap.id AND ap.token = :token AND timestamp > current_date - interval '1 days' ORDER BY device_id, timestamp DESC", nativeQuery = true)
+	List<LernaPrediction> findLatestOneDayByToken(String token);
 
 	@Query(value = "SELECT DATE_PART('week', p.timestamp) AS week, COUNT(DISTINCT p.device_id) AS devices FROM lerna_predictions p, lerna_ml ml, lerna_app app WHERE p.ml_id = ml.id AND ml.app_id = app.id AND app.user_id = :userId GROUP BY DATE_PART('week', p.timestamp) ORDER BY DATE_PART('week', p.timestamp) DESC", nativeQuery = true)
 	List<Map<String, BigInteger>> findDevicePredictionPerWeek(Long userId);
