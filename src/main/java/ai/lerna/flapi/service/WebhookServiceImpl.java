@@ -3,6 +3,7 @@ package ai.lerna.flapi.service;
 import ai.lerna.flapi.entity.LernaPrediction;
 import ai.lerna.flapi.repository.LernaJobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Profile("no-queue")
 public class WebhookServiceImpl implements WebhookService {
 	private final LernaJobRepository LernaJobRepository;
 	private final RestTemplate restTemplate;
