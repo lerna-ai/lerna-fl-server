@@ -27,10 +27,10 @@ public interface LernaPredictionRepository extends JpaRepository<LernaPrediction
 	@Query(value = "SELECT DISTINCT ON (device_id) pr.* FROM lerna_predictions pr, lerna_ml ml, lerna_app ap WHERE pr.ml_id = ml.id AND ml.app_id = ap.id AND ap.token = :token AND timestamp > current_date - interval '1 days' ORDER BY device_id, timestamp DESC", nativeQuery = true)
 	List<LernaPrediction> findLatestOneDayByToken(String token);
 
-	@Query(value = "SELECT DATE_PART('week', p.timestamp) AS week, COUNT(DISTINCT p.device_id) AS devices FROM lerna_predictions p, lerna_ml ml, lerna_app app WHERE p.ml_id = ml.id AND ml.app_id = app.id AND app.user_id = :userId GROUP BY DATE_PART('week', p.timestamp) ORDER BY DATE_PART('week', p.timestamp) DESC", nativeQuery = true)
+	@Query(value = "SELECT DATE_PART('week', p.timestamp) AS week, COUNT(DISTINCT p.device_id) AS devices FROM lerna_predictions p, lerna_ml ml, lerna_app app WHERE p.ml_id = ml.id AND ml.app_id = app.id AND ml.app_id <> 1 AND app.user_id = :userId GROUP BY DATE_PART('week', p.timestamp) ORDER BY DATE_PART('week', p.timestamp) DESC", nativeQuery = true)
 	List<Map<String, BigInteger>> findDevicePredictionPerWeek(Long userId);
 
-	@Query(value = "SELECT COUNT(DISTINCT device_id) FROM lerna_predictions p, lerna_ml ml, lerna_app a WHERE ml.id = p.ml_id AND ml.app_id = a.id AND a.user_id = :userId", nativeQuery = true)
+	@Query(value = "SELECT COUNT(DISTINCT device_id) FROM lerna_predictions p, lerna_ml ml, lerna_app a WHERE ml.id = p.ml_id AND ml.app_id = a.id AND ml.app_id <> 1 AND a.user_id = :userId", nativeQuery = true)
 	long getTotalDevices(long userId);
 
 	@Query(value = "SELECT COUNT(DISTINCT device_id) FROM (SELECT device_id FROM lerna_predictions p, lerna_ml ml, lerna_app a WHERE ml.id = p.ml_id AND ml.app_id = a.id AND a.user_id = :userId AND a.id <> 1 AND timestamp >= current_date - interval '7 days' UNION SELECT device_id FROM ml_history_datapoint hd, ml_history h, lerna_ml ml, lerna_app a WHERE hd.history_id = h.id AND ml.id = h.ml_id AND ml.app_id = a.id AND a.user_id = :userId AND a.id <> 1 AND timestamp >= current_date - interval '7 days') AS device_id", nativeQuery = true)

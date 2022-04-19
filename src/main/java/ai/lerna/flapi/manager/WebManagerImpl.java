@@ -5,6 +5,7 @@ import ai.lerna.flapi.api.dto.WebChartData;
 import ai.lerna.flapi.api.dto.WebDashboard;
 import ai.lerna.flapi.entity.LernaApp;
 import ai.lerna.flapi.entity.LernaPrediction;
+import ai.lerna.flapi.repository.InferencesRepository;
 import ai.lerna.flapi.repository.LernaAppRepository;
 import ai.lerna.flapi.repository.LernaJobRepository;
 import ai.lerna.flapi.repository.LernaMLRepository;
@@ -30,15 +31,17 @@ public class WebManagerImpl implements WebManager {
 	private final LernaJobRepository lernaJobRepository;
 	private final LernaPredictionRepository lernaPredictionRepository;
 	private final MLHistoryRepository mlHistoryRepository;
+	private final InferencesRepository inferencesRepository;
 	private final MLHistoryDatapointRepository mlHistoryDatapointRepository;
 
-	public WebManagerImpl(LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, LernaPredictionRepository lernaPredictionRepository, MLHistoryRepository mlHistoryRepository, MLHistoryDatapointRepository mlHistoryDatapointRepository) {
+	public WebManagerImpl(LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, LernaPredictionRepository lernaPredictionRepository, MLHistoryRepository mlHistoryRepository, MLHistoryDatapointRepository mlHistoryDatapointRepository, InferencesRepository inferencesRepository) {
 		this.lernaAppRepository = lernaAppRepository;
 		this.lernaMLRepository = lernaMLRepository;
 		this.lernaJobRepository = lernaJobRepository;
 		this.lernaPredictionRepository = lernaPredictionRepository;
 		this.mlHistoryRepository = mlHistoryRepository;
 		this.mlHistoryDatapointRepository = mlHistoryDatapointRepository;
+		this.inferencesRepository = inferencesRepository;
 	}
 
 	@Override
@@ -66,15 +69,15 @@ public class WebManagerImpl implements WebManager {
 	@Override
 	public WebDashboard getDashboardData(long userId) {
 		List<BigDecimal> accuracies = mlHistoryRepository.getAccuracies(userId);
-		BigDecimal accuracyPrevious = accuracies.get(accuracies.size() - 2);
-		BigDecimal accuracyLatest = accuracies.get(accuracies.size() - 1);
+		BigDecimal accuracyPrevious = inferencesRepository.getPreviousSuccesses();
+		BigDecimal accuracyLatest = inferencesRepository.getLatestSuccesses();
 		long totalData = lernaJobRepository.getTotalDataPoints(userId);
 		long devicesParticipating = mlHistoryDatapointRepository.getTotalDevicesLastWeek(userId);
 		long devicesTotalLastWeek = lernaPredictionRepository.getTotalDevicesLastWeek(userId);
 		long devicesTotalPreviousWeek = lernaPredictionRepository.getTotalDevicesPreviousWeek(userId);
-		long learningIterations = lernaAppRepository.findFirstByUserIdOrderByVersionDesc(userId).orElseGet(LernaApp::new).getVersion();
+		long learningIterations = lernaAppRepository.getByUserId(userId).orElseGet(LernaApp::new).getVersion();
 		return WebDashboard.newBuilder()
-				.setSuccessPrediction(accuracyLatest.multiply(BigDecimal.valueOf(100)).longValue())
+				.setSuccessPrediction(accuracyLatest.longValue())
 				.setSuccessPredictionTrend(getRate(accuracyLatest, accuracyPrevious))
 				.setTotalData(totalData * 1024)
 				.setTotalDevices(devicesTotalLastWeek)
@@ -82,7 +85,7 @@ public class WebManagerImpl implements WebManager {
 				.setLearningIterations(learningIterations)
 				.setSuccessPredictionRate(WebChartData.newBuilder()
 						.setLabels(IntStream.rangeClosed(1, accuracies.size()).mapToObj(Integer::toString).collect(Collectors.toList()))
-						.setData(accuracies.stream().map(a -> a.multiply(BigDecimal.valueOf(100)).doubleValue()).collect(Collectors.toList()))
+						.setData(accuracies.stream().map(BigDecimal::doubleValue).collect(Collectors.toList()))
 						.build())
 				.setDeviceParticipating(devicesParticipating)
 				.build();
