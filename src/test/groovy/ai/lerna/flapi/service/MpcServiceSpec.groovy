@@ -6,11 +6,13 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import spock.lang.Specification
 
 class MpcServiceSpec extends Specification {
+	MpcSocketFactory mpcSocketFactory;
 	MpcServiceImpl mpcService;
 	XmlMapper mapper;
 
 	def setup() {
-		mpcService = new MpcServiceImpl()
+		mpcSocketFactory = Mock(MpcSocketFactory)
+		mpcService = new MpcServiceImpl(mpcSocketFactory)
 		mapper = new XmlMapper()
 	}
 

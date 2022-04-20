@@ -21,6 +21,7 @@ import ai.lerna.flapi.repository.MLHistoryDatapointRepository;
 import ai.lerna.flapi.repository.MLHistoryRepository;
 import ai.lerna.flapi.service.MpcService;
 import ai.lerna.flapi.service.StorageService;
+import ai.lerna.flapi.service.WebhookService;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,7 @@ public class FLManagerImpl implements FLManager {
 	private final MLHistoryRepository mlHistoryRepository;
 	private final MLHistoryDatapointRepository mlHistoryDatapointRepository;
 	private final StorageService storageService;
+	private final WebhookService webhookService;
 
 	@Value("${app.config.mpcServer.host:localhost}")
 	private String mpcHost;
@@ -64,7 +66,7 @@ public class FLManagerImpl implements FLManager {
 	private int scalingFactor;
 
 	@Autowired
-	public FLManagerImpl(MpcService mpcService, LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, LernaPredictionRepository lernaPredictionRepository, MLHistoryRepository mlHistoryRepository, MLHistoryDatapointRepository mlHistoryDatapointRepository, StorageService storageService) {
+	public FLManagerImpl(MpcService mpcService, LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, LernaPredictionRepository lernaPredictionRepository, MLHistoryRepository mlHistoryRepository, MLHistoryDatapointRepository mlHistoryDatapointRepository, StorageService storageService, WebhookService webhookService) {
 		this.mpcService = mpcService;
 		this.lernaAppRepository = lernaAppRepository;
 		this.lernaMLRepository = lernaMLRepository;
@@ -73,6 +75,7 @@ public class FLManagerImpl implements FLManager {
 		this.mlHistoryRepository = mlHistoryRepository;
 		this.mlHistoryDatapointRepository = mlHistoryDatapointRepository;
 		this.storageService = storageService;
+		this.webhookService = webhookService;
 	}
 
 	@Override
@@ -210,6 +213,7 @@ public class FLManagerImpl implements FLManager {
 					.setTimestamp(new Date())
 					.build();
 			lernaPredictionRepository.save(lernaPrediction);
+			webhookService.sendPrediction(lernaPrediction);
 			//storageService.addDeviceInference(token, lernaPrediction);
 		}
 	}

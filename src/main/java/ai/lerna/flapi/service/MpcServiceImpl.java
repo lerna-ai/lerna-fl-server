@@ -6,7 +6,6 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.net.ssl.SSLSocketFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,9 +20,11 @@ import java.util.stream.Collectors;
 @Service
 public class MpcServiceImpl implements MpcService {
   XmlMapper mapper;
+  private final MpcSocketFactory mpcSocketFactory;
 
   @Autowired
-  public MpcServiceImpl() {
+  public MpcServiceImpl(MpcSocketFactory mpcSocketFactory) {
+    this.mpcSocketFactory = mpcSocketFactory;
     this.mapper = new XmlMapper();
   }
 
@@ -37,7 +38,7 @@ public class MpcServiceImpl implements MpcService {
 
   private MpcResponse makeRequest(String host, int port, MpcRequest mpcRequest) {
     try {
-      Socket connection = SSLSocketFactory.getDefault().createSocket(host, port);
+      Socket connection = mpcSocketFactory.getSocketFactory().createSocket(host, port);
       PrintWriter out = new PrintWriter(connection.getOutputStream(), true);
       out.println(mapper.writeValueAsString(mpcRequest));
       out.flush();
