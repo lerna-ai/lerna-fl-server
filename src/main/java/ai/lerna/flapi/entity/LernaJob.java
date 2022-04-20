@@ -25,6 +25,9 @@ public class LernaJob {
 	@Column(name = "prediction")
 	private String prediction;
 
+	@Column(name = "prediction_value")
+	private long predictionValue;
+
 	@Column(name = "weights")
 	@Convert(converter = INDArrayConverter.class)
 	private INDArray weights;
@@ -57,6 +60,14 @@ public class LernaJob {
 
 	public void setPrediction(String prediction) {
 		this.prediction = prediction;
+	}
+
+	public long getPredictionValue() {
+		return predictionValue;
+	}
+
+	public void setPredictionValue(long predictionValue) {
+		this.predictionValue = predictionValue;
 	}
 
 	public INDArray getWeights() {

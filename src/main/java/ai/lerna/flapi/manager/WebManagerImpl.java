@@ -4,6 +4,7 @@ import ai.lerna.flapi.api.dto.LernaApplication;
 import ai.lerna.flapi.api.dto.WebChartData;
 import ai.lerna.flapi.api.dto.WebDashboard;
 import ai.lerna.flapi.entity.LernaApp;
+import ai.lerna.flapi.entity.LernaJob;
 import ai.lerna.flapi.entity.LernaPrediction;
 import ai.lerna.flapi.repository.InferencesRepository;
 import ai.lerna.flapi.repository.LernaAppRepository;
@@ -49,7 +50,11 @@ public class WebManagerImpl implements WebManager {
 		if (!lernaMLRepository.existsByAppToken(token)) {
 			throw new Exception("Not exists ML for selected token");
 		}
-		return lernaPredictionRepository.findLatestOneDayByToken(token);
+		Map<String, String> predictionMap = lernaJobRepository.findJobPredictionMapByAppToken(token).stream()
+				.collect(Collectors.toMap(p -> String.valueOf(p.getPredictionValue()), LernaJob::getPrediction));
+		return lernaPredictionRepository.findLatestOneDayByToken(token).stream()
+				.map(p -> replacePredictionWithLabel(p, predictionMap))
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -97,6 +102,12 @@ public class WebManagerImpl implements WebManager {
 			.setVersion(lernaApp.getVersion())
 			.setMinNoUsers(lernaApp.getMinNoUsers())
 			.build();
+
+	private LernaPrediction replacePredictionWithLabel(LernaPrediction prediction, Map<String, String> predictionMap) {
+		return LernaPrediction.newBuilder(prediction)
+				.setPrediction(predictionMap.get(prediction.getPrediction()))
+				.build();
+	}
 
 	private final UnaryOperator<LernaApplication> addML = lernaApplication -> LernaApplication.newBuilder(lernaApplication)
 			.setMls(lernaMLRepository.findByAppIdOrderById(lernaApplication.getId()))

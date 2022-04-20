@@ -26,6 +26,9 @@ public interface LernaJobRepository extends JpaRepository<LernaJob, Long> {
 	@Query(value = "SELECT lj.* FROM lerna_job lj INNER JOIN lerna_ml lm ON lj.ml_id = lm.id INNER JOIN lerna_app la ON la.id = lm.app_id WHERE la.token = :token", nativeQuery = true)
 	List<LernaJob> findAllByAppToken(String token);
 
+	@Query(value = "SELECT DISTINCT ON(lj.prediction) lj.* FROM lerna_job lj INNER JOIN lerna_ml lm ON lj.ml_id = lm.id INNER JOIN lerna_app la ON la.id = lm.app_id WHERE la.token = :token", nativeQuery = true)
+	List<LernaJob> findJobPredictionMapByAppToken(String token);
+
 	@Query(value = "SELECT MAX(lj.total_data_points) FROM lerna_job lj INNER JOIN lerna_ml lm ON lj.ml_id = lm.id INNER JOIN lerna_app la ON la.id = lm.app_id WHERE la.user_id = :userId", nativeQuery = true)
 	Long getTotalDataPoints(long userId);
 
