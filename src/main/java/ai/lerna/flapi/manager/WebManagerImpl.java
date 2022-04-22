@@ -83,10 +83,10 @@ public class WebManagerImpl implements WebManager {
 		long learningIterations = lernaAppRepository.getByUserId(userId).orElseGet(LernaApp::new).getVersion();
 		return WebDashboard.newBuilder()
 				.setSuccessPrediction(accuracyLatest.longValue())
-				.setSuccessPredictionTrend(getRate(accuracyLatest, accuracyPrevious))
+				.setSuccessPredictionTrend(getRate(accuracyLatest.subtract(accuracyPrevious), accuracyPrevious))
 				.setTotalData(totalData * 1024)
 				.setTotalDevices(devicesTotalLastWeek)
-				.setTotalDevicesTrend(getRate(BigDecimal.valueOf(devicesTotalLastWeek), BigDecimal.valueOf(devicesTotalLastWeek - devicesTotalPreviousWeek)))
+				.setTotalDevicesTrend(getRate(BigDecimal.valueOf(devicesTotalLastWeek - devicesTotalPreviousWeek), BigDecimal.valueOf(devicesTotalPreviousWeek)))
 				.setLearningIterations(learningIterations)
 				.setSuccessPredictionRate(WebChartData.newBuilder()
 						.setLabels(IntStream.rangeClosed(1, accuracies.size()).mapToObj(Integer::toString).collect(Collectors.toList()))
@@ -118,7 +118,6 @@ public class WebManagerImpl implements WebManager {
 			return 0;
 		}
 		return current.divide(previous, 10, RoundingMode.HALF_UP)
-				.subtract(BigDecimal.ONE)
 				.multiply(BigDecimal.valueOf(100))
 				.longValue();
 	}
