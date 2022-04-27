@@ -40,4 +40,8 @@ public interface AdminApi {
 	@Operation(summary = "Cleanup non-relative device weights of selected app")
 	@GetMapping("/training/deviceWeights/cleanup/{appToken}")
 	String cleanupDeviceWeights(@RequestParam(value = "token") String token, @PathVariable(value = "appToken") String appToken) throws Exception;
+	
+	@Operation(summary = "Check if enough users are gathered and run the FL")
+	@GetMapping("/training/runFL/{appToken}")
+	String checkAndAggregate(@RequestParam(value = "token") String token, @PathVariable(value = "appToken") String appToken) throws Exception;
 }

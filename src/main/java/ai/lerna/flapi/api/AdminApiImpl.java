@@ -71,6 +71,13 @@ public class AdminApiImpl implements AdminApi {
 		flManager.cleanupDeviceWeights(appToken);
 		return "OK";
 	}
+	
+	@Override
+	public String checkAndAggregate(String token, String appToken) throws Exception {
+		tokenValidation(token);
+		flManager.checkAndAggregate(appToken);
+		return "OK";
+	}
 
 	void tokenValidation(String token) throws ValidationException {
 		if (token.isEmpty()) {

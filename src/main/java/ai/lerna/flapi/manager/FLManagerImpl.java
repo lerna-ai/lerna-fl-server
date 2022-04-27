@@ -108,7 +108,7 @@ public class FLManagerImpl implements FLManager {
 		//!!!This jobId should not be the same as the id of the Jobs table, it is the id from the MPC server
 		storageService.removeDeviceIdFromDropTable(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId());
 		storageService.addDeviceWeights(trainingWeightsRequest.getJobId(), trainingWeightsRequest.getDeviceId(), trainingWeightsRequest.getDatapoints(), trainingWeightsRequest.getDeviceWeights());
-		checkAndAggregate(token);
+		//checkAndAggregate(token);
 	}
 
 	@Override
@@ -218,7 +218,8 @@ public class FLManagerImpl implements FLManager {
 		}
 	}
 
-	private void checkAndAggregate(String token) throws Exception {
+	@Override
+	public void checkAndAggregate(String token) throws Exception {
 		int numOfUsers = lernaMLRepository.findUsersNumByAppToken(token);
 		TrainingTaskResponse trainingTaskResponse = storageService.getTask(token)
 				.orElseThrow(() -> new Exception("Not active ML for selected token"));
