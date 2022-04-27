@@ -67,26 +67,27 @@ public class WebManagerImpl implements WebManager {
 	}
 
 	@Override
-	public List<Map<String, BigInteger>> getActiveDevices(long userId) {
-		return lernaPredictionRepository.findDevicePredictionPerWeek(userId);
+	public List<Map<String, BigInteger>> getActiveDevices(long userId, long appId) {
+		return lernaPredictionRepository.findDevicePredictionPerWeek(userId, appId);
 	}
 
 	@Override
-	public WebDashboard getDashboardData(long userId) {
-		List<BigDecimal> accuracies = mlHistoryRepository.getAccuracies(userId);
+	public WebDashboard getDashboardData(long userId, long appId) {
+		List<BigDecimal> accuracies = mlHistoryRepository.getAccuracies(userId, appId);
 		BigDecimal accuracyPrevious = inferencesRepository.getPreviousSuccesses();
 		BigDecimal accuracyLatest = inferencesRepository.getLatestSuccesses();
-		long totalData = lernaJobRepository.getTotalDataPoints(userId);
-		long devicesParticipating = mlHistoryDatapointRepository.getTotalDevicesLastWeek(userId);
-		long devicesTotalLastWeek = lernaPredictionRepository.getTotalDevicesLastWeek(userId);
-		long devicesTotalPreviousWeek = lernaPredictionRepository.getTotalDevicesPreviousWeek(userId);
-		long learningIterations = lernaAppRepository.getByUserId(userId).orElseGet(LernaApp::new).getVersion();
+		long totalData = lernaJobRepository.getTotalDataPoints(userId, appId);
+		long devicesParticipating = mlHistoryDatapointRepository.getTotalDevicesLastWeek(userId, appId);
+		long devicesTotalLastWeek = lernaPredictionRepository.getTotalDevicesLastWeek(userId, appId);
+		long devicesTotalPreviousWeek = lernaPredictionRepository.getTotalDevicesPreviousWeek(userId, appId);
+		long learningIterations = lernaAppRepository.getByUserId(userId, appId).orElseGet(LernaApp::new).getVersion()-1;
+		//accuracies.remove(accuracies.size()-1);
 		return WebDashboard.newBuilder()
 				.setSuccessPrediction(accuracyLatest.longValue())
-				.setSuccessPredictionTrend(getRate(accuracyLatest.subtract(accuracyPrevious), accuracyPrevious))
+				.setSuccessPredictionTrend(accuracyLatest.subtract(accuracyPrevious).longValue())
 				.setTotalData(totalData * 1024)
 				.setTotalDevices(devicesTotalLastWeek)
-				.setTotalDevicesTrend(getRate(BigDecimal.valueOf(devicesTotalLastWeek - devicesTotalPreviousWeek), BigDecimal.valueOf(devicesTotalPreviousWeek)))
+				.setTotalDevicesTrend(getRate(BigDecimal.valueOf(devicesTotalLastWeek), BigDecimal.valueOf(devicesTotalPreviousWeek)))
 				.setLearningIterations(learningIterations)
 				.setSuccessPredictionRate(WebChartData.newBuilder()
 						.setLabels(IntStream.rangeClosed(1, accuracies.size()).mapToObj(Integer::toString).collect(Collectors.toList()))
@@ -117,7 +118,7 @@ public class WebManagerImpl implements WebManager {
 		if (previous.equals(BigDecimal.ZERO)) {
 			return 0;
 		}
-		return current.divide(previous, 10, RoundingMode.HALF_UP)
+		return current.subtract(previous).divide(previous, 10, RoundingMode.HALF_UP)
 				.multiply(BigDecimal.valueOf(100))
 				.longValue();
 	}

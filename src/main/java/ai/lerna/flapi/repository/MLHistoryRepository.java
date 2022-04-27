@@ -24,6 +24,6 @@ public interface MLHistoryRepository extends JpaRepository<MLHistory, Long> {
 	@Query(value = "UPDATE ml_history set accuracy_avg = (SELECT AVG(accuracy) FROM ml_history_datapoint WHERE history_id = :id) WHERE id = :id", nativeQuery = true)
 	void updateAccuracyAverage(long id);
 
-	@Query(value = "SELECT accuracy_avg*100 from ml_history where ml_id = (SELECT h.ml_id FROM ml_history h, lerna_ml ml, lerna_app a WHERE h.ml_id <> 1 AND ml.id = h.ml_id AND ml.app_id = a.id AND h.accuracy_avg > 0 AND a.user_id = :userId ORDER BY h.version DESC, h.accuracy_avg DESC LIMIT 1) ORDER BY version", nativeQuery = true)
-	List<BigDecimal> getAccuracies(long userId);
+	@Query(value = "SELECT accuracy_avg*100 from ml_history where ml_id = (SELECT h.ml_id FROM ml_history h, lerna_ml ml, lerna_app a WHERE ml.id = h.ml_id AND ml.app_id = a.id AND ml.accuracy > 0 AND a.user_id = :userId AND a.id = :appId ORDER BY h.version DESC, ml.accuracy DESC LIMIT 1) ORDER BY version", nativeQuery = true)
+	List<BigDecimal> getAccuracies(long userId, long appId);
 }

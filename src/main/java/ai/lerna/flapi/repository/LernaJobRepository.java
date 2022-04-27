@@ -29,8 +29,8 @@ public interface LernaJobRepository extends JpaRepository<LernaJob, Long> {
 	@Query(value = "SELECT DISTINCT ON(lj.prediction) lj.* FROM lerna_job lj INNER JOIN lerna_ml lm ON lj.ml_id = lm.id INNER JOIN lerna_app la ON la.id = lm.app_id WHERE la.token = :token", nativeQuery = true)
 	List<LernaJob> findJobPredictionMapByAppToken(String token);
 
-	@Query(value = "SELECT MAX(lj.total_data_points) FROM lerna_job lj INNER JOIN lerna_ml lm ON lj.ml_id = lm.id INNER JOIN lerna_app la ON la.id = lm.app_id WHERE la.user_id = :userId", nativeQuery = true)
-	Long getTotalDataPoints(long userId);
+	@Query(value = "SELECT MAX(lj.total_data_points) FROM lerna_job lj INNER JOIN lerna_ml lm ON lj.ml_id = lm.id INNER JOIN lerna_app la ON la.id = lm.app_id WHERE la.user_id = :userId AND la.id = :appId", nativeQuery = true)
+	Long getTotalDataPoints(long userId, long appId);
 
 	//String updateWeights(String prediction, long mlId, INDArray weights, long total_data_points, long total_devices);
 }

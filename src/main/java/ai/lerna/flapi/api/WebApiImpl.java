@@ -38,17 +38,17 @@ public class WebApiImpl implements WebApi {
 	}
 
 	@Override
-	public WebDashboard getDashboardData(String bearerToken) throws Exception {
+	public WebDashboard getDashboardData(String bearerToken, long appID) throws Exception {
 		validator.tokenValidation(bearerToken);
 		LernaUser user = userManager.getProfile(bearerToken);
-		return webManager.getDashboardData(user.getId());
+		return webManager.getDashboardData(user.getId(), appID);
 	}
 
 	@Override
-	public List<Map<String, BigInteger>> getActiveDevices(String bearerToken) throws Exception {
+	public List<Map<String, BigInteger>> getActiveDevices(String bearerToken, long appId) throws Exception {
 		validator.tokenValidation(bearerToken);
 		LernaUser user = userManager.getProfile(bearerToken);
-		return webManager.getActiveDevices(user.getId());
+		return webManager.getActiveDevices(user.getId(), appId);
 	}
 
 	@Override

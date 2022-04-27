@@ -21,8 +21,8 @@ public interface LernaAppRepository extends JpaRepository<LernaApp, Long> {
 
 	Optional<LernaApp> findByToken(String token);
 
-	@Query(value = "SELECT * FROM lerna_app WHERE user_id = :userId AND id <> 1", nativeQuery = true)
-	Optional<LernaApp> getByUserId(long userId);
+	@Query(value = "SELECT * FROM lerna_app WHERE user_id = :userId AND id = :appId", nativeQuery = true)
+	Optional<LernaApp> getByUserId(long userId, long appId);
 
 	@Modifying
 	@Query(value = "UPDATE lerna_app SET current_version = current_version + 1 WHERE token = :token", nativeQuery = true)

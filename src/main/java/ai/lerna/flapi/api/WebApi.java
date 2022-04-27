@@ -28,11 +28,11 @@ public interface WebApi {
 
 	@Operation(summary = "Get dashboard data")
 	@GetMapping("/dashboard")
-	WebDashboard getDashboardData(@RequestHeader(name = "Authorization") String bearerToken) throws Exception;
+	WebDashboard getDashboardData(@RequestHeader(name = "Authorization") String bearerToken, @RequestParam(value = "appID", required = true) long appID) throws Exception;
 
 	@Operation(summary = "Get Active devices per week")
 	@GetMapping("/dashboard/activeDevices")
-	List<Map<String, BigInteger>> getActiveDevices(@RequestHeader(name = "Authorization") String bearerToken) throws Exception;
+	List<Map<String, BigInteger>> getActiveDevices(@RequestHeader(name = "Authorization") String bearerToken, @RequestParam(value = "appID", required = true) long appID) throws Exception;
 
 	@Operation(summary = "Check Inference")
 	@GetMapping("/inference")

@@ -14,7 +14,7 @@ public interface WebManager {
 
 	List<LernaApplication> getApplications(long userId, boolean includeML);
 
-	List<Map<String, BigInteger>> getActiveDevices(long userId);
+	List<Map<String, BigInteger>> getActiveDevices(long userId, long appId);
 
-	WebDashboard getDashboardData(long userId);
+	WebDashboard getDashboardData(long userId, long appId);
 }
