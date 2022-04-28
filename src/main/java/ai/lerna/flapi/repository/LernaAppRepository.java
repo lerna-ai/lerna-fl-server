@@ -30,4 +30,7 @@ public interface LernaAppRepository extends JpaRepository<LernaApp, Long> {
 
 	@Query(value = "SELECT current_version FROM lerna_app WHERE token = :token LIMIT 1", nativeQuery = true)
 	Optional<Long> getVersionByToken(String token);
+	
+	@Query(value = "SELECT token FROM lerna_app", nativeQuery = true)
+	List<String> getTokens();
 }

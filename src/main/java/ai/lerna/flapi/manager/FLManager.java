@@ -28,5 +28,7 @@ public interface FLManager {
 
 	void cleanupDeviceWeights(String token) throws Exception;
 	
+	void checkAndAggregateAll() throws Exception;
+	
 	void checkAndAggregate(String token) throws Exception;
 }

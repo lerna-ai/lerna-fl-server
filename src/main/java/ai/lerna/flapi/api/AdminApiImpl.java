@@ -78,6 +78,13 @@ public class AdminApiImpl implements AdminApi {
 		flManager.checkAndAggregate(appToken);
 		return "OK";
 	}
+	
+	@Override
+	public String checkAndAggregateAll(String token) throws Exception {
+		tokenValidation(token);
+		flManager.checkAndAggregateAll();
+		return "OK";
+	}
 
 	void tokenValidation(String token) throws ValidationException {
 		if (token.isEmpty()) {

@@ -219,6 +219,17 @@ public class FLManagerImpl implements FLManager {
 	}
 
 	@Override
+	public void checkAndAggregateAll() throws Exception {
+		lernaAppRepository.getTokens().forEach(token -> {
+			try {
+				checkAndAggregate(token);
+			} catch (Exception ex) {
+				Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+			}
+		});
+	}
+
+	@Override
 	public void checkAndAggregate(String token) throws Exception {
 		int numOfUsers = lernaMLRepository.findUsersNumByAppToken(token);
 		TrainingTaskResponse trainingTaskResponse = storageService.getTask(token)
