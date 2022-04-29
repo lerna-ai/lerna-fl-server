@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
 
 @RequestMapping(WebApi.path)
 @CrossOrigin
@@ -37,4 +38,8 @@ public interface WebApi {
 	@Operation(summary = "Check Inference")
 	@GetMapping("/inference")
 	List<LernaPrediction> getInference(@RequestParam(value = "token") String token) throws Exception;
+	
+	@Operation(summary = "Download Model")
+	@GetMapping("/getModel")
+	void getModel(HttpServletResponse response, @RequestHeader(name = "Authorization") String bearerToken, @RequestParam(value = "appID", required = true) long appID, @RequestParam(value = "mlID", required = true) long mlID) throws Exception;
 }

@@ -13,15 +13,21 @@ import ai.lerna.flapi.repository.LernaMLRepository;
 import ai.lerna.flapi.repository.LernaPredictionRepository;
 import ai.lerna.flapi.repository.MLHistoryDatapointRepository;
 import ai.lerna.flapi.repository.MLHistoryRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -64,6 +70,22 @@ public class WebManagerImpl implements WebManager {
 			lernaApplications = lernaApplications.stream().map(addML).collect(Collectors.toList());
 		}
 		return lernaApplications;
+	}
+	
+	@Override
+	public String getJSONFile(long userId, long appId, long mlId){
+		Map<String, float[]> weights = new HashMap();
+		lernaJobRepository.getModel(userId, appId, mlId).forEach(lernaJob -> {
+			weights.put(lernaJob.getPrediction(), lernaJob.getWeights().toFloatVector());
+		});
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
+		try {
+			return mapper.writeValueAsString(weights);
+		} catch (JsonProcessingException ex) {
+			Logger.getLogger(WebManagerImpl.class.getName()).log(Level.SEVERE, null, ex);
+			return "";
+		}
 	}
 
 	@Override

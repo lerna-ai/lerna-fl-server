@@ -17,4 +17,6 @@ public interface WebManager {
 	List<Map<String, BigInteger>> getActiveDevices(long userId, long appId);
 
 	WebDashboard getDashboardData(long userId, long appId);
+	
+	String getJSONFile(long userId, long appId, long mlId);
 }
