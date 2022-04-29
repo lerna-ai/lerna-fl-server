@@ -24,6 +24,8 @@ import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.logging.Level;
@@ -71,7 +73,7 @@ public class WebManagerImpl implements WebManager {
 		}
 		return lernaApplications;
 	}
-	
+
 	@Override
 	public String getJSONFile(long userId, long appId, long mlId){
 		Map<String, float[]> weights = new HashMap();
@@ -113,7 +115,7 @@ public class WebManagerImpl implements WebManager {
 				.setLearningIterations(learningIterations)
 				.setSuccessPredictionRate(WebChartData.newBuilder()
 						.setLabels(IntStream.rangeClosed(1, accuracies.size()).mapToObj(Integer::toString).collect(Collectors.toList()))
-						.setData(accuracies.stream().map(BigDecimal::doubleValue).collect(Collectors.toList()))
+						.setData(accuracies.stream().map(a -> Optional.ofNullable(a).orElse(BigDecimal.ZERO)).map(BigDecimal::doubleValue).collect(Collectors.toList()))
 						.build())
 				.setDeviceParticipating(devicesParticipating)
 				.build();
