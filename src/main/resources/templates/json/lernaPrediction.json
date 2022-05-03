@@ -1,0 +1,9 @@
+{
+  "id": "[(${Prediction.id})]",
+  "deviceId": "[(${Prediction.deviceId})]",
+  "version": "[(${Prediction.version})]",
+  "model": "[(${Prediction.model})]",
+  "prediction": "[(${Prediction.prediction})]",
+  "timestamp": "[(${Prediction.timestamp})]",
+  "mlid": "[(${Prediction.MLId})]"
+}

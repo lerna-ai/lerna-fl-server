@@ -1,0 +1,28 @@
+{
+  "blocks": [
+    {
+      "type": "header",
+      "text": {"type": "plain_text", "text": "New prediction", "emoji": true}
+    },
+    {
+      "type": "section",
+      "fields": [
+        {"type": "mrkdwn", "text": "*Device ID:*\n[(${Prediction.deviceId})]"},
+        {"type": "mrkdwn", "text": "*When:*\n[(${Prediction.timestamp})]"}
+      ]
+    },
+    {
+      "type": "section",
+      "fields": [
+        {"type": "mrkdwn", "text": "*Model:*\n[(${Prediction.model})]"},
+        {"type": "mrkdwn", "text": "*Version:*\n[(${Prediction.version})]"}
+      ]
+    },
+    {
+      "type": "section",
+      "fields": [
+        {"type": "mrkdwn", "text": "*Prediction:*\n[(${Prediction.prediction})]"}
+      ]
+    }
+  ]
+}

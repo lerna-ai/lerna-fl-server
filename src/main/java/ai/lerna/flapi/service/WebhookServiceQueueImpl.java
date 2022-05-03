@@ -27,12 +27,14 @@ public class WebhookServiceQueueImpl implements WebhookService {
 	String queueName;
 
 	private final QueueMessagingTemplate queueMessagingTemplate;
+	private final WebhookTemplateService webhookTemplateService;
 	private final List<Long> DEVICE_IDS = Arrays.asList(403781509L, 1380808704L);
 	private final List<String> PREDICTIONS = Arrays.asList("1", "5");
 	protected final static ObjectMapper mapper = JacksonConfiguration.getNewObjectMapper();
 
 	@Autowired
-	public WebhookServiceQueueImpl() {
+	public WebhookServiceQueueImpl(WebhookTemplateService webhookTemplateService) {
+		this.webhookTemplateService = webhookTemplateService;
 		AmazonSQSAsync amazonSQSAsync = AmazonSQSAsyncClientBuilder.defaultClient();
 		this.queueMessagingTemplate = new QueueMessagingTemplate(amazonSQSAsync);
 	}
@@ -49,8 +51,9 @@ public class WebhookServiceQueueImpl implements WebhookService {
 	private String generateMessage(LernaPrediction lernaPrediction) {
 		WebhookQueueMessage message = new WebhookQueueMessage();
 		message.setType(WebhookQueueMessageType.Slack);
+		message.setPayload(webhookTemplateService.getBasicTemplate(lernaPrediction));
 		try {
-			message.setPayload(mapper.writeValueAsString(lernaPrediction));
+			//message.setPayload(mapper.writeValueAsString(lernaPrediction));
 			return mapper.writeValueAsString(message);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
