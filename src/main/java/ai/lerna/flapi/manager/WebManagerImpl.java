@@ -158,7 +158,7 @@ public class WebManagerImpl implements WebManager {
 		BigDecimal accuracyPrevious = inferencesRepository.getPreviousSuccesses();
 		BigDecimal accuracyLatest = inferencesRepository.getLatestSuccesses();
 		long totalData = lernaJobRepository.getTotalDataPoints(userId, appId);
-		long devicesParticipating = mlHistoryDatapointRepository.getTotalDevicesLastWeek(userId, appId);
+		long devicesParticipating = mlHistoryDatapointRepository.getTotalDevicesLastWeek(userId, appId); //lernaJobRepository.getTotalDevices(userId, appId);
 		long devicesTotalLastWeek = lernaPredictionRepository.getTotalDevicesLastWeek(userId, appId);
 		long devicesTotalPreviousWeek = lernaPredictionRepository.getTotalDevicesPreviousWeek(userId, appId);
 		long learningIterations = lernaAppRepository.getByUserId(userId, appId).orElseGet(LernaApp::new).getVersion()-1;
