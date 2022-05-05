@@ -45,6 +45,11 @@ public class WebhookServiceImpl implements WebhookService {
 		}
 	}
 
+	@Override
+	public void cacheWebhookConfiguration() {
+		// not implemented
+	}
+
 	private String generateMessage(LernaPrediction lernaPrediction) {
 		return "{\"blocks\":[" +
 				"{\"type\":\"header\",\"text\":{\"type\":\"plain_text\",\"text\":\"New prediction\",\"emoji\":true}}," +

@@ -1,16 +1,16 @@
 package ai.lerna.flapi.service.dto;
 
 public class WebhookQueueMessage {
-	private WebhookQueueMessageType type;
+	private WebhookMessageType type;
 	private String method;
 	private String uri;
 	private String payload;
 
-	public WebhookQueueMessageType getType() {
+	public WebhookMessageType getType() {
 		return type;
 	}
 
-	public void setType(WebhookQueueMessageType type) {
+	public void setType(WebhookMessageType type) {
 		this.type = type;
 	}
 

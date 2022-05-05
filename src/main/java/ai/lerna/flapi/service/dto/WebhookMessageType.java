@@ -1,6 +1,6 @@
 package ai.lerna.flapi.service.dto;
 
-public enum WebhookQueueMessageType {
+public enum WebhookMessageType {
 	Slack,
 	Webhook;
 }
