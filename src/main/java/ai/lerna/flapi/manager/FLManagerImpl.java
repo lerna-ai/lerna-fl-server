@@ -219,6 +219,7 @@ public class FLManagerImpl implements FLManager {
 	}
 
 	@Override
+	@Transactional
 	public void checkAndAggregateAll() throws Exception {
 		lernaAppRepository.getTokens().forEach(token -> {
 			try {
@@ -230,6 +231,7 @@ public class FLManagerImpl implements FLManager {
 	}
 
 	@Override
+	@Transactional
 	public void checkAndAggregate(String token) throws Exception {
 		int numOfUsers = lernaMLRepository.findUsersNumByAppToken(token);
 		TrainingTaskResponse trainingTaskResponse = storageService.getTask(token)
