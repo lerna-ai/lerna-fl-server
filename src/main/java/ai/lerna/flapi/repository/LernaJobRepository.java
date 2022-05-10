@@ -38,5 +38,8 @@ public interface LernaJobRepository extends JpaRepository<LernaJob, Long> {
 	@Query(value = "SELECT DISTINCT ON (lj.prediction_value) lj.* FROM lerna_job lj LEFT JOIN lerna_ml lm on lm.id = lj.ml_id WHERE lm.app_id = :appId ORDER BY lj.prediction_value", nativeQuery = true)
 	List<LernaJob> getCategories(long appId);
 
+	@Query(value = "SELECT DISTINCT ON (lj.prediction, lj.prediction_value) lj.* FROM lerna_job lj LEFT JOIN lerna_ml lm on lm.id = lj.ml_id LEFT JOIN lerna_app la on la.id = lm.app_id WHERE lm.app_id = :appId AND la.user_id = :userId ORDER BY lj.prediction", nativeQuery = true)
+	List<LernaJob> getCategories(long userId, long appId);
+
 	//String updateWeights(String prediction, long mlId, INDArray weights, long total_data_points, long total_devices);
 }

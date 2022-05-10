@@ -37,6 +37,9 @@ public class WebhookConfig {
 	@Convert(converter = WebhookConfigFilterConverter.class)
 	private WebhookConfigFilter filter = new WebhookConfigFilter();
 
+	@Column(name = "enabled")
+	private boolean enabled;
+
 	public Long getId() {
 		return id;
 	}
@@ -75,5 +78,13 @@ public class WebhookConfig {
 
 	public void setFilter(WebhookConfigFilter filter) {
 		this.filter = filter;
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 }

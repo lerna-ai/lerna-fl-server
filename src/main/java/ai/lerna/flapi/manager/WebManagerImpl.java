@@ -3,9 +3,14 @@ package ai.lerna.flapi.manager;
 import ai.lerna.flapi.api.dto.LernaApplication;
 import ai.lerna.flapi.api.dto.WebChartData;
 import ai.lerna.flapi.api.dto.WebDashboard;
+import ai.lerna.flapi.api.dto.Webhook;
+import ai.lerna.flapi.api.dto.WebhookResponse;
 import ai.lerna.flapi.entity.LernaApp;
 import ai.lerna.flapi.entity.LernaJob;
 import ai.lerna.flapi.entity.LernaPrediction;
+import ai.lerna.flapi.entity.WebhookConfig;
+import ai.lerna.flapi.entity.WebhookConfigFilter;
+import ai.lerna.flapi.entity.WebhookConfigRequest;
 import ai.lerna.flapi.repository.InferencesRepository;
 import ai.lerna.flapi.repository.LernaAppRepository;
 import ai.lerna.flapi.repository.LernaJobRepository;
@@ -13,6 +18,8 @@ import ai.lerna.flapi.repository.LernaMLRepository;
 import ai.lerna.flapi.repository.LernaPredictionRepository;
 import ai.lerna.flapi.repository.MLHistoryDatapointRepository;
 import ai.lerna.flapi.repository.MLHistoryRepository;
+import ai.lerna.flapi.repository.WebhookConfigRepository;
+import ai.lerna.flapi.service.WebhookService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -24,7 +31,6 @@ import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -42,8 +48,10 @@ public class WebManagerImpl implements WebManager {
 	private final MLHistoryRepository mlHistoryRepository;
 	private final InferencesRepository inferencesRepository;
 	private final MLHistoryDatapointRepository mlHistoryDatapointRepository;
+	private final WebhookConfigRepository webhookConfigRepository;
+	private final WebhookService webhookService;
 
-	public WebManagerImpl(LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, LernaPredictionRepository lernaPredictionRepository, MLHistoryRepository mlHistoryRepository, MLHistoryDatapointRepository mlHistoryDatapointRepository, InferencesRepository inferencesRepository) {
+	public WebManagerImpl(LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, LernaPredictionRepository lernaPredictionRepository, MLHistoryRepository mlHistoryRepository, MLHistoryDatapointRepository mlHistoryDatapointRepository, InferencesRepository inferencesRepository, WebhookConfigRepository webhookConfigRepository, WebhookService webhookService) {
 		this.lernaAppRepository = lernaAppRepository;
 		this.lernaMLRepository = lernaMLRepository;
 		this.lernaJobRepository = lernaJobRepository;
@@ -51,6 +59,8 @@ public class WebManagerImpl implements WebManager {
 		this.mlHistoryRepository = mlHistoryRepository;
 		this.mlHistoryDatapointRepository = mlHistoryDatapointRepository;
 		this.inferencesRepository = inferencesRepository;
+		this.webhookConfigRepository = webhookConfigRepository;
+		this.webhookService = webhookService;
 	}
 
 	@Override
@@ -88,6 +98,53 @@ public class WebManagerImpl implements WebManager {
 			Logger.getLogger(WebManagerImpl.class.getName()).log(Level.SEVERE, null, ex);
 			return "";
 		}
+	}
+
+	private final Function<WebhookConfig, Webhook> webhookConvert = webhookConfig -> Webhook.newBuilder()
+			.setId(webhookConfig.getId())
+			.setAppId(webhookConfig.getAppId())
+			.setType(webhookConfig.getType())
+			.setMethod(webhookConfig.getRequest().getMethod())
+			.setUri(webhookConfig.getRequest().getUri())
+			.setCategories(webhookConfig.getFilter().getCategories())
+			.setEnabled(webhookConfig.isEnabled())
+			.build();
+
+	private final Function<Webhook, WebhookConfig> webhookConfigConvert = webhook -> {
+		WebhookConfigRequest request = new WebhookConfigRequest();
+		request.setMethod(webhook.getMethod());
+		request.setUri(webhook.getUri());
+		WebhookConfigFilter filter = new WebhookConfigFilter();
+		filter.setCategories(webhook.getCategories());
+		WebhookConfig webhookConfig = new WebhookConfig();
+		webhookConfig.setId(webhook.getId());
+		webhookConfig.setAppId(webhook.getAppId());
+		webhookConfig.setType(webhook.getType());
+		webhookConfig.setRequest(request);
+		webhookConfig.setFilter(filter);
+		webhookConfig.setEnabled(webhook.isEnabled());
+		return webhookConfig;
+	};
+
+	@Override
+	public WebhookResponse getWebhookConfig(long userId, long appId) {
+		return WebhookResponse.newBuilder()
+				.setWebhooks(webhookConfigRepository.getWebhookConfig(userId, appId).stream()
+						.map(webhookConvert)
+						.collect(Collectors.toList()))
+				.build();
+	}
+
+	@Override
+	public Map<String, Long> getWebhookCategories(long userId, long appId) {
+		return lernaJobRepository.getCategories(userId, appId).stream().collect(Collectors.toMap(LernaJob::getPrediction, LernaJob::getPredictionValue));
+	}
+
+	@Override
+	public String saveWebhookConfig(long userId, Webhook webhook) {
+		webhookConfigRepository.save(webhookConfigConvert.apply(webhook));
+		webhookService.cacheWebhookConfiguration();
+		return "OK";
 	}
 
 	@Override

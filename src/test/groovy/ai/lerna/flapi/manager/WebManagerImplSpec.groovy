@@ -9,6 +9,8 @@ import ai.lerna.flapi.repository.LernaMLRepository
 import ai.lerna.flapi.repository.LernaPredictionRepository
 import ai.lerna.flapi.repository.MLHistoryDatapointRepository
 import ai.lerna.flapi.repository.MLHistoryRepository
+import ai.lerna.flapi.repository.WebhookConfigRepository
+import ai.lerna.flapi.service.WebhookService
 import spock.lang.Specification
 
 class WebManagerImplSpec extends Specification {
@@ -20,6 +22,8 @@ class WebManagerImplSpec extends Specification {
 	MLHistoryRepository mlHistoryRepository;
 	InferencesRepository inferencesRepository;
 	MLHistoryDatapointRepository mlHistoryDatapointRepository;
+	WebhookConfigRepository webhookConfigRepository;
+	WebhookService webhookService;
 
 	def setup() {
 		lernaAppRepository = Mock(LernaAppRepository)
@@ -29,7 +33,9 @@ class WebManagerImplSpec extends Specification {
 		mlHistoryRepository = Mock(MLHistoryRepository)
 		mlHistoryDatapointRepository = Mock(MLHistoryDatapointRepository)
 		inferencesRepository = Mock(InferencesRepository)
-		webManagerImpl = new WebManagerImpl(lernaAppRepository, lernaMLRepository, lernaJobRepository, lernaPredictionRepository, mlHistoryRepository, mlHistoryDatapointRepository, inferencesRepository)
+		webhookConfigRepository = Mock(WebhookConfigRepository)
+		webhookService = Mock(WebhookService)
+		webManagerImpl = new WebManagerImpl(lernaAppRepository, lernaMLRepository, lernaJobRepository, lernaPredictionRepository, mlHistoryRepository, mlHistoryDatapointRepository, inferencesRepository, webhookConfigRepository, webhookService)
 	}
 
 	def "GetDashboardData should return correct data"() {
