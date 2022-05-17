@@ -19,9 +19,9 @@ public interface InferencesRepository extends JpaRepository<Inferences, Long> {
 
 	Optional<Inferences> findByVersion(Long version);
 
-	@Query(value = "SELECT COALESCE((SELECT AVG(accuracy) FROM inferences WHERE version = (SELECT MAX(version) FROM inferences)),0)", nativeQuery = true)
+	@Query(value = "SELECT COALESCE((SELECT AVG(accuracy) FROM inferences WHERE version = (SELECT MAX(version)-1 FROM inferences)),0)", nativeQuery = true)
 	BigDecimal getLatestSuccesses();
 
-	@Query(value = "SELECT COALESCE((SELECT AVG(accuracy) FROM inferences WHERE version = (SELECT MAX(version)-1 FROM inferences)),0)", nativeQuery = true)
+	@Query(value = "SELECT COALESCE((SELECT AVG(accuracy) FROM inferences WHERE version = (SELECT MAX(version)-2 FROM inferences)),0)", nativeQuery = true)
 	BigDecimal getPreviousSuccesses();
 }
