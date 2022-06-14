@@ -1,5 +1,6 @@
 package ai.lerna.flapi.manager;
 
+import ai.lerna.flapi.api.dto.Success;
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
 import ai.lerna.flapi.api.dto.TrainingInferenceRequest;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
@@ -18,6 +19,8 @@ public interface FLManager {
 
 	void saveInference(String token, TrainingInferenceRequest trainingInferenceRequest) throws Exception;
 
+	void saveSuccess(String token, Success success) throws Exception;
+
 	void startup() throws Exception;
 
 	void prepareTrainingTasks() throws Exception;
@@ -27,8 +30,8 @@ public interface FLManager {
 	void replaceJobs(String token);
 
 	void cleanupDeviceWeights(String token) throws Exception;
-	
+
 	void checkAndAggregateAll() throws Exception;
-	
+
 	void checkAndAggregate(String token) throws Exception;
 }

@@ -1,5 +1,6 @@
 package ai.lerna.flapi.api;
 
+import ai.lerna.flapi.api.dto.Success;
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
 import ai.lerna.flapi.api.dto.TrainingInferenceRequest;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
@@ -52,5 +53,11 @@ public class TrainingApiImpl implements TrainingApi {
 	public void postInference(String token, TrainingInferenceRequest trainingInferenceRequest) throws Exception {
 		validator.tokenValidation(token);
 		flManager.saveInference(token, trainingInferenceRequest);
+	}
+
+	@Override
+	public void postSuccess(String token, Success success) throws Exception {
+		validator.tokenValidation(token);
+		flManager.saveSuccess(token, success);
 	}
 }

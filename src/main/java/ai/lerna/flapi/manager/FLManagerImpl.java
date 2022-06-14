@@ -1,6 +1,7 @@
 package ai.lerna.flapi.manager;
 
 import ai.lerna.flapi.api.dto.DeviceWeights;
+import ai.lerna.flapi.api.dto.Success;
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
 import ai.lerna.flapi.api.dto.TrainingInference;
 import ai.lerna.flapi.api.dto.TrainingInferenceRequest;
@@ -19,6 +20,7 @@ import ai.lerna.flapi.repository.LernaMLRepository;
 import ai.lerna.flapi.repository.LernaPredictionRepository;
 import ai.lerna.flapi.repository.MLHistoryDatapointRepository;
 import ai.lerna.flapi.repository.MLHistoryRepository;
+import ai.lerna.flapi.repository.SuccessRepository;
 import ai.lerna.flapi.service.MpcService;
 import ai.lerna.flapi.service.StorageService;
 import ai.lerna.flapi.service.WebhookService;
@@ -51,6 +53,7 @@ public class FLManagerImpl implements FLManager {
 	private final LernaMLRepository lernaMLRepository;
 	private final LernaJobRepository lernaJobRepository;
 	private final LernaPredictionRepository lernaPredictionRepository;
+	private final SuccessRepository successRepository;
 	private final MLHistoryRepository mlHistoryRepository;
 	private final MLHistoryDatapointRepository mlHistoryDatapointRepository;
 	private final StorageService storageService;
@@ -66,12 +69,13 @@ public class FLManagerImpl implements FLManager {
 	private int scalingFactor;
 
 	@Autowired
-	public FLManagerImpl(MpcService mpcService, LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, LernaPredictionRepository lernaPredictionRepository, MLHistoryRepository mlHistoryRepository, MLHistoryDatapointRepository mlHistoryDatapointRepository, StorageService storageService, WebhookService webhookService) {
+	public FLManagerImpl(MpcService mpcService, LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, LernaPredictionRepository lernaPredictionRepository, SuccessRepository successRepository, MLHistoryRepository mlHistoryRepository, MLHistoryDatapointRepository mlHistoryDatapointRepository, StorageService storageService, WebhookService webhookService) {
 		this.mpcService = mpcService;
 		this.lernaAppRepository = lernaAppRepository;
 		this.lernaMLRepository = lernaMLRepository;
 		this.lernaJobRepository = lernaJobRepository;
 		this.lernaPredictionRepository = lernaPredictionRepository;
+		this.successRepository = successRepository;
 		this.mlHistoryRepository = mlHistoryRepository;
 		this.mlHistoryDatapointRepository = mlHistoryDatapointRepository;
 		this.storageService = storageService;
@@ -216,6 +220,21 @@ public class FLManagerImpl implements FLManager {
 			webhookService.sendPrediction(lernaPrediction);
 			//storageService.addDeviceInference(token, lernaPrediction);
 		}
+	}
+
+	@Override
+	public void saveSuccess(String token, Success success) throws Exception {
+		if (!lernaMLRepository.existsByAppToken(token)) {
+			throw new Exception("Not exists ML for selected token");
+		}
+		successRepository.save(ai.lerna.flapi.entity.Success.newBuilder()
+				.setMLId(success.getMl_id())
+				.setVersion(success.getVersion())
+				.setDeviceId(success.getDeviceId())
+				.setSuccess(success.getSuccess())
+				.setPrediction(success.getPrediction())
+				.setTimestamp(new Date())
+				.build());
 	}
 
 	@Override

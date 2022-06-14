@@ -1,5 +1,6 @@
 package ai.lerna.flapi.api;
 
+import ai.lerna.flapi.api.dto.Success;
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
 import ai.lerna.flapi.api.dto.TrainingInferenceRequest;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
@@ -36,4 +37,8 @@ public interface TrainingApi {
 	@Operation(summary = "Post Inference")
 	@PostMapping("/inference")
 	void postInference(@RequestParam(value = "token") String token, @RequestBody TrainingInferenceRequest request) throws Exception;
+
+	@Operation(summary = "Post Success")
+	@PostMapping("/success")
+	void postSuccess(@RequestParam(value = "token") String token, @RequestBody Success success) throws Exception;
 }
