@@ -44,8 +44,8 @@ class WebManagerImplSpec extends Specification {
 			long appId = 2L
 		when:
 			mlHistoryRepository.getAccuracies(userId, appId) >> [BigDecimal.valueOf(5), BigDecimal.valueOf(10), BigDecimal.valueOf(15)]
-			inferencesRepository.getPreviousSuccesses() >> BigDecimal.valueOf(20)
-			inferencesRepository.getLatestSuccesses() >> BigDecimal.valueOf(25)
+			inferencesRepository.getSuccesses(userId, appId, 2) >> BigDecimal.valueOf(20)
+			inferencesRepository.getSuccesses(userId, appId, 1) >> BigDecimal.valueOf(25)
 			lernaJobRepository.getTotalDataPoints(userId, appId) >> 15000L
 			mlHistoryDatapointRepository.getTotalDevicesLastWeek(userId, appId) >> 15L
 			lernaPredictionRepository.getTotalDevicesLastWeek(userId, appId) >> 20L
@@ -84,8 +84,8 @@ class WebManagerImplSpec extends Specification {
 			long appId = 2L
 		when:
 			mlHistoryRepository.getAccuracies(userId, appId) >> [BigDecimal.valueOf(5), BigDecimal.valueOf(10), BigDecimal.valueOf(15), null]
-		inferencesRepository.getPreviousSuccesses() >> BigDecimal.valueOf(20)
-		inferencesRepository.getLatestSuccesses() >> BigDecimal.valueOf(25)
+		inferencesRepository.getSuccesses(userId, appId, 2) >> BigDecimal.valueOf(20)
+		inferencesRepository.getSuccesses(userId, appId, 1) >> BigDecimal.valueOf(25)
 		lernaJobRepository.getTotalDataPoints(userId, appId) >> 15000L
 		mlHistoryDatapointRepository.getTotalDevicesLastWeek(userId, appId) >> 15L
 		lernaPredictionRepository.getTotalDevicesLastWeek(userId, appId) >> 20L

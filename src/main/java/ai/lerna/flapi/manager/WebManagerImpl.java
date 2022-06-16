@@ -161,8 +161,8 @@ public class WebManagerImpl implements WebManager {
 	@Override
 	public WebDashboard getDashboardData(long userId, long appId) {
 		List<BigDecimal> accuracies = mlHistoryRepository.getAccuracies(userId, appId);
-		BigDecimal accuracyPrevious = inferencesRepository.getPreviousSuccesses();
-		BigDecimal accuracyLatest = inferencesRepository.getLatestSuccesses();
+		BigDecimal accuracyPrevious = inferencesRepository.getSuccesses(userId, appId, 2);
+		BigDecimal accuracyLatest = inferencesRepository.getSuccesses(userId, appId, 1);
 		long totalData = lernaJobRepository.getTotalDataPoints(userId, appId);
 		long devicesParticipating = mlHistoryDatapointRepository.getTotalDevicesLastWeek(userId, appId); //lernaJobRepository.getTotalDevices(userId, appId);
 		long devicesTotalLastWeek = lernaPredictionRepository.getTotalDevicesLastWeek(userId, appId);
