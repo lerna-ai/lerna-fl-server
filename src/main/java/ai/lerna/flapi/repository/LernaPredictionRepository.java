@@ -30,7 +30,7 @@ public interface LernaPredictionRepository extends JpaRepository<LernaPrediction
 	@Query(value = "SELECT DATE_PART('week', p.timestamp) AS week, COUNT(DISTINCT p.device_id) AS devices FROM lerna_predictions p, lerna_ml ml, lerna_app app WHERE p.ml_id = ml.id AND ml.app_id = app.id AND app.id = :appId AND app.user_id = :userId GROUP BY DATE_PART('week', p.timestamp) ORDER BY DATE_PART('week', p.timestamp) DESC", nativeQuery = true)
 	List<Map<String, BigInteger>> findDevicePredictionPerWeek(long userId, long appId);
 
-	@Query(value = "SELECT COUNT(DISTINCT device_id) FROM lerna_predictions p, lerna_ml ml, lerna_app a WHERE ml.id = p.ml_id AND ml.app_id = a.id AND a.id = :appId 1 AND a.user_id = :userId", nativeQuery = true)
+	@Query(value = "SELECT COUNT(DISTINCT device_id) FROM lerna_predictions p, lerna_ml ml, lerna_app a WHERE ml.id = p.ml_id AND ml.app_id = a.id AND a.id = :appId AND a.user_id = :userId", nativeQuery = true)
 	long getTotalDevices(long userId, long appId);
 
 	@Query(value = "SELECT COUNT(DISTINCT device_id) FROM (SELECT device_id FROM lerna_predictions p, lerna_ml ml, lerna_app a WHERE ml.id = p.ml_id AND ml.app_id = a.id AND a.user_id = :userId AND a.id = :appId AND timestamp >= current_date - interval '7 days' UNION SELECT device_id FROM ml_history_datapoint hd, ml_history h, lerna_ml ml, lerna_app a WHERE hd.history_id = h.id AND ml.id = h.ml_id AND ml.app_id = a.id AND a.user_id = :userId AND a.id = :appId AND timestamp >= current_date - interval '7 days') AS device_id", nativeQuery = true)
