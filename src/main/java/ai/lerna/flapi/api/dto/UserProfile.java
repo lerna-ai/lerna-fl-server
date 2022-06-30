@@ -4,6 +4,8 @@ import ai.lerna.flapi.entity.LernaUser;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Schema(description = "User Profile")
 public class UserProfile implements Serializable {
@@ -26,6 +28,9 @@ public class UserProfile implements Serializable {
 	@Schema(description = "Position")
 	private String position;
 
+	@Schema(description = "ML Apps")
+	private List<UserApp> apps;
+
 	public UserProfile() {
 		// for serialisation/deserialization
 	}
@@ -37,6 +42,7 @@ public class UserProfile implements Serializable {
 		email = builder.email;
 		company = builder.company;
 		position = builder.position;
+		apps = builder.apps;
 	}
 
 	public static Builder newBuilder() {
@@ -87,6 +93,10 @@ public class UserProfile implements Serializable {
 		return position;
 	}
 
+	public List<UserApp> getApps() {
+		return apps;
+	}
+
 	public static final class Builder {
 		private long id;
 		private String firstName;
@@ -94,6 +104,11 @@ public class UserProfile implements Serializable {
 		private String email;
 		private String company;
 		private String position;
+		private List<UserApp> apps;
+
+		private Builder() {
+			apps = new ArrayList<>();
+		}
 
 		public Builder setId(long id) {
 			this.id = id;
@@ -122,6 +137,11 @@ public class UserProfile implements Serializable {
 
 		public Builder setPosition(String position) {
 			this.position = position;
+			return this;
+		}
+
+		public Builder setApps(List<UserApp> apps) {
+			this.apps = apps;
 			return this;
 		}
 

@@ -4,24 +4,27 @@ import ai.lerna.flapi.api.dto.AuthRequest;
 import ai.lerna.flapi.api.dto.AuthResponse;
 import ai.lerna.flapi.api.dto.UserPasswordChange;
 import ai.lerna.flapi.config.jwt.JwtTokenUtil;
+import ai.lerna.flapi.entity.LernaApp;
 import ai.lerna.flapi.entity.LernaUser;
+import ai.lerna.flapi.repository.LernaAppRepository;
 import ai.lerna.flapi.repository.LernaUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class UserManagerImpl implements UserManager {
 
-	private final UserDetailsService userDetailsService;
-
 	private final LernaUserRepository lernaUserRepository;
+
+	private final LernaAppRepository lernaAppRepository;
 
 	private final AuthenticationManager authenticationManager;
 
@@ -30,9 +33,9 @@ public class UserManagerImpl implements UserManager {
 	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
-	public UserManagerImpl(UserDetailsService userDetailsService, LernaUserRepository lernaUserRepository, AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil, PasswordEncoder passwordEncoder) {
-		this.userDetailsService = userDetailsService;
+	public UserManagerImpl(LernaUserRepository lernaUserRepository, LernaAppRepository lernaAppRepository, AuthenticationManager authenticationManager, JwtTokenUtil jwtTokenUtil, PasswordEncoder passwordEncoder) {
 		this.lernaUserRepository = lernaUserRepository;
+		this.lernaAppRepository = lernaAppRepository;
 		this.authenticationManager = authenticationManager;
 		this.jwtTokenUtil = jwtTokenUtil;
 		this.passwordEncoder = passwordEncoder;
@@ -56,6 +59,12 @@ public class UserManagerImpl implements UserManager {
 		Long userId = jwtTokenUtil.getUserIdFromToken(jwtTokenUtil.getJwtFromBearerToken(token));
 		return lernaUserRepository.findById(userId)
 				.orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + userId));
+	}
+
+	@Override
+	public List<LernaApp> getUserApps(String token) {
+		Long userId = jwtTokenUtil.getUserIdFromToken(jwtTokenUtil.getJwtFromBearerToken(token));
+		return lernaAppRepository.findByUserIdOrderById(userId);
 	}
 
 	@Override
