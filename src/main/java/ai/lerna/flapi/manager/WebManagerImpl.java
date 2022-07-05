@@ -181,6 +181,7 @@ public class WebManagerImpl implements WebManager {
 	private final Function<LernaApp, LernaApplication> convert = lernaApp -> LernaApplication.newBuilder()
 			.setId(lernaApp.getId())
 			.setToken(lernaApp.getToken())
+			.setName(lernaApp.getName())
 			.setVersion(lernaApp.getVersion())
 			.setMinNoUsers(lernaApp.getMinNoUsers())
 			.build();

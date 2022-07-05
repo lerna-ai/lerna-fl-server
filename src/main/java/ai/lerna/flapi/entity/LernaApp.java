@@ -24,7 +24,10 @@ public class LernaApp {
 
 	@Column(name = "current_version")
 	private long version;
-	
+
+	@Column(name = "name")
+	private String name;
+
 	@Column(name = "no_min_users")
 	private int minNoUsers;
 
@@ -60,6 +63,14 @@ public class LernaApp {
 		this.version = version;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public int getMinNoUsers() {
 		return minNoUsers;
 	}
@@ -67,6 +78,4 @@ public class LernaApp {
 	public void setMinNoUsers(int minNoUsers) {
 		this.minNoUsers = minNoUsers;
 	}
-	
-	
 }

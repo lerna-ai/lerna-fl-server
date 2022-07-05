@@ -58,6 +58,6 @@ public class UserApiImpl implements UserApi {
 
 	private final Function<LernaApp, UserApp> convert = lernaApp -> UserApp.newBuilder()
 			.setId(lernaApp.getId())
-			.setName(lernaApp.getToken().substring(0, 8))
+			.setName(lernaApp.getName())
 			.build();
 }

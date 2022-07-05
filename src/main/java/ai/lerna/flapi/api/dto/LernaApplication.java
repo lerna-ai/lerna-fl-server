@@ -15,6 +15,9 @@ public class LernaApplication {
 	@Schema(description = "Application token")
 	private String token;
 
+	@Schema(description = "Application name")
+	private String name;
+
 	@Schema(description = "Current version")
 	private long version;
 
@@ -32,6 +35,7 @@ public class LernaApplication {
 		id = builder.id;
 		mls = builder.mls;
 		token = builder.token;
+		name = builder.name;
 		minNoUsers = builder.minNoUsers;
 		version = builder.version;
 	}
@@ -44,6 +48,7 @@ public class LernaApplication {
 		return newBuilder()
 				.setId(copy.id)
 				.setToken(copy.token)
+				.setName(copy.name)
 				.setVersion(copy.version)
 				.setMinNoUsers(copy.minNoUsers)
 				.setMls(copy.mls);
@@ -55,6 +60,10 @@ public class LernaApplication {
 
 	public String getToken() {
 		return token;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public long getVersion() {
@@ -72,6 +81,7 @@ public class LernaApplication {
 	public static final class Builder {
 		private long id;
 		private String token;
+		private String name;
 		private long version;
 		private int minNoUsers;
 		private List<LernaML> mls;
@@ -87,6 +97,11 @@ public class LernaApplication {
 
 		public Builder setToken(String token) {
 			this.token = token;
+			return this;
+		}
+
+		public Builder setName(String name) {
+			this.name = name;
 			return this;
 		}
 
