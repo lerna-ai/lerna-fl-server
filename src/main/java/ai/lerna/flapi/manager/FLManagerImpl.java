@@ -11,6 +11,7 @@ import ai.lerna.flapi.api.dto.TrainingWeights;
 import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 import ai.lerna.flapi.entity.LernaPrediction;
+import ai.lerna.flapi.entity.LernaPredictionMetadata;
 import ai.lerna.flapi.entity.MLHistory;
 import ai.lerna.flapi.entity.MLHistoryDatapoint;
 import ai.lerna.flapi.entity.MLHistoryWeights;
@@ -207,6 +208,8 @@ public class FLManagerImpl implements FLManager {
 		if (!lernaMLRepository.existsByAppToken(token)) {
 			throw new Exception("Not exists ML for selected token");
 		}
+		LernaPredictionMetadata lernaPredictionMetadata = new LernaPredictionMetadata();
+		lernaPredictionMetadata.setUserIdentifier(trainingInferenceRequest.getUserIdentifier());
 		for (TrainingInference result : trainingInferenceRequest.getTrainingInference()) {
 			LernaPrediction lernaPrediction = LernaPrediction.newBuilder()
 					.setDeviceId(trainingInferenceRequest.getDeviceId())
@@ -214,6 +217,7 @@ public class FLManagerImpl implements FLManager {
 					.setModel(result.getModel())
 					.setVersion(trainingInferenceRequest.getVersion())
 					.setPrediction(result.getPrediction())
+					.setMetadata(lernaPredictionMetadata)
 					.setTimestamp(new Date())
 					.build();
 			lernaPredictionRepository.save(lernaPrediction);

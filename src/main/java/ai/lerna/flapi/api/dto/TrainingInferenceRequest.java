@@ -11,6 +11,9 @@ public class TrainingInferenceRequest implements Serializable {
 	@Schema(description = "Device ID")
 	private long deviceId;
 
+	@Schema(description = "User identifier for external systems")
+	private String userIdentifier;
+
 	@Schema(description = "Version of training task")
 	private long version;
 
@@ -24,6 +27,14 @@ public class TrainingInferenceRequest implements Serializable {
 
 	public void setDeviceId(long deviceId) {
 		this.deviceId = deviceId;
+	}
+
+	public String getUserIdentifier() {
+		return userIdentifier;
+	}
+
+	public void setUserIdentifier(String userIdentifier) {
+		this.userIdentifier = userIdentifier;
 	}
 
 	public long getVersion() {

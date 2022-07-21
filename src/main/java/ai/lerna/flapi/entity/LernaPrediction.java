@@ -1,7 +1,11 @@
 package ai.lerna.flapi.entity;
 
 
+import ai.lerna.flapi.entity.converter.LernaPredictionMetadataConverter;
+import ai.lerna.flapi.entity.converter.WebhookConfigFilterConverter;
+
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -32,6 +36,10 @@ public class LernaPrediction implements Serializable {
 
 	@Column(name = "prediction")
 	private String prediction;
+
+	@Column(name = "metadata")
+	@Convert(converter = LernaPredictionMetadataConverter.class)
+	private LernaPredictionMetadata metadata = new LernaPredictionMetadata();
 
 	@Column(name = "timestamp")
 	private Date timestamp;
@@ -64,6 +72,10 @@ public class LernaPrediction implements Serializable {
 		return model;
 	}
 
+	public LernaPredictionMetadata getMetadata() {
+		return metadata;
+	}
+
 	public Date getTimestamp() {
 		return timestamp;
 	}
@@ -74,6 +86,7 @@ public class LernaPrediction implements Serializable {
 		version = builder.version;
 		model = builder.model;
 		prediction = builder.prediction;
+		metadata = builder.metadata;
 		timestamp = builder.timestamp;
 	}
 
@@ -88,6 +101,7 @@ public class LernaPrediction implements Serializable {
 			.setVersion(copy.version)
 			.setModel(copy.model)
 			.setPrediction(copy.prediction)
+			.setMetadata(copy.metadata)
 			.setTimestamp(copy.timestamp);
 	}
 
@@ -97,6 +111,7 @@ public class LernaPrediction implements Serializable {
 		private long version;
 		private String model;
 		private String prediction;
+		private LernaPredictionMetadata metadata = new LernaPredictionMetadata();
 		private Date timestamp;
 
 		public Builder setDeviceId(long deviceId) {
@@ -121,6 +136,11 @@ public class LernaPrediction implements Serializable {
 
 		public Builder setPrediction(String prediction) {
 			this.prediction = prediction;
+			return this;
+		}
+
+		public Builder setMetadata(LernaPredictionMetadata metadata) {
+			this.metadata = metadata;
 			return this;
 		}
 
