@@ -24,6 +24,9 @@ public class Webhook {
 	@Schema(description = "Request URI")
 	private String uri;
 
+	@Schema(description = "Firebase Cloud Messaging Server Key")
+	private String fcmServerKey;
+
 	@Schema(description = "Filter categories")
 	private List<String> categories;
 
@@ -40,6 +43,7 @@ public class Webhook {
 		type = builder.type;
 		method = builder.method;
 		uri = builder.uri;
+		fcmServerKey = builder.fcmServerKey;
 		categories = builder.categories;
 		enabled = builder.enabled;
 	}
@@ -55,6 +59,7 @@ public class Webhook {
 				.setType(copy.getType())
 				.setMethod(copy.getMethod())
 				.setUri(copy.getUri())
+				.setFcmServerKey(copy.getFcmServerKey())
 				.setCategories(copy.getCategories())
 				.setEnabled(copy.isEnabled());
 	}
@@ -79,6 +84,10 @@ public class Webhook {
 		return uri;
 	}
 
+	public String getFcmServerKey() {
+		return fcmServerKey;
+	}
+
 	public List<String> getCategories() {
 		return categories;
 	}
@@ -93,6 +102,7 @@ public class Webhook {
 		private WebhookMessageType type;
 		private String method;
 		private String uri;
+		private String fcmServerKey;
 		private List<String> categories;
 		private boolean enabled;
 
@@ -122,6 +132,11 @@ public class Webhook {
 
 		public Builder setUri(String uri) {
 			this.uri = uri;
+			return this;
+		}
+
+		public Builder setFcmServerKey(String fcmServerKey) {
+			this.fcmServerKey = fcmServerKey;
 			return this;
 		}
 

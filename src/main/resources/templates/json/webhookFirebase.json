@@ -1,0 +1,14 @@
+{
+  "to": "[(${Prediction.metadata.userIdentifier})]",
+  "notification": {
+    "title":"Lerna Reader App",
+    "body":"An interesting article for you in category [(${Prediction.prediction})]"
+  },
+  "data": {
+    "version": "[(${Prediction.version})]",
+    "model": "[(${Prediction.model})]",
+    "prediction": "[(${Prediction.prediction})]",
+    "timestamp": "[(${Prediction.timestamp})]",
+    "mlid": "[(${Prediction.MLId})]"
+  }
+}

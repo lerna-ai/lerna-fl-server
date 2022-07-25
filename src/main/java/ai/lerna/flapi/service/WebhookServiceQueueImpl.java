@@ -90,9 +90,13 @@ public class WebhookServiceQueueImpl implements WebhookService {
 		message.setType(webhookConfig.getType());
 		message.setMethod(webhookConfig.getRequest().getMethod());
 		message.setUri(webhookConfig.getRequest().getUri());
+		message.setFcmServerKey(webhookConfig.getRequest().getFcmServerKey());
 		switch (webhookConfig.getType()) {
 			case Slack:
 				message.setPayload(webhookTemplateService.getSlackTemplate(lernaPrediction));
+				break;
+			case Firebase:
+				message.setPayload(webhookTemplateService.getFirebaseTemplate(lernaPrediction));
 				break;
 			case Webhook:
 			default:

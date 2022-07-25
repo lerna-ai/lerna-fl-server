@@ -29,4 +29,13 @@ public class WebhookTemplateServiceImpl implements WebhookTemplateService {
 				mMessageTemplateEngine.process("json/lernaPrediction", theContext);
 		return theJsonMessage;
 	}
+
+	@Override
+	public String getFirebaseTemplate(LernaPrediction prediction) {
+		final Context theContext = new Context();
+		theContext.setVariable("Prediction", prediction);
+		final String theJsonMessage =
+				mMessageTemplateEngine.process("json/webhookFirebase", theContext);
+		return theJsonMessage;
+	}
 }

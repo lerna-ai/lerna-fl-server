@@ -4,6 +4,7 @@ public class WebhookQueueMessage {
 	private WebhookMessageType type;
 	private String method;
 	private String uri;
+	private String fcmServerKey;
 	private String payload;
 
 	public WebhookMessageType getType() {
@@ -28,6 +29,14 @@ public class WebhookQueueMessage {
 
 	public void setUri(String uri) {
 		this.uri = uri;
+	}
+
+	public String getFcmServerKey() {
+		return fcmServerKey;
+	}
+
+	public void setFcmServerKey(String fcmServerKey) {
+		this.fcmServerKey = fcmServerKey;
 	}
 
 	public String getPayload() {

@@ -106,6 +106,7 @@ public class WebManagerImpl implements WebManager {
 			.setType(webhookConfig.getType())
 			.setMethod(webhookConfig.getRequest().getMethod())
 			.setUri(webhookConfig.getRequest().getUri())
+			.setFcmServerKey(webhookConfig.getRequest().getFcmServerKey())
 			.setCategories(webhookConfig.getFilter().getCategories())
 			.setEnabled(webhookConfig.isEnabled())
 			.build();
@@ -114,6 +115,7 @@ public class WebManagerImpl implements WebManager {
 		WebhookConfigRequest request = new WebhookConfigRequest();
 		request.setMethod(webhook.getMethod());
 		request.setUri(webhook.getUri());
+		request.setFcmServerKey(webhook.getFcmServerKey());
 		WebhookConfigFilter filter = new WebhookConfigFilter();
 		filter.setCategories(webhook.getCategories());
 		WebhookConfig webhookConfig = new WebhookConfig();

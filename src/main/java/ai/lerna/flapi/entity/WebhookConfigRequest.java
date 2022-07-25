@@ -3,6 +3,7 @@ package ai.lerna.flapi.entity;
 public class WebhookConfigRequest {
 	private String method;
 	private String uri;
+	private String fcmServerKey;
 
 	public String getMethod() {
 		return method;
@@ -18,5 +19,13 @@ public class WebhookConfigRequest {
 
 	public void setUri(String uri) {
 		this.uri = uri;
+	}
+
+	public String getFcmServerKey() {
+		return fcmServerKey;
+	}
+
+	public void setFcmServerKey(String fcmServerKey) {
+		this.fcmServerKey = fcmServerKey;
 	}
 }
