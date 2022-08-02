@@ -1,8 +1,8 @@
 {
   "to": "[(${Prediction.metadata.userIdentifier})]",
   "notification": {
-    "title":"Lerna Reader App",
-    "body":"An interesting article for you in category [(${Prediction.prediction})]"
+    "title":"[(${Prediction.metadata.notificationTitle})]",
+    "body":"[(${Prediction.metadata.notificationBody})]"
   },
   "data": {
     "version": "[(${Prediction.version})]",

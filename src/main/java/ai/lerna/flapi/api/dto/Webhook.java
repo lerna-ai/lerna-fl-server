@@ -27,6 +27,12 @@ public class Webhook {
 	@Schema(description = "Firebase Cloud Messaging Server Key")
 	private String fcmServerKey;
 
+	@Schema(description = "Firebase Notification Title")
+	private String notificationTitle;
+
+	@Schema(description = "Firebase Notification Body")
+	private String notificationBody;
+
 	@Schema(description = "Filter categories")
 	private List<String> categories;
 
@@ -44,6 +50,8 @@ public class Webhook {
 		method = builder.method;
 		uri = builder.uri;
 		fcmServerKey = builder.fcmServerKey;
+		notificationTitle = builder.notificationTitle;
+		notificationBody = builder.notificationBody;
 		categories = builder.categories;
 		enabled = builder.enabled;
 	}
@@ -60,6 +68,8 @@ public class Webhook {
 				.setMethod(copy.getMethod())
 				.setUri(copy.getUri())
 				.setFcmServerKey(copy.getFcmServerKey())
+				.setNotificationTitle(copy.getNotificationTitle())
+				.setNotificationBody(copy.getNotificationBody())
 				.setCategories(copy.getCategories())
 				.setEnabled(copy.isEnabled());
 	}
@@ -88,6 +98,14 @@ public class Webhook {
 		return fcmServerKey;
 	}
 
+	public String getNotificationTitle() {
+		return notificationTitle;
+	}
+
+	public String getNotificationBody() {
+		return notificationBody;
+	}
+
 	public List<String> getCategories() {
 		return categories;
 	}
@@ -103,6 +121,8 @@ public class Webhook {
 		private String method;
 		private String uri;
 		private String fcmServerKey;
+		private String notificationTitle;
+		private String notificationBody;
 		private List<String> categories;
 		private boolean enabled;
 
@@ -137,6 +157,16 @@ public class Webhook {
 
 		public Builder setFcmServerKey(String fcmServerKey) {
 			this.fcmServerKey = fcmServerKey;
+			return this;
+		}
+
+		public Builder setNotificationTitle(String notificationTitle) {
+			this.notificationTitle = notificationTitle;
+			return this;
+		}
+
+		public Builder setNotificationBody(String notificationBody) {
+			this.notificationBody = notificationBody;
 			return this;
 		}
 

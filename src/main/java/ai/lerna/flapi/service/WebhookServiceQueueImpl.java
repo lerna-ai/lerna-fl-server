@@ -4,6 +4,7 @@ import ai.lerna.flapi.config.JacksonConfiguration;
 import ai.lerna.flapi.entity.LernaJob;
 import ai.lerna.flapi.entity.LernaML;
 import ai.lerna.flapi.entity.LernaPrediction;
+import ai.lerna.flapi.entity.LernaPredictionMetadata;
 import ai.lerna.flapi.entity.WebhookConfig;
 import ai.lerna.flapi.repository.LernaJobRepository;
 import ai.lerna.flapi.repository.LernaMLRepository;
@@ -82,9 +83,11 @@ public class WebhookServiceQueueImpl implements WebhookService {
 	}
 
 	private String generateMessage(LernaPrediction lernaPrediction, WebhookConfig webhookConfig) {
+		String prediction = predictionMap.get(mlIdAppIdMap.get(lernaPrediction.getMLId()))
+				.getOrDefault(lernaPrediction.getPrediction(), lernaPrediction.getPrediction());
 		lernaPrediction = LernaPrediction.newBuilder(lernaPrediction)
-				.setPrediction(predictionMap.get(mlIdAppIdMap.get(lernaPrediction.getMLId()))
-						.getOrDefault(lernaPrediction.getPrediction(), lernaPrediction.getPrediction()))
+				.setPrediction(prediction)
+				.setMetadata(enhanceMetadata(lernaPrediction, webhookConfig, prediction))
 				.build();
 		WebhookQueueMessage message = new WebhookQueueMessage();
 		message.setType(webhookConfig.getType());
@@ -109,5 +112,12 @@ public class WebhookServiceQueueImpl implements WebhookService {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	private LernaPredictionMetadata enhanceMetadata(LernaPrediction prediction, WebhookConfig webhookConfig, String predictionTitle) {
+		LernaPredictionMetadata metadata = prediction.getMetadata();
+		metadata.setNotificationTitle(webhookConfig.getRequest().getNotificationTitle());
+		metadata.setNotificationBody(webhookConfig.getRequest().getNotificationBody().replace("$category", predictionTitle));
+		return metadata;
 	}
 }
