@@ -3,6 +3,7 @@ package ai.lerna.flapi.config;
 import ai.lerna.flapi.api.AdminApi;
 import ai.lerna.flapi.api.TestApi;
 import ai.lerna.flapi.api.TrainingApi;
+import ai.lerna.flapi.api.TrainingApiV2;
 import ai.lerna.flapi.api.UserApi;
 import ai.lerna.flapi.config.jwt.JwtRequestFilter;
 import org.springframework.context.annotation.Bean;
@@ -52,6 +53,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers(AdminApi.path + "/**").permitAll()
 				.antMatchers(TestApi.path + "/**").permitAll()
 				.antMatchers(TrainingApi.path + "/**").permitAll()
+				.antMatchers(TrainingApiV2.path + "/**").permitAll()
 				// authenticate all other particular request
 				.anyRequest().authenticated()
 				.and().exceptionHandling().authenticationEntryPoint((req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "UNAUTHORIZED : " + ex.getMessage()))

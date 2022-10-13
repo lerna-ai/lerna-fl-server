@@ -27,6 +27,14 @@ public class SwaggerConfiguration {
 	}
 
 	@Bean
+	public GroupedOpenApi lernaApiV2() {
+		return GroupedOpenApi.builder()
+			.group("Lerna API Ver 2.0")
+			.pathsToMatch("/api/v2/**")
+			.build();
+	}
+
+	@Bean
 	public OpenAPI springShopOpenAPI() {
 		return new OpenAPI()
 			.info(new Info().title("Lerna FL API")
