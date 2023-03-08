@@ -37,14 +37,18 @@ public interface AdminApi {
 	@GetMapping("/training/job/replace/{appToken}")
 	String replaceJob(@RequestParam(value = "token") String token, @PathVariable(value = "appToken") String appToken) throws Exception;
 
+	@Operation(summary = "Cleanup global weights of selected app")
+	@GetMapping("/training/globalWeights/cleanup/{appToken}")
+	String cleanupGlobalWeights(@RequestParam(value = "token") String token, @PathVariable(value = "appToken") String appToken) throws Exception;
+
 	@Operation(summary = "Cleanup non-relative device weights of selected app")
 	@GetMapping("/training/deviceWeights/cleanup/{appToken}")
 	String cleanupDeviceWeights(@RequestParam(value = "token") String token, @PathVariable(value = "appToken") String appToken) throws Exception;
-	
+
 	@Operation(summary = "Check if enough users are gathered and run the FL for a specific token")
 	@GetMapping("/training/runFL/{appToken}")
 	String checkAndAggregate(@RequestParam(value = "token") String token, @PathVariable(value = "appToken") String appToken) throws Exception;
-	
+
 	@Operation(summary = "Check if enough users are gathered and run the FL")
 	@GetMapping("/training/runFL/all")
 	String checkAndAggregateAll(@RequestParam(value = "token") String token) throws Exception;

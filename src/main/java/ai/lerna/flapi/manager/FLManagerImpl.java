@@ -85,7 +85,7 @@ public class FLManagerImpl implements FLManager {
 
 	@Override
 	public TrainingTaskResponse getNewTraining(String token, Long deviceId) throws Exception {
-		TrainingTaskResponse trainingTaskResponse=null;
+		TrainingTaskResponse trainingTaskResponse = null;
 		Optional<TrainingTaskResponse> taskResponse = storageService.getActiveTask(token);
 		if (taskResponse.isPresent()) {
 			trainingTaskResponse = taskResponse.get();
@@ -180,7 +180,7 @@ public class FLManagerImpl implements FLManager {
 
 		return TrainingTaskResponse.newBuilder()
 				.setTrainingTasks(trainingTasks)
-				.setVersion(lernaAppRepository.getVersionByToken(token).orElse(0L)+1L)
+				.setVersion(lernaAppRepository.getVersionByToken(token).orElse(0L) + 1L)
 				.build();
 	}
 
@@ -355,7 +355,7 @@ public class FLManagerImpl implements FLManager {
 	public void replaceAllJobs() throws Exception {
 		lernaAppRepository.findAll().stream()
 				.filter(lernaApp -> storageService.getTask(lernaApp.getToken()).isPresent())
-				.forEach(lernaApp ->  replaceJobs(lernaApp.getToken()));
+				.forEach(lernaApp -> replaceJobs(lernaApp.getToken()));
 	}
 
 	public void replaceJobs(String token) {
@@ -365,8 +365,7 @@ public class FLManagerImpl implements FLManager {
 					// Kill jobs from privacy server
 					try {
 						mpcService.getLernaNoise(mpcHost, mpcPort, jobId, new ArrayList<>(Optional.ofNullable(storageService.getDeviceDropTable(jobId)).orElse(new ArrayList<>())));
-					}
-					catch (Exception e) {
+					} catch (Exception e) {
 						Logger.getLogger(this.getClass().getName()).log(Level.WARNING, String.format("Cannot kill job on privacy server %s", e.getMessage()));
 					}
 					// Remove jobs related data from storage service
@@ -378,6 +377,13 @@ public class FLManagerImpl implements FLManager {
 				prepareTrainingTask(token);
 			});
 		});
+	}
+
+	@Override
+	public void cleanupGlobalWeights(String token) throws Exception {
+		if (storageService.getWeights(token).isPresent()) {
+			storageService.deleteWeightsTable(token);
+		}
 	}
 
 	@Override

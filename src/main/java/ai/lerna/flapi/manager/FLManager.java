@@ -29,6 +29,8 @@ public interface FLManager {
 
 	void replaceJobs(String token);
 
+	void cleanupGlobalWeights(String token) throws Exception;
+
 	void cleanupDeviceWeights(String token) throws Exception;
 
 	void checkAndAggregateAll() throws Exception;

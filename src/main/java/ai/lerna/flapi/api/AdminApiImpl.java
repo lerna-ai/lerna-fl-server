@@ -66,19 +66,26 @@ public class AdminApiImpl implements AdminApi {
 	}
 
 	@Override
+	public String cleanupGlobalWeights(String token, String appToken) throws Exception {
+		tokenValidation(token);
+		flManager.cleanupGlobalWeights(appToken);
+		return "OK";
+	}
+
+	@Override
 	public String cleanupDeviceWeights(String token, String appToken) throws Exception {
 		tokenValidation(token);
 		flManager.cleanupDeviceWeights(appToken);
 		return "OK";
 	}
-	
+
 	@Override
 	public String checkAndAggregate(String token, String appToken) throws Exception {
 		tokenValidation(token);
 		flManager.checkAndAggregate(appToken);
 		return "OK";
 	}
-	
+
 	@Override
 	public String checkAndAggregateAll(String token) throws Exception {
 		tokenValidation(token);
