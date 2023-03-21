@@ -22,6 +22,9 @@ public class Success implements Serializable {
 	@Schema(description = "Success event")
 	private String success;
 
+	@Schema(description = "Latest prediction position")
+	private String position;
+
 	public long getMl_id() {
 		return ml_id;
 	}
@@ -60,5 +63,13 @@ public class Success implements Serializable {
 
 	public void setSuccess(String success) {
 		this.success = success;
+	}
+
+	public String getPosition() {
+		return position;
+	}
+
+	public void setPosition(String position) {
+		this.position = position;
 	}
 }

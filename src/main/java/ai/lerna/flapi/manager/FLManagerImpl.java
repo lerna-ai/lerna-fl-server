@@ -15,6 +15,7 @@ import ai.lerna.flapi.entity.LernaPredictionMetadata;
 import ai.lerna.flapi.entity.MLHistory;
 import ai.lerna.flapi.entity.MLHistoryDatapoint;
 import ai.lerna.flapi.entity.MLHistoryWeights;
+import ai.lerna.flapi.entity.SuccessMetadata;
 import ai.lerna.flapi.repository.LernaAppRepository;
 import ai.lerna.flapi.repository.LernaJobRepository;
 import ai.lerna.flapi.repository.LernaMLRepository;
@@ -231,6 +232,8 @@ public class FLManagerImpl implements FLManager {
 		if (!lernaMLRepository.existsByAppToken(token)) {
 			throw new Exception("Not exists ML for selected token");
 		}
+		SuccessMetadata successMetadata = new SuccessMetadata();
+		successMetadata.setPosition(success.getPosition());
 		successRepository.save(ai.lerna.flapi.entity.Success.newBuilder()
 				.setMLId(success.getMl_id())
 				.setVersion(success.getVersion())
@@ -238,6 +241,7 @@ public class FLManagerImpl implements FLManager {
 				.setSuccess(success.getSuccess())
 				.setPrediction(success.getPrediction())
 				.setTimestamp(new Date())
+				.setMetadata(successMetadata)
 				.build());
 	}
 

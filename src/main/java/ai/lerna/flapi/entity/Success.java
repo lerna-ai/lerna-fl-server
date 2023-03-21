@@ -1,7 +1,10 @@
 package ai.lerna.flapi.entity;
 
 
+import ai.lerna.flapi.entity.converter.SuccessMetadataConverter;
+
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -36,6 +39,10 @@ public class Success implements Serializable {
 	@Column(name = "timestamp")
 	private Date timestamp;
 
+	@Column(name = "metadata")
+	@Convert(converter = SuccessMetadataConverter.class)
+	private SuccessMetadata metadata = new SuccessMetadata();
+
 	public Success() {
 		// for serialisation/deserialization
 	}
@@ -68,6 +75,10 @@ public class Success implements Serializable {
 		return timestamp;
 	}
 
+	public SuccessMetadata getMetadata() {
+		return metadata;
+	}
+
 	public Success(Builder builder) {
 		MLId = builder.MLId;
 		version = builder.version;
@@ -75,6 +86,7 @@ public class Success implements Serializable {
 		prediction = builder.prediction;
 		success = builder.success;
 		timestamp = builder.timestamp;
+		metadata = builder.metadata;
 	}
 
 	public static Builder newBuilder() {
@@ -88,7 +100,8 @@ public class Success implements Serializable {
 				.setDeviceId(copy.deviceId)
 				.setPrediction(copy.prediction)
 				.setSuccess(copy.success)
-				.setTimestamp(copy.timestamp);
+				.setTimestamp(copy.timestamp)
+				.setMetadata(copy.metadata);
 	}
 
 	public static final class Builder {
@@ -98,6 +111,7 @@ public class Success implements Serializable {
 		private String prediction;
 		private String success;
 		private Date timestamp;
+		private SuccessMetadata metadata = new SuccessMetadata();
 
 		public Builder setMLId(long MLId) {
 			this.MLId = MLId;
@@ -126,6 +140,11 @@ public class Success implements Serializable {
 
 		public Builder setTimestamp(Date timestamp) {
 			this.timestamp = timestamp;
+			return this;
+		}
+
+		public Builder setMetadata(SuccessMetadata metadata) {
+			this.metadata = metadata;
 			return this;
 		}
 
