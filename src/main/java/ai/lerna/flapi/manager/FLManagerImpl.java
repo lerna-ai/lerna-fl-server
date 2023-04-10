@@ -47,6 +47,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.nd4j.linalg.indexing.NDArrayIndex.interval;
+
 @Component
 public class FLManagerImpl implements FLManager {
 
@@ -401,5 +403,33 @@ public class FLManagerImpl implements FLManager {
 				storageService.cleanupDeviceWeightsIncorrectDimension(job.getValue(), weightsDimension);
 			}
 		});
+	}
+
+	public void resizeWeightsAddColumn(String token, int noOfColumns) throws Exception {
+		if (noOfColumns <= 0) {
+			throw new Exception("Invalid noOfColumns number");
+		}
+		if (!lernaMLRepository.existsByAppToken(token)) {
+			throw new Exception("Not exists ML for selected token");
+		}
+		lernaMLRepository.findAllByAppToken(token).forEach(lernaML -> {
+			lernaJobRepository.findByMLId(lernaML.getId()).forEach(lernaJob -> {
+				lernaJob.setWeights(addColumns(lernaJob.getWeights(), noOfColumns));
+				lernaJobRepository.save(lernaJob);
+			});
+		});
+	}
+
+	INDArray addColumns(INDArray array, int noOfColumns) {
+		INDArray newColumns = Nd4j.randn(noOfColumns, 1);
+		return Nd4j.concat(0, array, newColumns);
+	}
+
+	INDArray removeColumns(INDArray array, int noOfColumns) throws Exception {
+		int size = (int) array.size(0);
+		if (noOfColumns >= size) {
+			throw new Exception("Invalid noOfColumns number");
+		}
+		return array.get(interval(0, size - noOfColumns));
 	}
 }

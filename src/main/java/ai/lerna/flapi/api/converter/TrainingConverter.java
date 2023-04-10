@@ -8,7 +8,6 @@ import ai.lerna.flapi.api.dtoV2.TrainingWeightsResponseV2;
 import ai.lerna.flapi.api.dtoV2.TrainingWeightsV2;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.util.ArrayUtil;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
