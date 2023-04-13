@@ -3,6 +3,7 @@ package ai.lerna.flapi.manager;
 import ai.lerna.flapi.api.dto.Success;
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
 import ai.lerna.flapi.api.dto.TrainingInferenceRequest;
+import ai.lerna.flapi.api.dto.TrainingInitialize;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
@@ -36,4 +37,6 @@ public interface FLManager {
 	void checkAndAggregateAll() throws Exception;
 
 	void checkAndAggregate(String token) throws Exception;
+
+	void verifyTrainingJobs(String token, TrainingInitialize trainingInitialize);
 }

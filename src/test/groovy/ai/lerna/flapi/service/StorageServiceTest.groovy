@@ -342,6 +342,18 @@ class StorageServiceTest extends Specification {
 			size == 0
 	}
 
+	def "Should get empty weights on null weights"() {
+		given:
+			String token = "foo-bar-baz"
+			storageService.putWeights(token, null)
+		when:
+			Optional<TrainingWeightsResponse> result = storageService.getWeights(token)
+			int size = storageService.weights.size()
+		then:
+			!result.isPresent()
+			size == 1
+	}
+
 	def "Should weights can be added"() {
 		given:
 			String token = "foo-bar-baz"

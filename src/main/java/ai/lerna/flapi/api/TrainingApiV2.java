@@ -3,6 +3,7 @@ package ai.lerna.flapi.api;
 import ai.lerna.flapi.api.dto.Success;
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
 import ai.lerna.flapi.api.dto.TrainingInferenceRequest;
+import ai.lerna.flapi.api.dto.TrainingInitialize;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dtoV2.TrainingWeightsRequestV2;
 import ai.lerna.flapi.api.dtoV2.TrainingWeightsResponseV2;
@@ -23,6 +24,10 @@ public interface TrainingApiV2 {
 	@Operation(summary = "Get new training info")
 	@GetMapping("/new")
 	TrainingTaskResponse getNewTraining(@RequestParam(value = "token") String token, @RequestParam(value = "deviceId") Long deviceId) throws Exception;
+
+	@Operation(summary = "Get new training info")
+	@PostMapping("/new")
+	TrainingTaskResponse postNewTraining(@RequestParam(value = "token") String token, @RequestParam(value = "deviceId") Long deviceId, @RequestBody TrainingInitialize trainingInitialize) throws Exception;
 
 	@PostMapping("/submitWeights")
 	void postDeviceWeights(@RequestParam(value = "token") String token, @RequestBody TrainingWeightsRequestV2 trainingWeightsRequest) throws Exception;

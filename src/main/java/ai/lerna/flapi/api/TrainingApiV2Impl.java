@@ -4,6 +4,7 @@ import ai.lerna.flapi.api.converter.TrainingConverter;
 import ai.lerna.flapi.api.dto.Success;
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
 import ai.lerna.flapi.api.dto.TrainingInferenceRequest;
+import ai.lerna.flapi.api.dto.TrainingInitialize;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
 import ai.lerna.flapi.api.dtoV2.TrainingWeightsRequestV2;
@@ -19,10 +20,10 @@ import java.util.Objects;
 @RestController
 public class TrainingApiV2Impl implements TrainingApiV2 {
 
-	private FLManager flManager;
-	private TrainingApiValidator validator;
-	private TrainingConverter converter;
-	private TrainingApi trainingApi;
+	private final FLManager flManager;
+	private final TrainingApiValidator validator;
+	private final TrainingConverter converter;
+	private final TrainingApi trainingApi;
 
 	@Autowired
 	public TrainingApiV2Impl(FLManager flManager, TrainingApiValidator validator, TrainingConverter converter, TrainingApi trainingApi) {
@@ -34,6 +35,14 @@ public class TrainingApiV2Impl implements TrainingApiV2 {
 
 	@Override
 	public TrainingTaskResponse getNewTraining(@RequestParam(value = "token") String token, Long deviceId) throws Exception {
+		return trainingApi.getNewTraining(token, deviceId);
+	}
+
+	@Override
+	public TrainingTaskResponse postNewTraining(@RequestParam(value = "token") String token, Long deviceId, TrainingInitialize trainingInitialize) throws Exception {
+		validator.tokenValidation(token);
+		validator.deviceIdValidation(deviceId);
+		flManager.verifyTrainingJobs(token, trainingInitialize);
 		return trainingApi.getNewTraining(token, deviceId);
 	}
 

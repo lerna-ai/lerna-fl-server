@@ -5,11 +5,14 @@ import ai.lerna.flapi.api.dto.Success;
 import ai.lerna.flapi.api.dto.TrainingAccuracyRequest;
 import ai.lerna.flapi.api.dto.TrainingInference;
 import ai.lerna.flapi.api.dto.TrainingInferenceRequest;
+import ai.lerna.flapi.api.dto.TrainingInitialize;
 import ai.lerna.flapi.api.dto.TrainingTask;
 import ai.lerna.flapi.api.dto.TrainingTaskResponse;
 import ai.lerna.flapi.api.dto.TrainingWeights;
 import ai.lerna.flapi.api.dto.TrainingWeightsRequest;
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse;
+import ai.lerna.flapi.entity.LernaJob;
+import ai.lerna.flapi.entity.LernaML;
 import ai.lerna.flapi.entity.LernaPrediction;
 import ai.lerna.flapi.entity.LernaPredictionMetadata;
 import ai.lerna.flapi.entity.MLHistory;
@@ -44,8 +47,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static org.nd4j.linalg.indexing.NDArrayIndex.interval;
 
@@ -334,6 +340,49 @@ public class FLManagerImpl implements FLManager {
 		TrainingTaskResponse newTrainingTaskResponse = createTrainingTask(token);
 		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Getting {0} TrainingTasks from db", newTrainingTaskResponse.getTrainingTasks().size());
 		storageService.putTask(token, newTrainingTaskResponse);
+	}
+
+	@Override
+	public void verifyTrainingJobs(String token, TrainingInitialize trainingInitialize) {
+		lernaMLRepository.findAllByAppToken(token).forEach(lernaML -> {
+			List<LernaJob> jobs = lernaJobRepository.findByMLId(lernaML.getId());
+			AtomicLong predictionValue = new AtomicLong(jobs.stream().map(LernaJob::getPredictionValue).max(Long::compare).get() + 1);
+			Map<String, LernaJob> currentJobs = jobs.stream()
+					.collect(Collectors.toMap(LernaJob::getPrediction, Function.identity()));
+			trainingInitialize.getClasses().stream()
+					.filter(trainingInitializeItem -> lernaML.getModel().equals(trainingInitializeItem.getModelName()))
+					.forEach(trainingInitializeItem -> {
+						trainingInitializeItem.getJobs().stream()
+								.filter(job -> !currentJobs.containsKey(job))
+								.forEach(job -> {
+									LernaJob newJob = new LernaJob();
+									newJob.setMLId(lernaML.getId());
+									newJob.setPrediction(job);
+									newJob.setPredictionValue(predictionValue.getAndIncrement());
+									newJob.setWeights(Nd4j.randn(lernaML.getML().getDimensions(), 1));
+									newJob.setTotalDataPoints(0);
+									newJob.setTotalDevices(0);
+									lernaJobRepository.save(newJob);
+									addTrainingTaskOnCache(token, lernaML, job);
+									cleanupGlobalWeightsFromCache(token);
+								});
+					});
+		});
+	}
+
+	public void addTrainingTaskOnCache(String token, LernaML lernaML, String job) {
+		storageService.getTask(token).ifPresent(trainingTaskResponse -> {
+			for (TrainingTask trainingTask : trainingTaskResponse.getTrainingTasks()) {
+				if (trainingTask.getMlModel().equals(lernaML.getModel())) {
+					trainingTask.getJobIds().put(job, mpcService.getLernaJob(mpcHost, mpcPort, lernaML.getPrivacy().getEpsilon(), lernaML.getML().getDimensions(), lernaML.getML().getNormalization()).getCompId());
+				}
+			}
+			storageService.putTask(token, trainingTaskResponse);
+		});
+	}
+
+	private void cleanupGlobalWeightsFromCache(String token) {
+		storageService.putWeights(token, null);
 	}
 
 	@Override
