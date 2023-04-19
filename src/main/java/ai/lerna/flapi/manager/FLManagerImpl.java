@@ -242,6 +242,8 @@ public class FLManagerImpl implements FLManager {
 		}
 		SuccessMetadata successMetadata = new SuccessMetadata();
 		successMetadata.setPosition(success.getPosition());
+		successMetadata.setMlName(success.getMlName());
+		successMetadata.setABRandom(success.getMlName().contains("-Random"));
 		successRepository.save(ai.lerna.flapi.entity.Success.newBuilder()
 				.setMLId(success.getMl_id())
 				.setVersion(success.getVersion())

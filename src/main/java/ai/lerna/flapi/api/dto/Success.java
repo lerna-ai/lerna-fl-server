@@ -10,6 +10,9 @@ public class Success implements Serializable {
 	@Schema(description = "ML Model ID")
 	private long ml_id;
 
+	@Schema(description = "ML Model Name")
+	private String mlName;
+
 	@Schema(description = "Version of training task")
 	private long version;
 
@@ -31,6 +34,14 @@ public class Success implements Serializable {
 
 	public void setMl_id(long ml_id) {
 		this.ml_id = ml_id;
+	}
+
+	public String getMlName() {
+		return mlName;
+	}
+
+	public void setMlName(String mlName) {
+		this.mlName = mlName;
 	}
 
 	public long getVersion() {
