@@ -70,6 +70,13 @@ public class WebApiImpl implements WebApi {
 	}
 
 	@Override
+	public ResponseEntity<String> setDimensions(String bearerToken, long appId, long mlId, int dimension) throws Exception {
+		validator.tokenValidation(bearerToken);
+		LernaUser user = userManager.getProfile(bearerToken);
+		return ResponseEntity.ok(webManager.changeDimension(user.getId(), appId, mlId, dimension));
+	}
+
+	@Override
 	public WebhookResponse getWebhooks(String bearerToken, long appId) throws Exception {
 		validator.tokenValidation(bearerToken);
 		LernaUser user = userManager.getProfile(bearerToken);

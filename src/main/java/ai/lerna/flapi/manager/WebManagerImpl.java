@@ -7,6 +7,7 @@ import ai.lerna.flapi.api.dto.Webhook;
 import ai.lerna.flapi.api.dto.WebhookResponse;
 import ai.lerna.flapi.entity.LernaApp;
 import ai.lerna.flapi.entity.LernaJob;
+import ai.lerna.flapi.entity.LernaML;
 import ai.lerna.flapi.entity.LernaPrediction;
 import ai.lerna.flapi.entity.WebhookConfig;
 import ai.lerna.flapi.entity.WebhookConfigFilter;
@@ -50,6 +51,7 @@ public class WebManagerImpl implements WebManager {
 	private final MLHistoryDatapointRepository mlHistoryDatapointRepository;
 	private final WebhookConfigRepository webhookConfigRepository;
 	private final WebhookService webhookService;
+	private final ManagerHelper managerHelper;
 
 	public WebManagerImpl(LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, LernaPredictionRepository lernaPredictionRepository, MLHistoryRepository mlHistoryRepository, MLHistoryDatapointRepository mlHistoryDatapointRepository, InferencesRepository inferencesRepository, WebhookConfigRepository webhookConfigRepository, WebhookService webhookService) {
 		this.lernaAppRepository = lernaAppRepository;
@@ -61,6 +63,7 @@ public class WebManagerImpl implements WebManager {
 		this.inferencesRepository = inferencesRepository;
 		this.webhookConfigRepository = webhookConfigRepository;
 		this.webhookService = webhookService;
+		this.managerHelper = new ManagerHelper();
 	}
 
 	@Override
@@ -154,6 +157,32 @@ public class WebManagerImpl implements WebManager {
 	}
 
 	@Override
+	public String changeDimension(long userId, long appId, long mlId, int dimension) throws Exception {
+		if (dimension <= 0) {
+			throw new Exception("Invalid dimension size");
+		}
+		if (!lernaAppRepository.existsByUserIdAndAppId(userId, appId)) {
+			throw new Exception("Not exists ML for selected user");
+		}
+		LernaML lernaML = lernaMLRepository.getById(mlId);
+		if (lernaML.getAppId() != appId) {
+			throw new Exception("Invalid ML ID");
+		}
+		if (lernaML.getML().getDimensions() == dimension) {
+			throw new Exception("Selected dimension is equal to ML dimension");
+		}
+		int noOfColumns = dimension - lernaML.getML().getDimensions();
+
+		lernaJobRepository.findByMLId(lernaML.getId()).forEach(lernaJob -> {
+			lernaJob.setWeights(noOfColumns > 0 ? managerHelper.addColumns(lernaJob.getWeights(), noOfColumns) : managerHelper.removeColumns(lernaJob.getWeights(), -noOfColumns));
+			lernaJobRepository.save(lernaJob);
+		});
+		lernaML.getML().setDimensions(dimension);
+		lernaMLRepository.save(lernaML);
+		return "OK";
+	}
+
+	@Override
 	public List<Map<String, BigInteger>> getActiveDevices(long userId, long appId) {
 		return lernaPredictionRepository.findDevicePredictionPerWeek(userId, appId);
 	}
@@ -209,5 +238,8 @@ public class WebManagerImpl implements WebManager {
 		return current.subtract(previous).divide(previous, 10, RoundingMode.HALF_UP)
 				.multiply(BigDecimal.valueOf(100))
 				.longValue();
+	}
+
+	public void resizeWeightsAddColumn(String token, int noOfColumns) throws Exception {
 	}
 }

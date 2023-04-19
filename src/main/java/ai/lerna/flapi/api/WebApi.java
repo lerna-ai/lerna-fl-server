@@ -48,6 +48,10 @@ public interface WebApi {
 	@GetMapping("/getModel")
 	void getModel(HttpServletResponse response, @RequestHeader(name = "Authorization") String bearerToken, @RequestParam(value = "appID", required = true) long appID, @RequestParam(value = "mlID", required = true) long mlID) throws Exception;
 
+	@Operation(summary = "Update Model Dimension")
+	@PostMapping("/ml/dimensions")
+	ResponseEntity<String> setDimensions(@RequestHeader(name = "Authorization") String bearerToken, @RequestParam(value = "appID", required = true) long appID, @RequestParam(value = "mlID", required = true) long mlID, @RequestParam(value = "dimension", required = true) int dimension) throws Exception;
+
 	@Operation(summary = "Get Webhooks")
 	@GetMapping("/webhooks")
 	WebhookResponse getWebhooks(@RequestHeader(name = "Authorization") String bearerToken, @RequestParam(value = "appID", required = true) long appID) throws Exception;

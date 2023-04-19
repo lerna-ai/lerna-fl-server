@@ -27,4 +27,6 @@ public interface WebManager {
 	Map<String, Long> getWebhookCategories(long userId, long appId);
 
 	String saveWebhookConfig(long userId, Webhook webhook);
+
+	String changeDimension(long userId, long appId, long mlId, int dimension) throws Exception;
 }
