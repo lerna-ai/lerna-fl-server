@@ -2,13 +2,13 @@ package ai.lerna.flapi.manager
 
 import ai.lerna.flapi.api.dto.WebDashboard
 import ai.lerna.flapi.entity.LernaApp
-import ai.lerna.flapi.repository.InferencesRepository
 import ai.lerna.flapi.repository.LernaAppRepository
 import ai.lerna.flapi.repository.LernaJobRepository
 import ai.lerna.flapi.repository.LernaMLRepository
 import ai.lerna.flapi.repository.LernaPredictionRepository
 import ai.lerna.flapi.repository.MLHistoryDatapointRepository
 import ai.lerna.flapi.repository.MLHistoryRepository
+import ai.lerna.flapi.repository.SuccessRepository
 import ai.lerna.flapi.repository.WebhookConfigRepository
 import ai.lerna.flapi.service.WebhookService
 import spock.lang.Specification
@@ -20,7 +20,7 @@ class WebManagerImplSpec extends Specification {
 	LernaJobRepository lernaJobRepository;
 	LernaPredictionRepository lernaPredictionRepository;
 	MLHistoryRepository mlHistoryRepository;
-	InferencesRepository inferencesRepository;
+	SuccessRepository successRepository;
 	MLHistoryDatapointRepository mlHistoryDatapointRepository;
 	WebhookConfigRepository webhookConfigRepository;
 	WebhookService webhookService;
@@ -32,10 +32,10 @@ class WebManagerImplSpec extends Specification {
 		lernaPredictionRepository = Mock(LernaPredictionRepository)
 		mlHistoryRepository = Mock(MLHistoryRepository)
 		mlHistoryDatapointRepository = Mock(MLHistoryDatapointRepository)
-		inferencesRepository = Mock(InferencesRepository)
+		successRepository = Mock(SuccessRepository)
 		webhookConfigRepository = Mock(WebhookConfigRepository)
 		webhookService = Mock(WebhookService)
-		webManagerImpl = new WebManagerImpl(lernaAppRepository, lernaMLRepository, lernaJobRepository, lernaPredictionRepository, mlHistoryRepository, mlHistoryDatapointRepository, inferencesRepository, webhookConfigRepository, webhookService)
+		webManagerImpl = new WebManagerImpl(lernaAppRepository, lernaMLRepository, lernaJobRepository, lernaPredictionRepository, mlHistoryRepository, mlHistoryDatapointRepository, successRepository, webhookConfigRepository, webhookService)
 	}
 
 	def "GetDashboardData should return correct data"() {
@@ -44,8 +44,9 @@ class WebManagerImplSpec extends Specification {
 			long appId = 2L
 		when:
 			mlHistoryRepository.getAccuracies(userId, appId) >> [BigDecimal.valueOf(5), BigDecimal.valueOf(10), BigDecimal.valueOf(15)]
-			inferencesRepository.getSuccesses(userId, appId, 2) >> BigDecimal.valueOf(20)
-			inferencesRepository.getSuccesses(userId, appId, 1) >> BigDecimal.valueOf(25)
+			successRepository.getSuccesses(userId, appId, 2) >> BigDecimal.valueOf(20)
+			successRepository.getSuccesses(userId, appId, 1) >> BigDecimal.valueOf(25)
+			successRepository.getSuccessesRandomAB(userId, appId, 1) >> BigDecimal.valueOf(30)
 			lernaJobRepository.getTotalDataPoints(userId, appId) >> 15000L
 			mlHistoryDatapointRepository.getTotalDevicesLastWeek(userId, appId) >> 15L
 			lernaPredictionRepository.getTotalDevicesLastWeek(userId, appId) >> 20L
@@ -55,6 +56,7 @@ class WebManagerImplSpec extends Specification {
 		then:
 			with(result) {
 				getSuccessPrediction() == 25L
+				getSuccessPredictionABRandom() == 30L
 				getSuccessPredictionTrend() == 5
 				getTotalData() == 15360000
 				getTotalDevices() == 20L
@@ -84,17 +86,19 @@ class WebManagerImplSpec extends Specification {
 			long appId = 2L
 		when:
 			mlHistoryRepository.getAccuracies(userId, appId) >> [BigDecimal.valueOf(5), BigDecimal.valueOf(10), BigDecimal.valueOf(15), null]
-		inferencesRepository.getSuccesses(userId, appId, 2) >> BigDecimal.valueOf(20)
-		inferencesRepository.getSuccesses(userId, appId, 1) >> BigDecimal.valueOf(25)
-		lernaJobRepository.getTotalDataPoints(userId, appId) >> 15000L
-		mlHistoryDatapointRepository.getTotalDevicesLastWeek(userId, appId) >> 15L
-		lernaPredictionRepository.getTotalDevicesLastWeek(userId, appId) >> 20L
-		lernaPredictionRepository.getTotalDevicesPreviousWeek(userId, appId) >> 15L
+			successRepository.getSuccesses(userId, appId, 2) >> BigDecimal.valueOf(20)
+			successRepository.getSuccesses(userId, appId, 1) >> BigDecimal.valueOf(25)
+			successRepository.getSuccessesRandomAB(userId, appId, 1) >> BigDecimal.valueOf(30)
+			lernaJobRepository.getTotalDataPoints(userId, appId) >> 15000L
+			mlHistoryDatapointRepository.getTotalDevicesLastWeek(userId, appId) >> 15L
+			lernaPredictionRepository.getTotalDevicesLastWeek(userId, appId) >> 20L
+			lernaPredictionRepository.getTotalDevicesPreviousWeek(userId, appId) >> 15L
 			lernaAppRepository.getByUserId(userId, appId) >> Optional.of(new LernaApp(version: 5))
 			WebDashboard result = webManagerImpl.getDashboardData(userId, appId)
 		then:
 			with(result) {
 				getSuccessPrediction() == 25L
+				getSuccessPredictionABRandom() == 30L
 				getSuccessPredictionTrend() == 5
 				getTotalData() == 15360000
 				getTotalDevices() == 20L

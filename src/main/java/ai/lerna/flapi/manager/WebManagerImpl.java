@@ -19,6 +19,7 @@ import ai.lerna.flapi.repository.LernaMLRepository;
 import ai.lerna.flapi.repository.LernaPredictionRepository;
 import ai.lerna.flapi.repository.MLHistoryDatapointRepository;
 import ai.lerna.flapi.repository.MLHistoryRepository;
+import ai.lerna.flapi.repository.SuccessRepository;
 import ai.lerna.flapi.repository.WebhookConfigRepository;
 import ai.lerna.flapi.service.WebhookService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -47,20 +48,20 @@ public class WebManagerImpl implements WebManager {
 	private final LernaJobRepository lernaJobRepository;
 	private final LernaPredictionRepository lernaPredictionRepository;
 	private final MLHistoryRepository mlHistoryRepository;
-	private final InferencesRepository inferencesRepository;
+	private final SuccessRepository successRepository;
 	private final MLHistoryDatapointRepository mlHistoryDatapointRepository;
 	private final WebhookConfigRepository webhookConfigRepository;
 	private final WebhookService webhookService;
 	private final ManagerHelper managerHelper;
 
-	public WebManagerImpl(LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, LernaPredictionRepository lernaPredictionRepository, MLHistoryRepository mlHistoryRepository, MLHistoryDatapointRepository mlHistoryDatapointRepository, InferencesRepository inferencesRepository, WebhookConfigRepository webhookConfigRepository, WebhookService webhookService) {
+	public WebManagerImpl(LernaAppRepository lernaAppRepository, LernaMLRepository lernaMLRepository, LernaJobRepository lernaJobRepository, LernaPredictionRepository lernaPredictionRepository, MLHistoryRepository mlHistoryRepository, MLHistoryDatapointRepository mlHistoryDatapointRepository, SuccessRepository successRepository, WebhookConfigRepository webhookConfigRepository, WebhookService webhookService) {
 		this.lernaAppRepository = lernaAppRepository;
 		this.lernaMLRepository = lernaMLRepository;
 		this.lernaJobRepository = lernaJobRepository;
 		this.lernaPredictionRepository = lernaPredictionRepository;
 		this.mlHistoryRepository = mlHistoryRepository;
 		this.mlHistoryDatapointRepository = mlHistoryDatapointRepository;
-		this.inferencesRepository = inferencesRepository;
+		this.successRepository = successRepository;
 		this.webhookConfigRepository = webhookConfigRepository;
 		this.webhookService = webhookService;
 		this.managerHelper = new ManagerHelper();
@@ -190,8 +191,9 @@ public class WebManagerImpl implements WebManager {
 	@Override
 	public WebDashboard getDashboardData(long userId, long appId) {
 		List<BigDecimal> accuracies = mlHistoryRepository.getAccuracies(userId, appId);
-		BigDecimal accuracyPrevious = inferencesRepository.getSuccesses(userId, appId, 2);
-		BigDecimal accuracyLatest = inferencesRepository.getSuccesses(userId, appId, 1);
+		BigDecimal accuracyPrevious = successRepository.getSuccesses(userId, appId, 2);
+		BigDecimal accuracyLatest = successRepository.getSuccesses(userId, appId, 1);
+		BigDecimal accuracyLatestRandomAB = successRepository.getSuccessesRandomAB(userId, appId, 1);
 		long totalData = lernaJobRepository.getTotalDataPoints(userId, appId);
 		long devicesParticipating = mlHistoryDatapointRepository.getTotalDevicesLastWeek(userId, appId); //lernaJobRepository.getTotalDevices(userId, appId);
 		long devicesTotalLastWeek = lernaPredictionRepository.getTotalDevicesLastWeek(userId, appId);
@@ -200,6 +202,7 @@ public class WebManagerImpl implements WebManager {
 		//accuracies.remove(accuracies.size()-1);
 		return WebDashboard.newBuilder()
 				.setSuccessPrediction(accuracyLatest.longValue())
+				.setSuccessPredictionABRandom(accuracyLatestRandomAB.longValue())
 				.setSuccessPredictionTrend(accuracyLatest.subtract(accuracyPrevious).longValue())
 				.setTotalData(totalData * 1024)
 				.setTotalDevices(devicesTotalLastWeek)

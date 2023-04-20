@@ -8,6 +8,9 @@ public class WebDashboard {
 	@Schema(description = "Current Success Prediction")
 	private long successPrediction;
 
+	@Schema(description = "Current Success Prediction from Random AB testing")
+	private long successPredictionABRandom;
+
 	@Schema(description = "Success Prediction Trend")
 	private long successPredictionTrend;
 
@@ -38,6 +41,7 @@ public class WebDashboard {
 
 	public WebDashboard(Builder builder) {
 		successPrediction = builder.successPrediction;
+		successPredictionABRandom = builder.successPredictionABRandom;
 		successPredictionTrend = builder.successPredictionTrend;
 		totalData = builder.totalData;
 		totalDataTrend = builder.totalDataTrend;
@@ -55,6 +59,7 @@ public class WebDashboard {
 	public static Builder newBuilder(WebDashboard copy) {
 		return newBuilder()
 				.setSuccessPrediction(copy.successPrediction)
+				.setSuccessPredictionABRandom(copy.successPredictionABRandom)
 				.setSuccessPredictionTrend(copy.successPredictionTrend)
 				.setTotalData(copy.totalData)
 				.setTotalDataTrend(copy.totalDataTrend)
@@ -67,6 +72,10 @@ public class WebDashboard {
 
 	public long getSuccessPrediction() {
 		return successPrediction;
+	}
+
+	public long getSuccessPredictionABRandom() {
+		return successPredictionABRandom;
 	}
 
 	public long getSuccessPredictionTrend() {
@@ -103,6 +112,7 @@ public class WebDashboard {
 
 	public static final class Builder {
 		private long successPrediction;
+		private long successPredictionABRandom;
 		private long successPredictionTrend;
 		private long totalData;
 		private long totalDataTrend;
@@ -114,6 +124,11 @@ public class WebDashboard {
 
 		public Builder setSuccessPrediction(long successPrediction) {
 			this.successPrediction = successPrediction;
+			return this;
+		}
+
+		public Builder setSuccessPredictionABRandom(long successPredictionABRandom) {
+			this.successPredictionABRandom = successPredictionABRandom;
 			return this;
 		}
 
