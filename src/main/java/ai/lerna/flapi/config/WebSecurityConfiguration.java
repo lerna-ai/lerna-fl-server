@@ -1,6 +1,7 @@
 package ai.lerna.flapi.config;
 
 import ai.lerna.flapi.api.AdminApi;
+import ai.lerna.flapi.api.ConfigApi;
 import ai.lerna.flapi.api.TestApi;
 import ai.lerna.flapi.api.TrainingApi;
 import ai.lerna.flapi.api.TrainingApiV2;
@@ -54,6 +55,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers(TestApi.path + "/**").permitAll()
 				.antMatchers(TrainingApi.path + "/**").permitAll()
 				.antMatchers(TrainingApiV2.path + "/**").permitAll()
+				.antMatchers(ConfigApi.path + "/**").permitAll()
 				// authenticate all other particular request
 				.anyRequest().authenticated()
 				.and().exceptionHandling().authenticationEntryPoint((req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "UNAUTHORIZED : " + ex.getMessage()))

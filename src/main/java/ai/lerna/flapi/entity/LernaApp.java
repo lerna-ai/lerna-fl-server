@@ -1,11 +1,19 @@
 package ai.lerna.flapi.entity;
 
 
+import ai.lerna.flapi.entity.converter.LernaAppMetadataConverter;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -30,6 +38,16 @@ public class LernaApp {
 
 	@Column(name = "no_min_users")
 	private int minNoUsers;
+
+	@Fetch(FetchMode.JOIN)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "infrastructure_id")
+	private Infrastructure infrastructure;
+
+	@Column(name = "metadata")
+	@Convert(converter = LernaAppMetadataConverter.class)
+	private LernaAppMetadata metadata = new LernaAppMetadata();
+
 
 	public long getId() {
 		return id;
@@ -77,5 +95,21 @@ public class LernaApp {
 
 	public void setMinNoUsers(int minNoUsers) {
 		this.minNoUsers = minNoUsers;
+	}
+
+	public Infrastructure getInfrastructure() {
+		return infrastructure;
+	}
+
+	public void setInfrastructure(Infrastructure infrastructure) {
+		this.infrastructure = infrastructure;
+	}
+
+	public LernaAppMetadata getMetadata() {
+		return metadata;
+	}
+
+	public void setMetadata(LernaAppMetadata metadata) {
+		this.metadata = metadata;
 	}
 }
