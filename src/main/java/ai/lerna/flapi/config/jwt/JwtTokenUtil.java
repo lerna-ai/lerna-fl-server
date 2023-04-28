@@ -1,5 +1,6 @@
 package ai.lerna.flapi.config.jwt;
 
+import ai.lerna.flapi.entity.DashPermission;
 import ai.lerna.flapi.entity.LernaUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -15,12 +16,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenUtil implements Serializable {
 
 	public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60L;
 	public static final String JWT_TOKEN_FIELD_ID = "id";
+	public static final String JWT_PERMISSIONS_FIELD_ID = "permissions";
 
 	@Value("${app.config.jwt.secret:LernaTokenSecretLernaTokenSecretLernaTokenSecretLernaTokenSecretLernaTokenSecretLernaTokenSecretLernaTokenSecretLernaTokenSecret}")
 	private String secret;
@@ -66,6 +69,7 @@ public class JwtTokenUtil implements Serializable {
 	public String generateToken(LernaUser user) {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put(JWT_TOKEN_FIELD_ID, user.getId());
+		claims.put(JWT_PERMISSIONS_FIELD_ID, user.getRole().getPermissions().stream().map(DashPermission::getKey).collect(Collectors.toList()));
 		return doGenerateToken(claims, user.getEmail());
 	}
 

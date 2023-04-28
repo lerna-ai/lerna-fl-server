@@ -1,13 +1,18 @@
 package ai.lerna.flapi.entity;
 
 import ai.lerna.flapi.entity.converter.LernaUserMetadataConverter;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.util.Date;
 
@@ -43,6 +48,12 @@ public class LernaUser {
 
 	@Column(name = "created_at")
 	private Date createdAt;
+
+
+	@Fetch(FetchMode.JOIN)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "dash_role_id")
+	private DashRole role;
 
 	public long getId() {
 		return id;
@@ -114,5 +125,13 @@ public class LernaUser {
 
 	public void setCreatedAt(Date createdAt) {
 		this.createdAt = createdAt;
+	}
+
+	public DashRole getRole() {
+		return role;
+	}
+
+	public void setRole(DashRole role) {
+		this.role = role;
 	}
 }
