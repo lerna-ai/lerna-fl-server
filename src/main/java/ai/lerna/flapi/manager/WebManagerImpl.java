@@ -191,9 +191,9 @@ public class WebManagerImpl implements WebManager {
 	@Override
 	public WebDashboard getDashboardData(long userId, long appId) {
 		List<BigDecimal> accuracies = mlHistoryRepository.getAccuracies(userId, appId);
-		BigDecimal accuracyPrevious = successRepository.getSuccesses(userId, appId, 2);
-		BigDecimal accuracyLatest = successRepository.getSuccesses(userId, appId, 1);
-		BigDecimal accuracyLatestRandomAB = successRepository.getSuccessesRandomAB(userId, appId, 1);
+		BigDecimal accuracyPrevious = successRepository.getSuccesses(userId, appId, 2).multiply(BigDecimal.valueOf(100));
+		BigDecimal accuracyLatest = successRepository.getSuccesses(userId, appId, 1).multiply(BigDecimal.valueOf(100));
+		BigDecimal accuracyLatestRandomAB = successRepository.getSuccessesRandomAB(userId, appId, 1).multiply(BigDecimal.valueOf(100));
 		long totalData = lernaJobRepository.getTotalDataPoints(userId, appId);
 		long devicesParticipating = mlHistoryDatapointRepository.getTotalDevicesLastWeek(userId, appId); //lernaJobRepository.getTotalDevices(userId, appId);
 		long devicesTotalLastWeek = lernaPredictionRepository.getTotalDevicesLastWeek(userId, appId);

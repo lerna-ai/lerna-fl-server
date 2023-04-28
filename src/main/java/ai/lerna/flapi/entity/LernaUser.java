@@ -1,11 +1,15 @@
 package ai.lerna.flapi.entity;
 
+import ai.lerna.flapi.entity.converter.LernaUserMetadataConverter;
+
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Date;
 
 @Entity
 @Table(name = "lerna_user")
@@ -32,6 +36,13 @@ public class LernaUser {
 
 	@Column(name = "position")
 	private String position;
+
+	@Column(name = "metadata")
+	@Convert(converter = LernaUserMetadataConverter.class)
+	private LernaUserMetadata metadata = new LernaUserMetadata();
+
+	@Column(name = "created_at")
+	private Date createdAt;
 
 	public long getId() {
 		return id;
@@ -87,5 +98,21 @@ public class LernaUser {
 
 	public void setPosition(String position) {
 		this.position = position;
+	}
+
+	public LernaUserMetadata getMetadata() {
+		return metadata;
+	}
+
+	public void setMetadata(LernaUserMetadata metadata) {
+		this.metadata = metadata;
+	}
+
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
 	}
 }

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Schema(description = "User Profile")
@@ -28,6 +29,12 @@ public class UserProfile implements Serializable {
 	@Schema(description = "Position")
 	private String position;
 
+	@Schema(description = "Profile picture URI")
+	private String picture;
+
+	@Schema(description = "Member since")
+	private Date createdAt;
+
 	@Schema(description = "ML Apps")
 	private List<UserApp> apps;
 
@@ -42,6 +49,8 @@ public class UserProfile implements Serializable {
 		email = builder.email;
 		company = builder.company;
 		position = builder.position;
+		picture = builder.picture;
+		createdAt = builder.createdAt;
 		apps = builder.apps;
 	}
 
@@ -56,7 +65,10 @@ public class UserProfile implements Serializable {
 				.setLastName(copy.getLastName())
 				.setEmail(copy.getEmail())
 				.setCompany(copy.getCompany())
-				.setPosition(copy.getPosition());
+				.setPosition(copy.getPosition())
+				.setPicture(copy.getPicture())
+				.setCreatedAt(copy.getCreatedAt())
+				.setApps(copy.getApps());
 	}
 
 	public static Builder newBuilder(LernaUser lernaUser) {
@@ -66,7 +78,9 @@ public class UserProfile implements Serializable {
 				.setLastName(lernaUser.getLastName())
 				.setEmail(lernaUser.getEmail())
 				.setCompany(lernaUser.getCompany())
-				.setPosition(lernaUser.getPosition());
+				.setPosition(lernaUser.getPosition())
+				.setPicture(lernaUser.getMetadata().getPicture())
+				.setCreatedAt(lernaUser.getCreatedAt());
 	}
 
 	public long getId() {
@@ -93,6 +107,14 @@ public class UserProfile implements Serializable {
 		return position;
 	}
 
+	public String getPicture() {
+		return picture;
+	}
+
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+
 	public List<UserApp> getApps() {
 		return apps;
 	}
@@ -104,6 +126,8 @@ public class UserProfile implements Serializable {
 		private String email;
 		private String company;
 		private String position;
+		private String picture;
+		private Date createdAt;
 		private List<UserApp> apps;
 
 		private Builder() {
@@ -137,6 +161,16 @@ public class UserProfile implements Serializable {
 
 		public Builder setPosition(String position) {
 			this.position = position;
+			return this;
+		}
+
+		public Builder setPicture(String picture) {
+			this.picture = picture;
+			return this;
+		}
+
+		public Builder setCreatedAt(Date createdAt) {
+			this.createdAt = createdAt;
 			return this;
 		}
 
