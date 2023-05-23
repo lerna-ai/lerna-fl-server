@@ -22,6 +22,15 @@ public class LernaAppConfig implements Serializable {
 	@Schema(description = "AB test percentage value")
 	private Double abTest;
 
+	@Schema(description = "Size of custom features data")
+	private int customFeaturesSize;
+
+	@Schema(description = "Size of input data")
+	private int inputDataSize;
+
+	@Schema(description = "Sensor initial delay in ms")
+	private int sensorInitialDelay;
+
 	public LernaAppConfig() {
 		// for serialisation/deserialization
 	}
@@ -32,6 +41,9 @@ public class LernaAppConfig implements Serializable {
 		uploadPrefix = builder.uploadPrefix;
 		logSensorData = builder.logSensorData;
 		abTest = builder.abTest;
+		customFeaturesSize = builder.customFeaturesSize;
+		inputDataSize = builder.inputDataSize;
+		sensorInitialDelay = builder.sensorInitialDelay;
 	}
 
 	public static Builder newBuilder() {
@@ -44,7 +56,10 @@ public class LernaAppConfig implements Serializable {
 				.setFlServerUri(copy.getFlServerUri())
 				.setUploadPrefix(copy.getUploadPrefix())
 				.setLogSensorData(copy.getLogSensorData())
-				.setAbTest(copy.getAbTest());
+				.setAbTest(copy.getAbTest())
+				.setCustomFeaturesSize(copy.getCustomFeaturesSize())
+				.setInputDataSize(copy.getInputDataSize())
+				.setSensorInitialDelay(copy.getSensorInitialDelay());
 	}
 
 	public String getMpcServerUri() {
@@ -67,12 +82,27 @@ public class LernaAppConfig implements Serializable {
 		return abTest;
 	}
 
+	public int getCustomFeaturesSize() {
+		return customFeaturesSize;
+	}
+
+	public int getInputDataSize() {
+		return inputDataSize;
+	}
+
+	public int getSensorInitialDelay() {
+		return sensorInitialDelay;
+	}
+
 	public static final class Builder {
 		private String mpcServerUri;
 		private String flServerUri;
 		private String uploadPrefix;
 		private boolean logSensorData;
 		private Double abTest;
+		private int customFeaturesSize;
+		private int inputDataSize;
+		private int sensorInitialDelay;
 
 		private Builder() {
 		}
@@ -99,6 +129,21 @@ public class LernaAppConfig implements Serializable {
 
 		public Builder setAbTest(Double abTest) {
 			this.abTest = abTest;
+			return this;
+		}
+
+		public Builder setCustomFeaturesSize(int customFeaturesSize) {
+			this.customFeaturesSize = customFeaturesSize;
+			return this;
+		}
+
+		public Builder setInputDataSize(int inputDataSize) {
+			this.inputDataSize = inputDataSize;
+			return this;
+		}
+
+		public Builder setSensorInitialDelay(int sensorInitialDelay) {
+			this.sensorInitialDelay = sensorInitialDelay;
 			return this;
 		}
 

@@ -29,6 +29,9 @@ public class ConfigManagerImpl implements ConfigManager {
 				.setUploadPrefix(lernaApp.getMetadata().getUploadPrefix())
 				.setLogSensorData(lernaApp.getMetadata().getLogSensorData())
 				.setAbTest(lernaApp.getMetadata().getAbTest())
+				.setCustomFeaturesSize(lernaApp.getMetadata().getCustomFeaturesSize())
+				.setInputDataSize(lernaApp.getMetadata().getInputDataSize())
+				.setSensorInitialDelay(lernaApp.getMetadata().getSensorInitialDelay())
 				.build();
 	}
 }
