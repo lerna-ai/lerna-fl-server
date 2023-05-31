@@ -27,6 +27,9 @@ public class LernaMLParameters implements Serializable {
 	@Schema(description = "The percentage of test/train data")
 	private BigDecimal dataSplit;
 
+	@Schema(description = "Define if job participates in training")
+	private boolean trainable;
+
 	public BigDecimal getNormalization() {
 		return normalization;
 	}
@@ -73,5 +76,13 @@ public class LernaMLParameters implements Serializable {
 
 	public void setDataSplit(BigDecimal dataSplit) {
 		this.dataSplit = dataSplit;
+	}
+
+	public boolean isTrainable() {
+		return trainable;
+	}
+
+	public void setTrainable(boolean trainable) {
+		this.trainable = trainable;
 	}
 }

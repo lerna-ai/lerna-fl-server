@@ -174,16 +174,18 @@ public class FLManagerImpl implements FLManager {
 		if (!lernaMLRepository.existsByAppToken(token)) {
 			throw new Exception("Not exists ML for selected token");
 		}
-		lernaMLRepository.findAllByAppToken(token).forEach(lernaML -> {
-			Map<String, Long> jobIds = new HashMap<>();
-			lernaJobRepository.findByMLId(lernaML.getId()).forEach(lernaJob -> jobIds.put(lernaJob.getPrediction(), mpcService.getLernaJob(mpcHost, mpcPort, lernaML.getPrivacy().getEpsilon(), lernaML.getML().getDimensions(), lernaML.getML().getNormalization()).getCompId()));
-			trainingTasks.add(TrainingTask.newBuilder()
-					.setJobIds(jobIds)
-					.setMlId(lernaML.getId())
-					.setMlModel(lernaML.getModel())
-					.setLernaMLParameters(lernaML.getML())
-					.build());
-		});
+		lernaMLRepository.findAllByAppToken(token).stream()
+				.filter(lernaML -> lernaML.getML().isTrainable())
+				.forEach(lernaML -> {
+					Map<String, Long> jobIds = new HashMap<>();
+					lernaJobRepository.findByMLId(lernaML.getId()).forEach(lernaJob -> jobIds.put(lernaJob.getPrediction(), mpcService.getLernaJob(mpcHost, mpcPort, lernaML.getPrivacy().getEpsilon(), lernaML.getML().getDimensions(), lernaML.getML().getNormalization()).getCompId()));
+					trainingTasks.add(TrainingTask.newBuilder()
+							.setJobIds(jobIds)
+							.setMlId(lernaML.getId())
+							.setMlModel(lernaML.getModel())
+							.setLernaMLParameters(lernaML.getML())
+							.build());
+				});
 
 		return TrainingTaskResponse.newBuilder()
 				.setTrainingTasks(trainingTasks)
