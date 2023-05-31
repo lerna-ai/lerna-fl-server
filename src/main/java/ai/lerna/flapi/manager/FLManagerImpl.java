@@ -53,8 +53,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static org.nd4j.linalg.indexing.NDArrayIndex.interval;
-
 @Component
 public class FLManagerImpl implements FLManager {
 
@@ -365,8 +363,6 @@ public class FLManagerImpl implements FLManager {
 									newJob.setTotalDataPoints(0);
 									newJob.setTotalDevices(0);
 									lernaJobRepository.save(newJob);
-									addTrainingTaskOnCache(token, lernaML, job);
-									cleanupGlobalWeightsFromCache(token);
 								});
 					});
 		});
