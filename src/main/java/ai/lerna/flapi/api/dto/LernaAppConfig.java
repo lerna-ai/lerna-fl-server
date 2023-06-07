@@ -31,6 +31,15 @@ public class LernaAppConfig implements Serializable {
 	@Schema(description = "Sensor initial delay in ms")
 	private int sensorInitialDelay;
 
+	@Schema(description = "Training data size threshold")
+	private Integer trainingDataThreshold;
+
+	@Schema(description = "Training number of sessions threshold")
+	private Integer trainingSessionsThreshold;
+
+	@Schema(description = "Threshold for cleanup cache memory")
+	private Integer cleanupThreshold;
+
 	public LernaAppConfig() {
 		// for serialisation/deserialization
 	}
@@ -44,6 +53,9 @@ public class LernaAppConfig implements Serializable {
 		customFeaturesSize = builder.customFeaturesSize;
 		inputDataSize = builder.inputDataSize;
 		sensorInitialDelay = builder.sensorInitialDelay;
+		trainingDataThreshold = builder.trainingDataThreshold;
+		trainingSessionsThreshold = builder.trainingSessionsThreshold;
+		cleanupThreshold = builder.cleanupThreshold;
 	}
 
 	public static Builder newBuilder() {
@@ -59,7 +71,10 @@ public class LernaAppConfig implements Serializable {
 				.setAbTest(copy.getAbTest())
 				.setCustomFeaturesSize(copy.getCustomFeaturesSize())
 				.setInputDataSize(copy.getInputDataSize())
-				.setSensorInitialDelay(copy.getSensorInitialDelay());
+				.setSensorInitialDelay(copy.getSensorInitialDelay())
+				.setTrainingDataThreshold(copy.getTrainingDataThreshold())
+				.setTrainingSessionsThreshold(copy.getTrainingSessionsThreshold())
+				.setCleanupThreshold(copy.getCleanupThreshold());
 	}
 
 	public String getMpcServerUri() {
@@ -94,6 +109,18 @@ public class LernaAppConfig implements Serializable {
 		return sensorInitialDelay;
 	}
 
+	public Integer getTrainingDataThreshold() {
+		return trainingDataThreshold;
+	}
+
+	public Integer getTrainingSessionsThreshold() {
+		return trainingSessionsThreshold;
+	}
+
+	public Integer getCleanupThreshold() {
+		return cleanupThreshold;
+	}
+
 	public static final class Builder {
 		private String mpcServerUri;
 		private String flServerUri;
@@ -103,6 +130,10 @@ public class LernaAppConfig implements Serializable {
 		private int customFeaturesSize;
 		private int inputDataSize;
 		private int sensorInitialDelay;
+		private Integer trainingDataThreshold;
+		private Integer trainingSessionsThreshold;
+		private Integer cleanupThreshold;
+
 
 		private Builder() {
 		}
@@ -144,6 +175,21 @@ public class LernaAppConfig implements Serializable {
 
 		public Builder setSensorInitialDelay(int sensorInitialDelay) {
 			this.sensorInitialDelay = sensorInitialDelay;
+			return this;
+		}
+
+		public Builder setTrainingDataThreshold(Integer trainingDataThreshold) {
+			this.trainingDataThreshold = trainingDataThreshold;
+			return this;
+		}
+
+		public Builder setTrainingSessionsThreshold(Integer trainingSessionsThreshold) {
+			this.trainingSessionsThreshold = trainingSessionsThreshold;
+			return this;
+		}
+
+		public Builder setCleanupThreshold(Integer cleanupThreshold) {
+			this.cleanupThreshold = cleanupThreshold;
 			return this;
 		}
 

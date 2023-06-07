@@ -13,6 +13,12 @@ public class LernaAppMetadata {
 
 	private int sensorInitialDelay;
 
+	private Integer trainingDataThreshold;
+
+	private Integer trainingSessionsThreshold;
+
+	private Integer cleanupThreshold;
+
 	public String getUploadPrefix() {
 		return uploadPrefix;
 	}
@@ -59,5 +65,29 @@ public class LernaAppMetadata {
 
 	public void setSensorInitialDelay(int sensorInitialDelay) {
 		this.sensorInitialDelay = sensorInitialDelay;
+	}
+
+	public Integer getTrainingDataThreshold() {
+		return trainingDataThreshold;
+	}
+
+	public void setTrainingDataThreshold(Integer trainingDataThreshold) {
+		this.trainingDataThreshold = trainingDataThreshold;
+	}
+
+	public Integer getTrainingSessionsThreshold() {
+		return trainingSessionsThreshold;
+	}
+
+	public void setTrainingSessionsThreshold(Integer trainingSessionsThreshold) {
+		this.trainingSessionsThreshold = trainingSessionsThreshold;
+	}
+
+	public Integer getCleanupThreshold() {
+		return cleanupThreshold;
+	}
+
+	public void setCleanupThreshold(Integer cleanupThreshold) {
+		this.cleanupThreshold = cleanupThreshold;
 	}
 }

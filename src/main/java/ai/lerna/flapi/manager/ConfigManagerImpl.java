@@ -32,6 +32,9 @@ public class ConfigManagerImpl implements ConfigManager {
 				.setCustomFeaturesSize(lernaApp.getMetadata().getCustomFeaturesSize())
 				.setInputDataSize(lernaApp.getMetadata().getInputDataSize())
 				.setSensorInitialDelay(lernaApp.getMetadata().getSensorInitialDelay())
+				.setTrainingDataThreshold(lernaApp.getMetadata().getTrainingDataThreshold())
+				.setTrainingSessionsThreshold(lernaApp.getMetadata().getTrainingSessionsThreshold())
+				.setCleanupThreshold(lernaApp.getMetadata().getCleanupThreshold())
 				.build();
 	}
 }
