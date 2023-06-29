@@ -14,7 +14,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.Set;
 
 @Entity
 @Table(name = "lerna_app")
@@ -43,6 +45,11 @@ public class LernaApp {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "infrastructure_id")
 	private Infrastructure infrastructure;
+
+	@Fetch(FetchMode.JOIN)
+	@OneToMany(fetch = FetchType.LAZY)
+	@JoinColumn(name = "app_id")
+	Set<DeviceBlacklist> deviceBlacklists;
 
 	@Column(name = "metadata")
 	@Convert(converter = LernaAppMetadataConverter.class)
@@ -103,6 +110,14 @@ public class LernaApp {
 
 	public void setInfrastructure(Infrastructure infrastructure) {
 		this.infrastructure = infrastructure;
+	}
+
+	public Set<DeviceBlacklist> getDeviceBlacklists() {
+		return deviceBlacklists;
+	}
+
+	public void setDeviceBlacklists(Set<DeviceBlacklist> deviceBlacklists) {
+		this.deviceBlacklists = deviceBlacklists;
 	}
 
 	public LernaAppMetadata getMetadata() {
