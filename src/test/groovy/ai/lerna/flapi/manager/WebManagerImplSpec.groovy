@@ -55,9 +55,9 @@ class WebManagerImplSpec extends Specification {
 			WebDashboard result = webManagerImpl.getDashboardData(userId, appId)
 		then:
 			with(result) {
-				getSuccessPrediction() == 25L
-				getSuccessPredictionABRandom() == 30L
-				getSuccessPredictionTrend() == 5
+				getSuccessPrediction() == 2500
+				getSuccessPredictionABRandom() == 3000
+				getSuccessPredictionTrend() == 500
 				getTotalData() == 15360000
 				getTotalDevices() == 20L
 				getTotalDevicesTrend() == 33
@@ -97,9 +97,9 @@ class WebManagerImplSpec extends Specification {
 			WebDashboard result = webManagerImpl.getDashboardData(userId, appId)
 		then:
 			with(result) {
-				getSuccessPrediction() == 25L
-				getSuccessPredictionABRandom() == 30L
-				getSuccessPredictionTrend() == 5
+				getSuccessPrediction() == 2500
+				getSuccessPredictionABRandom() == 3000
+				getSuccessPredictionTrend() == 500
 				getTotalData() == 15360000
 				getTotalDevices() == 20L
 				getTotalDevicesTrend() == 33

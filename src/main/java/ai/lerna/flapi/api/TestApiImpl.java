@@ -1,6 +1,7 @@
 package ai.lerna.flapi.api;
 
 import ai.lerna.flapi.entity.LernaJob;
+import ai.lerna.flapi.manager.XavierInitializer;
 import ai.lerna.flapi.repository.LernaJobRepository;
 import ai.lerna.flapi.service.MpcService;
 import ai.lerna.flapi.service.dto.MpcResponse;
@@ -34,6 +35,7 @@ public class TestApiImpl implements TestApi {
 
 	private final MpcService mpcService;
 	private final LernaJobRepository lernaJobRepository;
+	private final XavierInitializer xavierInitializer = new XavierInitializer();
 
 	@Autowired
 	public TestApiImpl(MpcService mpcService, LernaJobRepository lernaJobRepository) {
@@ -66,12 +68,12 @@ public class TestApiImpl implements TestApi {
 
 	@Override
 	public INDArray getINDArraySized(long rows) {
-		return Nd4j.randn(rows, 1);
+		return Nd4j.create(xavierInitializer.initialize((int) rows, 1)).reshape(rows, 1);
 	}
 
 	@Override
 	public String inspectArray(INDArray array) throws Exception {
-		 return array.toString();
+		return array.toString();
 	}
 
 }

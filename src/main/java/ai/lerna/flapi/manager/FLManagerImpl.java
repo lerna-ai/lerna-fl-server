@@ -66,6 +66,7 @@ public class FLManagerImpl implements FLManager {
 	private final MLHistoryDatapointRepository mlHistoryDatapointRepository;
 	private final StorageService storageService;
 	private final WebhookService webhookService;
+	private final XavierInitializer xavierInitializer = new XavierInitializer();
 
 	@Value("${app.config.mpcServer.host:localhost}")
 	private String mpcHost;
@@ -361,7 +362,9 @@ public class FLManagerImpl implements FLManager {
 									newJob.setMLId(lernaML.getId());
 									newJob.setPrediction(job);
 									newJob.setPredictionValue(predictionValue.getAndIncrement());
-									newJob.setWeights(Nd4j.randn(lernaML.getML().getDimensions(), 1));
+									newJob.setWeights(
+											Nd4j.create(xavierInitializer.initialize(lernaML.getML().getDimensions(), 1))
+													.reshape(lernaML.getML().getDimensions(), 1));
 									newJob.setTotalDataPoints(0);
 									newJob.setTotalDevices(0);
 									lernaJobRepository.save(newJob);
