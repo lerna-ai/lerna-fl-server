@@ -46,6 +46,7 @@ public class ConfigManagerImpl implements ConfigManager {
 				.setMpcServerUri(lernaApp.getInfrastructure().getMpcUri())
 				.setFlServerUri(lernaApp.getInfrastructure().getFlUri())
 				.setUploadPrefix(lernaApp.getMetadata().getUploadPrefix())
+				.setUploadSensorData(lernaApp.getMetadata().getUploadSensorData())
 				.setLogSensorData(lernaApp.getMetadata().getLogSensorData())
 				.setAbTest(abTest)
 				.setCustomFeaturesSize(lernaApp.getMetadata().getCustomFeaturesSize())

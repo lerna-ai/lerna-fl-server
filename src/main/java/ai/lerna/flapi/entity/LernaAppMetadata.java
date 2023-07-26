@@ -3,6 +3,8 @@ package ai.lerna.flapi.entity;
 public class LernaAppMetadata {
 	private String uploadPrefix;
 
+	private boolean uploadSensorData;
+
 	private boolean logSensorData;
 
 	private double abTest;
@@ -25,6 +27,14 @@ public class LernaAppMetadata {
 
 	public void setUploadPrefix(String uploadPrefix) {
 		this.uploadPrefix = uploadPrefix;
+	}
+
+	public boolean getUploadSensorData() {
+		return uploadSensorData;
+	}
+
+	public void setUploadSensorData(boolean uploadSensorData) {
+		this.uploadSensorData = uploadSensorData;
 	}
 
 	public boolean getLogSensorData() {

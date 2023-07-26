@@ -16,6 +16,9 @@ public class LernaAppConfig implements Serializable {
 	@Schema(description = "Prefix for upload files")
 	private String uploadPrefix;
 
+	@Schema(description = "Enable sensor data uploading")
+	private boolean uploadSensorData;
+
 	@Schema(description = "Enable sensor logging")
 	private boolean logSensorData;
 
@@ -48,6 +51,7 @@ public class LernaAppConfig implements Serializable {
 		mpcServerUri = builder.mpcServerUri;
 		flServerUri = builder.flServerUri;
 		uploadPrefix = builder.uploadPrefix;
+		uploadSensorData = builder.uploadSensorData;
 		logSensorData = builder.logSensorData;
 		abTest = builder.abTest;
 		customFeaturesSize = builder.customFeaturesSize;
@@ -67,6 +71,7 @@ public class LernaAppConfig implements Serializable {
 				.setMpcServerUri(copy.getMpcServerUri())
 				.setFlServerUri(copy.getFlServerUri())
 				.setUploadPrefix(copy.getUploadPrefix())
+				.setUploadSensorData(copy.getUploadSensorData())
 				.setLogSensorData(copy.getLogSensorData())
 				.setAbTest(copy.getAbTest())
 				.setCustomFeaturesSize(copy.getCustomFeaturesSize())
@@ -87,6 +92,10 @@ public class LernaAppConfig implements Serializable {
 
 	public String getUploadPrefix() {
 		return uploadPrefix;
+	}
+
+	public boolean getUploadSensorData() {
+		return uploadSensorData;
 	}
 
 	public boolean getLogSensorData() {
@@ -125,6 +134,7 @@ public class LernaAppConfig implements Serializable {
 		private String mpcServerUri;
 		private String flServerUri;
 		private String uploadPrefix;
+		private boolean uploadSensorData;
 		private boolean logSensorData;
 		private Double abTest;
 		private int customFeaturesSize;
@@ -150,6 +160,11 @@ public class LernaAppConfig implements Serializable {
 
 		public Builder setUploadPrefix(String uploadPrefix) {
 			this.uploadPrefix = uploadPrefix;
+			return this;
+		}
+
+		public Builder setUploadSensorData(boolean uploadSensorData) {
+			this.uploadSensorData = uploadSensorData;
 			return this;
 		}
 
