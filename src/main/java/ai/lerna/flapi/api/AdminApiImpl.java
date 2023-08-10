@@ -1,6 +1,7 @@
 package ai.lerna.flapi.api;
 
 import ai.lerna.flapi.manager.FLManager;
+import ai.lerna.flapi.manager.RecommendationManager;
 import ai.lerna.flapi.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,11 +17,13 @@ public class AdminApiImpl implements AdminApi {
 
 	private final StorageService storageService;
 	private final FLManager flManager;
+	private final RecommendationManager recommendationManager;
 
 	@Autowired
-	public AdminApiImpl(StorageService storageService, FLManager flManager) {
+	public AdminApiImpl(StorageService storageService, FLManager flManager, RecommendationManager recommendationManager) {
 		this.storageService = storageService;
 		this.flManager = flManager;
+		this.recommendationManager = recommendationManager;
 	}
 
 	@Override
@@ -90,6 +93,20 @@ public class AdminApiImpl implements AdminApi {
 	public String checkAndAggregateAll(String token) throws Exception {
 		tokenValidation(token);
 		flManager.checkAndAggregateAll();
+		return "OK";
+	}
+
+	@Override
+	public String evictCacheRecommendation(String token) throws Exception {
+		tokenValidation(token);
+		recommendationManager.evictHostCache();
+		return "OK";
+	}
+
+	@Override
+	public String evictCacheRecommendation(String token, String appToken) throws Exception {
+		tokenValidation(token);
+		recommendationManager.evictHostCache(appToken);
 		return "OK";
 	}
 

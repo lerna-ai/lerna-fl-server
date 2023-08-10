@@ -2,6 +2,7 @@ package ai.lerna.flapi.config
 
 import ai.lerna.flapi.api.dto.TrainingWeights
 import ai.lerna.flapi.api.dto.TrainingWeightsResponse
+import ai.lerna.flapi.service.actionML.dto.Event
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.nd4j.linalg.api.ndarray.INDArray
 import org.nd4j.linalg.factory.Nd4j
@@ -52,6 +53,29 @@ class JacksonConfigurationSpec extends Specification {
 							getDouble(4) == 0.5d
 						}
 					}
+				}
+			}
+	}
+
+	def "readValue_with_DateTime"() {
+		given:
+			String jsonItem = "{\"event\":\"purchase\",\"entityType\":\"user\",\"entityId\":\"mip\",\"targetEntityType\":\"item\",\"targetEntityId\":\"iPhone XR\",\"eventTime\":\"2023-08-05T18:01:02.000Z\"}"
+		when:
+			Event resultItem = objectMapper.readValue(jsonItem, Event.class)
+		then:
+			with(resultItem) {
+				event == "purchase"
+				entityType == "user"
+				entityId == "mip"
+				targetEntityType == "item"
+				targetEntityId == "iPhone XR"
+				with(eventTime) {
+					year == 2023
+					monthOfYear == 8
+					dayOfMonth == 5
+					hourOfDay == 18
+					minuteOfHour == 1
+					secondOfMinute == 2
 				}
 			}
 	}

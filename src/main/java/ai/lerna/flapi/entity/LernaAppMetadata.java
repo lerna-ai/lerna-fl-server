@@ -21,6 +21,8 @@ public class LernaAppMetadata {
 
 	private Integer cleanupThreshold;
 
+	private String actionMLUri;
+
 	public String getUploadPrefix() {
 		return uploadPrefix;
 	}
@@ -99,5 +101,13 @@ public class LernaAppMetadata {
 
 	public void setCleanupThreshold(Integer cleanupThreshold) {
 		this.cleanupThreshold = cleanupThreshold;
+	}
+
+	public String getActionMLUri() {
+		return actionMLUri;
+	}
+
+	public void setActionMLUri(String actionMLUri) {
+		this.actionMLUri = actionMLUri;
 	}
 }

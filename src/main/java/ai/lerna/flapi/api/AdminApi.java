@@ -52,4 +52,12 @@ public interface AdminApi {
 	@Operation(summary = "Check if enough users are gathered and run the FL")
 	@GetMapping("/training/runFL/all")
 	String checkAndAggregateAll(@RequestParam(value = "token") String token) throws Exception;
+
+	@Operation(summary = "Evict Cache for recommendation system configuration")
+	@GetMapping("/cache/recommendation/host")
+	String evictCacheRecommendation(@RequestParam(value = "token") String token) throws Exception;
+
+	@Operation(summary = "Evict Cache for recommendation system configuration by selected token")
+	@GetMapping("/cache/recommendation/host/{appToken}")
+	String evictCacheRecommendation(@RequestParam(value = "token") String token, @PathVariable(value = "appToken") String appToken) throws Exception;
 }
