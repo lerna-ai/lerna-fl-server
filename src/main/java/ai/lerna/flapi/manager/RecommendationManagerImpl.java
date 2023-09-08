@@ -51,7 +51,7 @@ public class RecommendationManagerImpl implements RecommendationManager {
 
 	@Override
 	public EventResponse sendEvent(String token, Event event) {
-		String host = getHost(token);
+		String host = getHost(token, event.getEngineId());
 		if (Strings.isNullOrEmpty(host)) {
 			return new EventResponse();
 		}
@@ -60,7 +60,7 @@ public class RecommendationManagerImpl implements RecommendationManager {
 
 	@Override
 	public RecommendationItems getItems(String token, Item item) {
-		String host = getHost(token);
+		String host = getHost(token, item.getEngineId());
 		if (Strings.isNullOrEmpty(host)) {
 			return new RecommendationItems();
 		}
@@ -70,16 +70,16 @@ public class RecommendationManagerImpl implements RecommendationManager {
 				.build();
 	}
 
-	private String getHost(String token) {
+	private String getHost(String token, String engine) {
 		if (hostMap.containsKey(token)) {
-			return hostMap.get(token);
+			return hostMap.get(token) + engine;
 		}
 		Optional<LernaApp> app = lernaAppRepository.findByToken(token);
 		if (app.isPresent()
 				&& Objects.nonNull(app.get().getMetadata())
 				&& !Strings.isNullOrEmpty(app.get().getMetadata().getActionMLUri())) {
 			hostMap.put(token, app.get().getMetadata().getActionMLUri());
-			return hostMap.get(token);
+			return hostMap.get(token) + engine;
 		}
 		return null;
 	}

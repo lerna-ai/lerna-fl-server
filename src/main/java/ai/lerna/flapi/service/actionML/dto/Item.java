@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Item implements Serializable {
+	private String engineId;
 	private Integer num;
 	private String user;
 	private String item;
@@ -19,6 +20,7 @@ public class Item implements Serializable {
 	}
 
 	private Item(Builder builder) {
+		engineId = builder.engineId;
 		num = builder.num;
 		user = builder.user;
 		rules = builder.rules;
@@ -33,12 +35,17 @@ public class Item implements Serializable {
 
 	public static Builder newBuilder(Item copy) {
 		return newBuilder()
+				.setEngineId(copy.getEngineId())
 				.setNum(copy.getNum())
 				.setUser(copy.getUser())
 				.setItem(copy.getItem())
 				.setItemSet(copy.getItemSet())
 				.setBlacklistItems(copy.getBlacklistItems())
 				.setRules(copy.getRules());
+	}
+
+	public String getEngineId() {
+		return engineId;
 	}
 
 	public Integer getNum() {
@@ -72,6 +79,7 @@ public class Item implements Serializable {
 	}
 
 	public static final class Builder {
+		private String engineId;
 		private Integer num;
 		private String user;
 		private String item;
@@ -83,6 +91,11 @@ public class Item implements Serializable {
 			itemSet = new ArrayList<>();
 			blacklistItems = new ArrayList<>();
 			rules = new ArrayList<>();
+		}
+
+		public Builder setEngineId(String engineId) {
+			this.engineId = engineId;
+			return this;
 		}
 
 		public Builder setNum(Integer num) {

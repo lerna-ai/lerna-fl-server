@@ -36,6 +36,7 @@ import java.util.Map;
 public class Event implements Serializable {
 
 	private String eventId;
+	private String engineId;
 
 	// mandatory fields
 	private String event;
@@ -110,6 +111,11 @@ public class Event implements Serializable {
 
 	public Event eventId(String eventId) {
 		this.eventId = eventId;
+		return this;
+	}
+
+	public Event engineId(String engineId) {
+		this.engineId = engineId;
 		return this;
 	}
 
@@ -188,6 +194,14 @@ public class Event implements Serializable {
 
 	public void setEventId(String eventId) {
 		this.eventId = eventId;
+	}
+
+	public String getEngineId() {
+		return engineId;
+	}
+
+	public void setEngineId(String engineId) {
+		this.engineId = engineId;
 	}
 
 	public DateTime getCreationTime() {
