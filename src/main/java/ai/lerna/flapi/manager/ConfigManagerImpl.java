@@ -26,7 +26,7 @@ public class ConfigManagerImpl implements ConfigManager {
 	@Override
 	public LernaAppConfig getLernaAppConfig(String token, Long deviceId) throws Exception {
 		LernaApp lernaApp = lernaAppRepository.findByToken(token).orElseThrow(() -> new Exception("Not exists Lerna App for selected token"));
-		Integer trainingDataThreshold = lernaApp.getMetadata().getTrainingDataThreshold();
+		Integer trainingSessionsThreshold = lernaApp.getMetadata().getTrainingSessionsThreshold();
 		Integer cleanupThreshold = lernaApp.getMetadata().getCleanupThreshold();
 		Double abTest = lernaApp.getMetadata().getAbTest();
 		Optional<DeviceBlacklist> deviceBlacklist = lernaApp.getDeviceBlacklists().stream().filter(f -> f.getDeviceId() == deviceId).findAny();
@@ -35,7 +35,7 @@ public class ConfigManagerImpl implements ConfigManager {
 				throw new Exception("Device is disabled for this app");
 			}
 			if (deviceBlacklist.get().getMetadata().isMlDisabled()) {
-				trainingDataThreshold = Integer.MAX_VALUE;
+				trainingSessionsThreshold = Integer.MAX_VALUE;
 				cleanupThreshold = 10000;
 			}
 			if (deviceBlacklist.get().getMetadata().isPredictionDisabled()) {
@@ -52,8 +52,7 @@ public class ConfigManagerImpl implements ConfigManager {
 				.setCustomFeaturesSize(lernaApp.getMetadata().getCustomFeaturesSize())
 				.setInputDataSize(lernaApp.getMetadata().getInputDataSize())
 				.setSensorInitialDelay(lernaApp.getMetadata().getSensorInitialDelay())
-				.setTrainingDataThreshold(trainingDataThreshold)
-				.setTrainingSessionsThreshold(lernaApp.getMetadata().getTrainingSessionsThreshold())
+				.setTrainingSessionsThreshold(trainingSessionsThreshold)
 				.setCleanupThreshold(cleanupThreshold)
 				.build();
 	}

@@ -34,9 +34,6 @@ public class LernaAppConfig implements Serializable {
 	@Schema(description = "Sensor initial delay in ms")
 	private int sensorInitialDelay;
 
-	@Schema(description = "Training data size threshold")
-	private Integer trainingDataThreshold;
-
 	@Schema(description = "Training number of sessions threshold")
 	private Integer trainingSessionsThreshold;
 
@@ -57,7 +54,6 @@ public class LernaAppConfig implements Serializable {
 		customFeaturesSize = builder.customFeaturesSize;
 		inputDataSize = builder.inputDataSize;
 		sensorInitialDelay = builder.sensorInitialDelay;
-		trainingDataThreshold = builder.trainingDataThreshold;
 		trainingSessionsThreshold = builder.trainingSessionsThreshold;
 		cleanupThreshold = builder.cleanupThreshold;
 	}
@@ -77,7 +73,6 @@ public class LernaAppConfig implements Serializable {
 				.setCustomFeaturesSize(copy.getCustomFeaturesSize())
 				.setInputDataSize(copy.getInputDataSize())
 				.setSensorInitialDelay(copy.getSensorInitialDelay())
-				.setTrainingDataThreshold(copy.getTrainingDataThreshold())
 				.setTrainingSessionsThreshold(copy.getTrainingSessionsThreshold())
 				.setCleanupThreshold(copy.getCleanupThreshold());
 	}
@@ -118,10 +113,6 @@ public class LernaAppConfig implements Serializable {
 		return sensorInitialDelay;
 	}
 
-	public Integer getTrainingDataThreshold() {
-		return trainingDataThreshold;
-	}
-
 	public Integer getTrainingSessionsThreshold() {
 		return trainingSessionsThreshold;
 	}
@@ -140,7 +131,6 @@ public class LernaAppConfig implements Serializable {
 		private int customFeaturesSize;
 		private int inputDataSize;
 		private int sensorInitialDelay;
-		private Integer trainingDataThreshold;
 		private Integer trainingSessionsThreshold;
 		private Integer cleanupThreshold;
 
@@ -190,11 +180,6 @@ public class LernaAppConfig implements Serializable {
 
 		public Builder setSensorInitialDelay(int sensorInitialDelay) {
 			this.sensorInitialDelay = sensorInitialDelay;
-			return this;
-		}
-
-		public Builder setTrainingDataThreshold(Integer trainingDataThreshold) {
-			this.trainingDataThreshold = trainingDataThreshold;
 			return this;
 		}
 

@@ -15,8 +15,6 @@ public class LernaAppMetadata {
 
 	private int sensorInitialDelay;
 
-	private Integer trainingDataThreshold;
-
 	private Integer trainingSessionsThreshold;
 
 	private Integer cleanupThreshold;
@@ -77,14 +75,6 @@ public class LernaAppMetadata {
 
 	public void setSensorInitialDelay(int sensorInitialDelay) {
 		this.sensorInitialDelay = sensorInitialDelay;
-	}
-
-	public Integer getTrainingDataThreshold() {
-		return trainingDataThreshold;
-	}
-
-	public void setTrainingDataThreshold(Integer trainingDataThreshold) {
-		this.trainingDataThreshold = trainingDataThreshold;
 	}
 
 	public Integer getTrainingSessionsThreshold() {
