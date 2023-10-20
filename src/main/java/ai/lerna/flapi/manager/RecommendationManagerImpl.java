@@ -1,11 +1,20 @@
 package ai.lerna.flapi.manager;
 
+import ai.lerna.flapi.api.dto.RecommendationCategoryItem;
+import ai.lerna.flapi.api.dto.RecommendationEngineRequest;
+import ai.lerna.flapi.api.dto.RecommendationEvent;
 import ai.lerna.flapi.api.dto.RecommendationItemScore;
 import ai.lerna.flapi.api.dto.RecommendationItems;
 import ai.lerna.flapi.config.JacksonConfiguration;
 import ai.lerna.flapi.entity.LernaApp;
 import ai.lerna.flapi.repository.LernaAppRepository;
 import ai.lerna.flapi.service.RecommendationService;
+import ai.lerna.flapi.service.actionML.dto.Engine;
+import ai.lerna.flapi.service.actionML.dto.EngineAlgorithm;
+import ai.lerna.flapi.service.actionML.dto.EngineAlgorithmRanking;
+import ai.lerna.flapi.service.actionML.dto.EngineConfig;
+import ai.lerna.flapi.service.actionML.dto.EngineDataset;
+import ai.lerna.flapi.service.actionML.dto.EngineSparkConf;
 import ai.lerna.flapi.service.actionML.dto.Event;
 import ai.lerna.flapi.service.actionML.dto.EventResponse;
 import ai.lerna.flapi.service.actionML.dto.Item;
@@ -15,9 +24,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +44,15 @@ public class RecommendationManagerImpl implements RecommendationManager {
 	private final RecommendationService recommendationService;
 	private final LernaAppRepository lernaAppRepository;
 	private final Map<String, String> hostMap = new HashMap<>();
+
+	@Value("${app.config.actionml.spark.master:local}")
+	private String sparkMaster;
+
+	@Value("${app.config.actionml.spark.esNode:host.docker.internal}")
+	private String sparkEsNode;
+
+	@Value("${app.config.actionml.engineFactory:com.actionml.engines.ur.UREngine}")
+	private String engineFactory;
 
 	@Autowired
 	public RecommendationManagerImpl(RecommendationService recommendationService, LernaAppRepository lernaAppRepository) {
@@ -50,12 +71,116 @@ public class RecommendationManagerImpl implements RecommendationManager {
 	}
 
 	@Override
-	public EventResponse sendEvent(String token, Event event) {
+	public EventResponse createEngine(String token, String engineId) {
+		String host = getHost(token, "");
+		if (Strings.isNullOrEmpty(host)) {
+			return new EventResponse();
+		}
+		Engine engine = Engine.newBuilder()
+				.setEngineId(engineId)
+				.setEngineFactory("com.actionml.engines.ur.UREngine")
+				.setComment("setup for fl-api")
+				.setAlgorithm(EngineAlgorithm.newBuilder().setIndicatorsByList(Collections.singletonList("pv")).build())
+				.setSparkConf(EngineSparkConf.newBuilderDefaultValues().build())
+				.build();
+		return recommendationService.createEngine(host, engine);
+	}
+
+	@Override
+	public EventResponse createEngine(String token, RecommendationEngineRequest engineRequest) {
+		String host = getHost(token, "");
+		if (Strings.isNullOrEmpty(host)) {
+			return new EventResponse();
+		}
+		return recommendationService.createEngine(host, convertEngine.apply(engineRequest));
+	}
+
+	@Override
+	public EventResponse updateEngine(String token, String engineId) {
+		String host = getHost(token, "");
+		if (Strings.isNullOrEmpty(host)) {
+			return new EventResponse();
+		}
+		Engine engine = Engine.newBuilder()
+				.setEngineId(engineId)
+				.setEngineFactory("com.actionml.engines.ur.UREngine")
+				.setComment("setup for fl-api, updated")
+				.setAlgorithm(EngineAlgorithm.newBuilder().setIndicatorsByList(Arrays.asList("pv", "cart")).build())
+				.setSparkConf(EngineSparkConf.newBuilderDefaultValues().build())
+				.build();
+		return recommendationService.updateEngine(host, engine);
+	}
+
+	@Override
+	public EventResponse updateEngine(String token, RecommendationEngineRequest engineRequest) {
+		String host = getHost(token, "");
+		if (Strings.isNullOrEmpty(host)) {
+			return new EventResponse();
+		}
+		return recommendationService.updateEngine(host, convertEngine.apply(engineRequest));
+	}
+
+	@Override
+	public void deleteEngine(String token, String engineId) {
+		String host = getHost(token, "");
+		if (Strings.isNullOrEmpty(host)) {
+			return;
+		}
+		recommendationService.deleteEngine(host, engineId);
+	}
+
+	@Override
+	public EventResponse trainEngine(String token, String engineId) {
+		String host = getHost(token, "");
+		if (Strings.isNullOrEmpty(host)) {
+			return new EventResponse();
+		}
+		return recommendationService.trainEngine(host, engineId);
+	}
+
+	@Override
+	public EventResponse cancelTrainEngine(String token, String engineId, String jobId) {
+		String host = getHost(token, "");
+		if (Strings.isNullOrEmpty(host)) {
+			return new EventResponse();
+		}
+		return recommendationService.cancelTrainEngine(host, engineId, jobId);
+	}
+
+	@Override
+	public List<EngineConfig> getEnginesStatus(String token) {
+		String host = getHost(token, "");
+		if (Strings.isNullOrEmpty(host)) {
+			return new ArrayList<>();
+		}
+		return Arrays.stream(recommendationService.statusEngines(host)).collect(Collectors.toList());
+	}
+
+	@Override
+	public EngineConfig getEngineStatus(String token, String engineId) {
+		String host = getHost(token, "");
+		if (Strings.isNullOrEmpty(host)) {
+			return null;
+		}
+		return recommendationService.statusEngine(host, engineId);
+	}
+
+	@Override
+	public EventResponse sendEvent(String token, RecommendationEvent event) {
 		String host = getHost(token, event.getEngineId());
 		if (Strings.isNullOrEmpty(host)) {
 			return new EventResponse();
 		}
-		return recommendationService.sendEvent(host, event);
+		return recommendationService.sendEvent(host, new Event()
+				.engineId(event.getEngineId())
+				.event(event.getEvent())
+				.entityType("user")
+				.entityId(event.getEntityId())
+				.targetEntityType("item")
+				.targetEntityId(event.getTargetEntityId())
+				.properties(new HashMap<>())
+				.eventTime(event.getEventTime())
+				.creationTime(DateTime.now()));
 	}
 
 	@Override
@@ -110,4 +235,43 @@ public class RecommendationManagerImpl implements RecommendationManager {
 					.build();
 		}
 	};
+
+	private String getRankingName(String rankingType) {
+		switch (rankingType) {
+			case "popular":
+				return "popRank";
+			case "trending":
+				return "trendRank";
+			case "hot":
+				return "hotRank";
+			case "random":
+				return "uniqueRank";
+			case "userDefined":
+				return "userRank";
+			default:
+				return "unknownRank";
+		}
+	}
+
+	private final Function<RecommendationEngineRequest, Engine> convertEngine = engineRequest -> Engine.newBuilder()
+			.setEngineId(engineRequest.getEngineId())
+			.setEngineFactory(engineFactory)
+			.setComment(engineRequest.getComment())
+			.setAlgorithm(EngineAlgorithm.newBuilder()
+					.setIndicatorsByList(engineRequest.getAlgorithmIndicators())
+					.setRankings(Collections.singletonList(EngineAlgorithmRanking.newBuilder()
+							.setName(getRankingName(engineRequest.getAlgorithmRankingType()))
+							.setType(engineRequest.getAlgorithmRankingType())
+							.setIndicatorNames(engineRequest.getAlgorithmRankingIndicatorNames())
+							.setDuration(engineRequest.getAlgorithmRankingDuration())
+							.build()))
+					.build())
+			.setSparkConf(EngineSparkConf.newBuilderDefaultValues()
+					.setMaster(sparkMaster)
+					.setEsNodes(sparkEsNode)
+					.build())
+			.setDataset(EngineDataset.newBuilder()
+					.setTtl(engineRequest.getDatasetTtl())
+					.build())
+			.build();
 }
