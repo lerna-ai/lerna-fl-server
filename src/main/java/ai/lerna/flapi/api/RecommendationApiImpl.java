@@ -5,6 +5,7 @@ import ai.lerna.flapi.api.dto.RecommendationEngineRequest;
 import ai.lerna.flapi.api.dto.RecommendationEvent;
 import ai.lerna.flapi.api.dto.RecommendationItems;
 import ai.lerna.flapi.manager.RecommendationManager;
+import ai.lerna.flapi.api.dto.RecommendationCategoryItem;
 import ai.lerna.flapi.service.actionML.dto.EngineConfig;
 import ai.lerna.flapi.service.actionML.dto.EventResponse;
 import ai.lerna.flapi.service.actionML.dto.Item;
@@ -96,6 +97,12 @@ public class RecommendationApiImpl implements RecommendationApi {
 		validator.tokenValidation(token);
 		recommendationApiValidator.validate(event.getEngineId());
 		return ResponseEntity.ok(recommendationManager.sendEvent(token, event));
+	}
+
+	@Override
+	public ResponseEntity<EventResponse> submitItem(String token, RecommendationCategoryItem item) throws Exception {
+		validator.tokenValidation(token);
+		return ResponseEntity.ok(recommendationManager.sendItem(token, item));
 	}
 
 	@Override

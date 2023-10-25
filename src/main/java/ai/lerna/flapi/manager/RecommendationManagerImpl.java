@@ -9,6 +9,7 @@ import ai.lerna.flapi.config.JacksonConfiguration;
 import ai.lerna.flapi.entity.LernaApp;
 import ai.lerna.flapi.repository.LernaAppRepository;
 import ai.lerna.flapi.service.RecommendationService;
+import ai.lerna.flapi.api.dto.RecommendationCategoryItem;
 import ai.lerna.flapi.service.actionML.dto.Engine;
 import ai.lerna.flapi.service.actionML.dto.EngineAlgorithm;
 import ai.lerna.flapi.service.actionML.dto.EngineAlgorithmRanking;
@@ -23,6 +24,7 @@ import ai.lerna.flapi.service.actionML.dto.ItemScore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -180,6 +182,22 @@ public class RecommendationManagerImpl implements RecommendationManager {
 				.targetEntityId(event.getTargetEntityId())
 				.properties(new HashMap<>())
 				.eventTime(event.getEventTime())
+				.creationTime(DateTime.now()));
+	}
+
+	@Override
+	public EventResponse sendItem(String token, RecommendationCategoryItem item) {
+		String host = getHost(token, item.getEngineId());
+		if (Strings.isNullOrEmpty(host)) {
+			return new EventResponse();
+		}
+		return recommendationService.sendEvent(host, new Event()
+				.engineId(item.getEngineId())
+				.entityId(item.getItemId())
+				.properties(item.getProperties())
+				.event("$set")
+				.entityType("item")
+				.eventTime(item.getEventTime())
 				.creationTime(DateTime.now()));
 	}
 

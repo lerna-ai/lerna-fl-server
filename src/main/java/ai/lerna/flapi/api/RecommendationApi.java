@@ -1,6 +1,7 @@
 package ai.lerna.flapi.api;
 
 import ai.lerna.flapi.api.dto.RecommendationItems;
+import ai.lerna.flapi.api.dto.RecommendationCategoryItem;
 import ai.lerna.flapi.service.actionML.dto.EngineConfig;
 import ai.lerna.flapi.api.dto.RecommendationEngineRequest;
 import ai.lerna.flapi.api.dto.RecommendationEvent;
@@ -62,6 +63,10 @@ public interface RecommendationApi {
 	@Operation(summary = "Submit Event")
 	@PostMapping("/event")
 	ResponseEntity<EventResponse> submitEvent(@RequestParam(value = "token") String token, @RequestBody RecommendationEvent event) throws Exception;
+
+	@Operation(summary = "Submit Item")
+	@PostMapping("/item")
+	ResponseEntity<EventResponse> submitItem(@RequestParam(value = "token") String token, @RequestBody RecommendationCategoryItem item) throws Exception;
 
 	@Operation(summary = "Query items by user ID")
 	@GetMapping("/queries/user")

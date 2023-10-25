@@ -1,6 +1,7 @@
 package ai.lerna.flapi.manager;
 
 import ai.lerna.flapi.api.dto.RecommendationItems;
+import ai.lerna.flapi.api.dto.RecommendationCategoryItem;
 import ai.lerna.flapi.service.actionML.dto.EngineConfig;
 import ai.lerna.flapi.api.dto.RecommendationEngineRequest;
 import ai.lerna.flapi.api.dto.RecommendationEvent;
@@ -33,6 +34,8 @@ public interface RecommendationManager {
 	EngineConfig getEngineStatus(String token, String engineId);
 
 	EventResponse sendEvent(String token, RecommendationEvent event);
+
+	EventResponse sendItem(String token, RecommendationCategoryItem item);
 
 	RecommendationItems getItems(String token, Item item);
 }
