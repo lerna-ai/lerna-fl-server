@@ -10,6 +10,9 @@
 - [Configuration](#Configuration)
 - [Database Migration](#database-migration)
 - [Logging](#logging)
+- [Rest API](#rest-api)
+  - [Documentation](#documentation)
+- [Recommendation API](#recommendation-api)
 - [Licenses](#licenses)
 
 ## Usage
@@ -214,6 +217,21 @@ In order to avoid database locks due to long-running scripts, we should create s
 ## Logging
 
 The logs of the spring boot application can be found under `logs/`.
+
+## Rest API
+
+### Documentation
+In order to document the API, we use the OpenAPI Specification (formerly Swagger Specification).
+OpenAPI Specification is an API description format for REST APIs. In order to access the documentation via the
+Swagger UI, access the below url
+
+```
+http://localhost:8080/swagger-ui.html
+```
+
+## Recommendation API
+
+For Recommendation API documentation follow [this](RecommendationAPI.md) link. 
 
 ## Licenses
 `fl-api` depends on OSS code under the following licenses:

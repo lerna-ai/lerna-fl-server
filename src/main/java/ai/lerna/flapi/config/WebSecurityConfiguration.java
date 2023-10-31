@@ -58,6 +58,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers(TrainingApiV2.path + "/**").permitAll()
 				.antMatchers(ConfigApi.path + "/**").permitAll()
 				.antMatchers(RecommendationApi.path + "/**").permitAll()
+				.antMatchers("/swagger-ui.html/**", "/swagger-ui/**", "/v3/api-docs", "/v3/api-docs/**").permitAll()
 				// authenticate all other particular request
 				.anyRequest().authenticated()
 				.and().exceptionHandling().authenticationEntryPoint((req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "UNAUTHORIZED : " + ex.getMessage()))
