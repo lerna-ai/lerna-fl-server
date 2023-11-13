@@ -1,5 +1,7 @@
 package ai.lerna.flapi.entity;
 
+import java.util.List;
+
 public class LernaAppMetadata {
 	private String uploadPrefix;
 
@@ -20,6 +22,10 @@ public class LernaAppMetadata {
 	private Integer cleanupThreshold;
 
 	private String actionMLUri;
+
+	private List<String> actionMLIncludeProperties;
+
+	private List<String> actionMLExcludeProperties;
 
 	public String getUploadPrefix() {
 		return uploadPrefix;
@@ -99,5 +105,23 @@ public class LernaAppMetadata {
 
 	public void setActionMLUri(String actionMLUri) {
 		this.actionMLUri = actionMLUri;
+	}
+
+	public List<String> getActionMLIncludeProperties() {
+		return actionMLIncludeProperties;
+	}
+
+	public LernaAppMetadata setActionMLIncludeProperties(List<String> actionMLIncludeProperties) {
+		this.actionMLIncludeProperties = actionMLIncludeProperties;
+		return this;
+	}
+
+	public List<String> getActionMLExcludeProperties() {
+		return actionMLExcludeProperties;
+	}
+
+	public LernaAppMetadata setActionMLExcludeProperties(List<String> actionMLExcludeProperties) {
+		this.actionMLExcludeProperties = actionMLExcludeProperties;
+		return this;
 	}
 }

@@ -9,7 +9,6 @@ import ai.lerna.flapi.config.JacksonConfiguration;
 import ai.lerna.flapi.entity.LernaApp;
 import ai.lerna.flapi.repository.LernaAppRepository;
 import ai.lerna.flapi.service.RecommendationService;
-import ai.lerna.flapi.api.dto.RecommendationCategoryItem;
 import ai.lerna.flapi.service.actionML.dto.Engine;
 import ai.lerna.flapi.service.actionML.dto.EngineAlgorithm;
 import ai.lerna.flapi.service.actionML.dto.EngineAlgorithmRanking;
@@ -46,6 +45,8 @@ public class RecommendationManagerImpl implements RecommendationManager {
 	private final RecommendationService recommendationService;
 	private final LernaAppRepository lernaAppRepository;
 	private final Map<String, String> hostMap = new HashMap<>();
+	private final Map<String, List<String>> excludeKeyMap = new HashMap<>();
+	private final Map<String, List<String>> includeKeyMap = new HashMap<>();
 
 	@Value("${app.config.actionml.spark.master:local}")
 	private String sparkMaster;
@@ -207,9 +208,14 @@ public class RecommendationManagerImpl implements RecommendationManager {
 		if (Strings.isNullOrEmpty(host)) {
 			return new RecommendationItems();
 		}
+		// ToDo: this list should be dynamic
+		List<String> excludeProperties = excludeKeyMap.getOrDefault(token, new ArrayList<>());
+		List<String> includeProperties = includeKeyMap.getOrDefault(token, new ArrayList<>());
 		ItemResponse items = recommendationService.getItems(host, item);
 		return RecommendationItems.newBuilder()
-				.setResult(items.getResult().stream().map(convert).collect(Collectors.toList()))
+				.setResult(items.getResult().stream()
+						.map(it -> convertItems(it, excludeProperties, includeProperties))
+						.collect(Collectors.toList()))
 				.build();
 	}
 
@@ -222,15 +228,27 @@ public class RecommendationManagerImpl implements RecommendationManager {
 				&& Objects.nonNull(app.get().getMetadata())
 				&& !Strings.isNullOrEmpty(app.get().getMetadata().getActionMLUri())) {
 			hostMap.put(token, app.get().getMetadata().getActionMLUri());
+			if (app.get().getMetadata().getActionMLExcludeProperties() != null) {
+				excludeKeyMap.put(token, app.get().getMetadata().getActionMLExcludeProperties());
+			}
+			if (app.get().getMetadata().getActionMLIncludeProperties() != null) {
+				includeKeyMap.put(token, app.get().getMetadata().getActionMLIncludeProperties());
+			}
 			return hostMap.get(token) + engine;
 		}
 		return null;
 	}
 
-	private final Function<ItemScore, RecommendationItemScore> convert = item -> {
+	RecommendationItemScore convertItems(ItemScore item, List<String> exclude, List<String> include) {
 		try {
 			Map<String, List<String>> items = new HashMap<>();
 			for (Map.Entry<String, Object> entry : ((HashMap<String, Object>) (mapper.readValue(item.getProps(), HashMap.class))).entrySet()) {
+				if (exclude != null && !exclude.isEmpty() && exclude.contains(entry.getKey())) {
+					continue;
+				}
+				if (include != null && !include.isEmpty() && !include.contains(entry.getKey())) {
+					continue;
+				}
 				if (entry.getValue() instanceof List) {
 					items.put(entry.getKey(), (List<String>) entry.getValue());
 				} else if (entry.getValue() instanceof String) {
@@ -252,7 +270,7 @@ public class RecommendationManagerImpl implements RecommendationManager {
 					.setScore(item.getScore())
 					.build();
 		}
-	};
+	}
 
 	private String getRankingName(String rankingType) {
 		switch (rankingType) {
