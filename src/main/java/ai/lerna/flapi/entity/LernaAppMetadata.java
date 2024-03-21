@@ -27,6 +27,8 @@ public class LernaAppMetadata {
 
 	private List<String> actionMLExcludeProperties;
 
+	private boolean actionMLEncryption;
+
 	public String getUploadPrefix() {
 		return uploadPrefix;
 	}
@@ -122,6 +124,15 @@ public class LernaAppMetadata {
 
 	public LernaAppMetadata setActionMLExcludeProperties(List<String> actionMLExcludeProperties) {
 		this.actionMLExcludeProperties = actionMLExcludeProperties;
+		return this;
+	}
+
+	public boolean getActionMLEncryption() {
+		return actionMLEncryption;
+	}
+
+	public LernaAppMetadata setActionMLEncryption(boolean actionMLEncryption) {
+		this.actionMLEncryption = actionMLEncryption;
 		return this;
 	}
 }

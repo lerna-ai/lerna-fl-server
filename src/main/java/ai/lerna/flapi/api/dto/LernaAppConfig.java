@@ -40,6 +40,9 @@ public class LernaAppConfig implements Serializable {
 	@Schema(description = "Threshold for cleanup cache memory")
 	private Integer cleanupThreshold;
 
+	@Schema(description = "Enable encryption on ActionML data")
+	private boolean actionMLEncryption;
+
 	public LernaAppConfig() {
 		// for serialisation/deserialization
 	}
@@ -56,6 +59,7 @@ public class LernaAppConfig implements Serializable {
 		sensorInitialDelay = builder.sensorInitialDelay;
 		trainingSessionsThreshold = builder.trainingSessionsThreshold;
 		cleanupThreshold = builder.cleanupThreshold;
+		actionMLEncryption = builder.actionMLEncryption;
 	}
 
 	public static Builder newBuilder() {
@@ -74,7 +78,8 @@ public class LernaAppConfig implements Serializable {
 				.setInputDataSize(copy.getInputDataSize())
 				.setSensorInitialDelay(copy.getSensorInitialDelay())
 				.setTrainingSessionsThreshold(copy.getTrainingSessionsThreshold())
-				.setCleanupThreshold(copy.getCleanupThreshold());
+				.setCleanupThreshold(copy.getCleanupThreshold())
+				.setActionMLEncryption(copy.getActionMLEncryption());
 	}
 
 	public String getMpcServerUri() {
@@ -121,6 +126,10 @@ public class LernaAppConfig implements Serializable {
 		return cleanupThreshold;
 	}
 
+	public boolean getActionMLEncryption() {
+		return actionMLEncryption;
+	}
+
 	public static final class Builder {
 		private String mpcServerUri;
 		private String flServerUri;
@@ -133,6 +142,7 @@ public class LernaAppConfig implements Serializable {
 		private int sensorInitialDelay;
 		private Integer trainingSessionsThreshold;
 		private Integer cleanupThreshold;
+		private boolean actionMLEncryption;
 
 
 		private Builder() {
@@ -190,6 +200,11 @@ public class LernaAppConfig implements Serializable {
 
 		public Builder setCleanupThreshold(Integer cleanupThreshold) {
 			this.cleanupThreshold = cleanupThreshold;
+			return this;
+		}
+
+		public Builder setActionMLEncryption(boolean actionMLEncryption) {
+			this.actionMLEncryption = actionMLEncryption;
 			return this;
 		}
 
