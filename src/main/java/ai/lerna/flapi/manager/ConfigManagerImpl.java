@@ -54,6 +54,7 @@ public class ConfigManagerImpl implements ConfigManager {
 				.setSensorInitialDelay(lernaApp.getMetadata().getSensorInitialDelay())
 				.setTrainingSessionsThreshold(trainingSessionsThreshold)
 				.setCleanupThreshold(cleanupThreshold)
+				.setActionMLEncryption(lernaApp.getMetadata().getActionMLEncryption())
 				.build();
 	}
 }

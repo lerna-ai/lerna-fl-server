@@ -37,6 +37,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Component
@@ -174,6 +176,7 @@ public class RecommendationManagerImpl implements RecommendationManager {
 		if (Strings.isNullOrEmpty(host)) {
 			return new EventResponse();
 		}
+		Logger.getLogger(this.getClass().getName()).log(Level.INFO, "ActionMLEventSend {0}", event.toCsv());
 		return recommendationService.sendEvent(host, new Event()
 				.engineId(event.getEngineId())
 				.event(event.getEvent())

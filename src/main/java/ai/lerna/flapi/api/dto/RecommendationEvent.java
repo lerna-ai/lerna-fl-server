@@ -81,6 +81,14 @@ public class RecommendationEvent implements Serializable {
 		return gson.toJson(this); // works when there are no generic types
 	}
 
+	public String toCsv() {
+		return engineId + ","
+				+ event + ","
+				+ entityId + ","
+				+ targetEntityId + ","
+				+ eventTime.toString("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+	}
+
 	public static final class Builder {
 		private String engineId;
 		private String event;

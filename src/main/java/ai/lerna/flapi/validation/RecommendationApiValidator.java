@@ -56,7 +56,7 @@ public class RecommendationApiValidator {
 			}
 		}
 
-		if (engine.getAlgorithmRankingDuration() == null || !acceptedTTL.contains(engine.getAlgorithmRankingDuration())) {
+		if (engine.getAlgorithmRankingDuration() != null && !acceptedTTL.contains(engine.getAlgorithmRankingDuration())) {
 			throw new ValidationException("Field algorithmRankingDuration should be contains valid value. e.g. " + String.join(",", acceptedTTL));
 		}
 	}
