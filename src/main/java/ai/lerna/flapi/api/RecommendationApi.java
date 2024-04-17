@@ -60,6 +60,14 @@ public interface RecommendationApi {
 	@GetMapping("/engine")
 	ResponseEntity<EngineConfig> getEngineStatus(@RequestParam(value = "token") String token, @RequestParam(value = "engine") String engineId) throws Exception;
 
+	/**
+	 * @deprecated Only for SDK version 0.0.7 that already published and distributed
+	 */
+	@Operation(summary = "Submit Event")
+	@PostMapping("/events")
+	@Deprecated
+	ResponseEntity<EventResponse> submitEvents(@RequestParam(value = "token") String token, @RequestBody RecommendationEvent event) throws Exception;
+
 	@Operation(summary = "Submit Event")
 	@PostMapping("/event")
 	ResponseEntity<EventResponse> submitEvent(@RequestParam(value = "token") String token, @RequestBody RecommendationEvent event) throws Exception;

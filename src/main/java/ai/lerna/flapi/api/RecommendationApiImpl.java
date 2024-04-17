@@ -92,6 +92,15 @@ public class RecommendationApiImpl implements RecommendationApi {
 		return ResponseEntity.ok(recommendationManager.getEngineStatus(token, engineId));
 	}
 
+	/**
+	 * @deprecated Only for SDK version 0.0.7 that already published and distributed
+	 */
+	@Override
+	@Deprecated
+	public ResponseEntity<EventResponse> submitEvents(String token, RecommendationEvent event) throws Exception {
+		return submitEvent(token, event);
+	}
+
 	@Override
 	public ResponseEntity<EventResponse> submitEvent(String token, RecommendationEvent event) throws Exception {
 		validator.tokenValidation(token);
