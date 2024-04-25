@@ -18,7 +18,6 @@ import ai.lerna.flapi.service.actionML.dto.EngineSparkConf;
 import ai.lerna.flapi.service.actionML.dto.Event;
 import ai.lerna.flapi.service.actionML.dto.EventResponse;
 import ai.lerna.flapi.service.actionML.dto.Item;
-import ai.lerna.flapi.service.actionML.dto.ItemResponse;
 import ai.lerna.flapi.service.actionML.dto.ItemScore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -214,12 +213,32 @@ public class RecommendationManagerImpl implements RecommendationManager {
 		// ToDo: this list should be dynamic
 		List<String> excludeProperties = excludeKeyMap.getOrDefault(token, new ArrayList<>());
 		List<String> includeProperties = includeKeyMap.getOrDefault(token, new ArrayList<>());
-		ItemResponse items = recommendationService.getItems(host, item);
+		List<ItemScore> items = recommendationService.getItems(host, item).getResult();
+		if (item.getNum() != null && item.getNum() > items.size()) {
+			List<String> userItemsIds = items.stream()
+					.map(ItemScore::getItem)
+					.collect(Collectors.toList());
+			List<ItemScore> cached = getUserAgnosticItems(token, item);
+			items.addAll(cached.stream()
+					.filter(itemScore -> !userItemsIds.contains(itemScore.getItem()))
+					.collect(Collectors.toList()));
+			items = items.stream().limit(item.getNum()).collect(Collectors.toList());
+		}
 		return RecommendationItems.newBuilder()
-				.setResult(items.getResult().stream()
+				.setResult(items.stream()
 						.map(it -> convertItems(it, excludeProperties, includeProperties))
 						.collect(Collectors.toList()))
 				.build();
+	}
+
+	private List<ItemScore> getUserAgnosticItems(String token, Item item) {
+		String host = getHost(token, item.getEngineId());
+		if (Strings.isNullOrEmpty(host)) {
+			return new ArrayList<>();
+		}
+		return recommendationService.getItems(host, Item.newBuilder(item)
+				.setUser(null)
+				.build()).getResult();
 	}
 
 	private String getHost(String token, String engine) {
