@@ -40,6 +40,9 @@ public class LernaAppConfig implements Serializable {
 	@Schema(description = "Threshold for cleanup cache memory")
 	private Integer cleanupThreshold;
 
+	@Schema(description = "Enable ActionML Recoommendation System")
+	private boolean actionMLEnabled;
+
 	@Schema(description = "Enable encryption on ActionML data")
 	private boolean actionMLEncryption;
 
@@ -59,6 +62,7 @@ public class LernaAppConfig implements Serializable {
 		sensorInitialDelay = builder.sensorInitialDelay;
 		trainingSessionsThreshold = builder.trainingSessionsThreshold;
 		cleanupThreshold = builder.cleanupThreshold;
+		actionMLEnabled = builder.actionMLEnabled;
 		actionMLEncryption = builder.actionMLEncryption;
 	}
 
@@ -79,6 +83,7 @@ public class LernaAppConfig implements Serializable {
 				.setSensorInitialDelay(copy.getSensorInitialDelay())
 				.setTrainingSessionsThreshold(copy.getTrainingSessionsThreshold())
 				.setCleanupThreshold(copy.getCleanupThreshold())
+				.setActionMLEnabled(copy.getActionMLEnabled())
 				.setActionMLEncryption(copy.getActionMLEncryption());
 	}
 
@@ -126,6 +131,10 @@ public class LernaAppConfig implements Serializable {
 		return cleanupThreshold;
 	}
 
+	public boolean getActionMLEnabled() {
+		return actionMLEnabled;
+	}
+
 	public boolean getActionMLEncryption() {
 		return actionMLEncryption;
 	}
@@ -142,6 +151,7 @@ public class LernaAppConfig implements Serializable {
 		private int sensorInitialDelay;
 		private Integer trainingSessionsThreshold;
 		private Integer cleanupThreshold;
+		private boolean actionMLEnabled;
 		private boolean actionMLEncryption;
 
 
@@ -200,6 +210,11 @@ public class LernaAppConfig implements Serializable {
 
 		public Builder setCleanupThreshold(Integer cleanupThreshold) {
 			this.cleanupThreshold = cleanupThreshold;
+			return this;
+		}
+
+		public Builder setActionMLEnabled(boolean actionMLEnabled) {
+			this.actionMLEnabled = actionMLEnabled;
 			return this;
 		}
 

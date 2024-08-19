@@ -5,6 +5,7 @@ import ai.lerna.flapi.entity.DeviceBlacklist;
 import ai.lerna.flapi.entity.LernaApp;
 import ai.lerna.flapi.repository.InfrastructureRepository;
 import ai.lerna.flapi.repository.LernaAppRepository;
+import jdk.internal.joptsimple.internal.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -54,6 +55,7 @@ public class ConfigManagerImpl implements ConfigManager {
 				.setSensorInitialDelay(lernaApp.getMetadata().getSensorInitialDelay())
 				.setTrainingSessionsThreshold(trainingSessionsThreshold)
 				.setCleanupThreshold(cleanupThreshold)
+				.setActionMLEnabled(lernaApp.getMetadata().getActionMLUri() != null && !lernaApp.getMetadata().getActionMLUri().isEmpty())
 				.setActionMLEncryption(lernaApp.getMetadata().getActionMLEncryption())
 				.build();
 	}
