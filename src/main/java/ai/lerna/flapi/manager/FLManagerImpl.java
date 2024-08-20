@@ -178,6 +178,7 @@ public class FLManagerImpl implements FLManager {
 		lernaMLRepository.findAllByAppToken(token).stream()
 				.filter(lernaML -> lernaML.getML().isTrainable())
 				.forEach(lernaML -> {
+					Logger.getLogger(this.getClass().getName()).log(Level.INFO, "createTrainingTask LernaML model: {0} for app: {1} with parameters: {2}", new Object[]{lernaML.getModel(), lernaML.getAppId(), lernaML.getML()});
 					Map<String, Long> jobIds = new HashMap<>();
 					lernaJobRepository.findByMLId(lernaML.getId()).forEach(lernaJob -> jobIds.put(lernaJob.getPrediction(), mpcService.getLernaJob(mpcHost, mpcPort, lernaML.getPrivacy().getEpsilon(), lernaML.getML().getDimensions(), lernaML.getML().getNormalization()).getCompId()));
 					trainingTasks.add(TrainingTask.newBuilder()
@@ -277,10 +278,15 @@ public class FLManagerImpl implements FLManager {
 
 		if (!trainingTaskResponse.getTrainingTasks().stream()
 				.flatMap(trainingTask -> trainingTask.getJobIds().values().stream())
-				.allMatch(job -> storageService.getDeviceWeightsSize(job) >= numOfUsers)) {
+				.allMatch(job -> storageService.getDeviceWeightsSize(job) >= numOfUsers)
+		|| trainingTaskResponse.getTrainingTasks().isEmpty()) {
+			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "checkAndAggregate Tasks: [{0}] less than {1} users", new Object[]{
+					trainingTaskResponse.getTrainingTasks().stream().flatMap(t -> t.getJobIds().keySet().stream()).collect(Collectors.joining(", ")),
+					numOfUsers});
 			return;
 		}
 		trainingTaskResponse.getTrainingTasks().forEach(task -> {
+			Logger.getLogger(this.getClass().getName()).log(Level.INFO, "trainingTaskResponse.getTrainingTasks().forEach Tasks: " + task);
 			long mlId = task.getMlId();
 			Set<MLHistoryWeights> historyWeights = new HashSet<>();
 			for (Map.Entry<String, Long> job : task.getJobIds().entrySet()) {
