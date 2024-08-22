@@ -19,6 +19,8 @@ public class LernaAppMetadata {
 
 	private Integer trainingSessionsThreshold;
 
+	private Float confidenceThreshold;
+
 	private Integer cleanupThreshold;
 
 	private String actionMLUri;
@@ -87,6 +89,15 @@ public class LernaAppMetadata {
 
 	public Integer getTrainingSessionsThreshold() {
 		return trainingSessionsThreshold;
+	}
+
+	public Float getConfidenceThreshold() {
+		return confidenceThreshold;
+	}
+
+	public LernaAppMetadata setConfidenceThreshold(Float confidenceThreshold) {
+		this.confidenceThreshold = confidenceThreshold;
+		return this;
 	}
 
 	public void setTrainingSessionsThreshold(Integer trainingSessionsThreshold) {

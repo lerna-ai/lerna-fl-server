@@ -37,6 +37,9 @@ public class LernaAppConfig implements Serializable {
 	@Schema(description = "Training number of sessions threshold")
 	private Integer trainingSessionsThreshold;
 
+	@Schema(description = "Threshold of inference confidence")
+	private Float confidenceThreshold;
+
 	@Schema(description = "Threshold for cleanup cache memory")
 	private Integer cleanupThreshold;
 
@@ -61,6 +64,7 @@ public class LernaAppConfig implements Serializable {
 		inputDataSize = builder.inputDataSize;
 		sensorInitialDelay = builder.sensorInitialDelay;
 		trainingSessionsThreshold = builder.trainingSessionsThreshold;
+		confidenceThreshold = builder.confidenceThreshold;
 		cleanupThreshold = builder.cleanupThreshold;
 		actionMLEnabled = builder.actionMLEnabled;
 		actionMLEncryption = builder.actionMLEncryption;
@@ -82,6 +86,7 @@ public class LernaAppConfig implements Serializable {
 				.setInputDataSize(copy.getInputDataSize())
 				.setSensorInitialDelay(copy.getSensorInitialDelay())
 				.setTrainingSessionsThreshold(copy.getTrainingSessionsThreshold())
+				.setConfidenceThreshold(copy.getConfidenceThreshold())
 				.setCleanupThreshold(copy.getCleanupThreshold())
 				.setActionMLEnabled(copy.getActionMLEnabled())
 				.setActionMLEncryption(copy.getActionMLEncryption());
@@ -127,6 +132,10 @@ public class LernaAppConfig implements Serializable {
 		return trainingSessionsThreshold;
 	}
 
+	public Float getConfidenceThreshold() {
+		return confidenceThreshold;
+	}
+
 	public Integer getCleanupThreshold() {
 		return cleanupThreshold;
 	}
@@ -150,6 +159,7 @@ public class LernaAppConfig implements Serializable {
 		private int inputDataSize;
 		private int sensorInitialDelay;
 		private Integer trainingSessionsThreshold;
+		private Float confidenceThreshold;
 		private Integer cleanupThreshold;
 		private boolean actionMLEnabled;
 		private boolean actionMLEncryption;
@@ -205,6 +215,11 @@ public class LernaAppConfig implements Serializable {
 
 		public Builder setTrainingSessionsThreshold(Integer trainingSessionsThreshold) {
 			this.trainingSessionsThreshold = trainingSessionsThreshold;
+			return this;
+		}
+
+		public Builder setConfidenceThreshold(Float confidenceThreshold) {
+			this.confidenceThreshold = confidenceThreshold;
 			return this;
 		}
 
