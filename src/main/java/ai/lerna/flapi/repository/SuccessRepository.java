@@ -23,7 +23,7 @@ public interface SuccessRepository extends JpaRepository<Success, Long> {
 			"AND ml.app_id = a.id " +
 			"AND a.id = :appId " +
 			"AND a.user_id = :userId " +
-			"AND version = (SELECT MAX(s1.version) - :versionBeforeLatest FROM success s1, lerna_ml ml1 WHERE s1.ml_id = ml1.id AND ml1.app_id = :appId) " +
+			"AND version = (SELECT a1.current_version - :versionBeforeLatest FROM lerna_app a1 WHERE a1.id = :appId) " +
 			"AND (s.metadata->>'abrandom' = 'false' OR s.metadata->>'abrandom' IS NULL)", nativeQuery = true)
 	BigDecimal getSuccesses(long userId, long appId, long versionBeforeLatest);
 
@@ -33,7 +33,7 @@ public interface SuccessRepository extends JpaRepository<Success, Long> {
 			"AND ml.app_id = a.id " +
 			"AND a.id = :appId " +
 			"AND a.user_id = :userId " +
-			"AND version = (SELECT MAX(s1.version) - :versionBeforeLatest FROM success s1, lerna_ml ml1 WHERE s1.ml_id = ml1.id AND ml1.app_id = :appId) " +
+			"AND version = (SELECT a1.current_version - :versionBeforeLatest FROM lerna_app a1 WHERE a1.id = :appId) " +
 			"AND s.metadata->>'abrandom' = 'true'", nativeQuery = true)
 	BigDecimal getSuccessesRandomAB(long userId, long appId, long versionBeforeLatest);
 }
